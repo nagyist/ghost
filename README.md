@@ -1,6 +1,6 @@
 # Ghost CLI
 
-A command-line interface for managing PostgreSQL databases.
+The official CLI for [Ghost](https://ghost.build) — the first database built for agents. Offers unlimited Postgres databases you can create, fork, and discard freely.
 
 ## Installation
 
@@ -41,22 +41,23 @@ npm install -g @ghost.build/cli
 ## Usage
 
 ```bash
-ghost login    # Authenticate with GitHub OAuth
-ghost create   # Create a new Postgres database
-ghost list     # List all databases
+ghost login       # Authenticate with GitHub OAuth
+ghost mcp install # Install the MCP server
+ghost create      # Create a new Postgres database
+ghost list        # List all databases
 ```
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `api-key` | Manage API keys (create, list, delete) |
+| `api-key` | Manage API keys |
 | `completion` | Generate the autocompletion script for the specified shell |
-| `config` | Manage CLI configuration |
+| `config` | List current configuration |
 | `connect` | Get connection string for a database |
 | `create` | Create a new Postgres database |
 | `delete` | Delete a database |
-| `feedback` | Send feedback to the Ghost team |
+| `feedback` | Submit feedback, a bug report, or a support request |
 | `fork` | Fork a database |
 | `help` | Help about any command |
 | `list` | List all databases |
@@ -64,7 +65,7 @@ ghost list     # List all databases
 | `login` | Authenticate with GitHub OAuth |
 | `logout` | Remove stored credentials |
 | `mcp` | Ghost Model Context Protocol (MCP) server |
-| `password` | Update the password for a database |
+| `password` | Reset the password for a database |
 | `psql` | Connect to a database using psql |
 | `rename` | Rename a database |
 | `resume` | Resume a paused database |
@@ -75,12 +76,35 @@ ghost list     # List all databases
 
 Run `ghost [command] --help` for more information about a command.
 
-## Deployment
+## MCP
 
-Releases are automatic on tag push. When you create a new GitHub Release with a semver tag (e.g. `v0.1.0`), the `Release` workflow runs GoReleaser to build and publish binaries, Docker images, and Linux packages.
+The `ghost mcp` command installs a [Model Context Protocol](https://modelcontextprotocol.io) server so AI assistants like Claude can manage and query your databases directly.
 
-To create a release, go to the repo's [Releases](../../releases) page and click **Draft a new release**, or use the GitHub CLI:
+| Tool | Description |
+|------|-------------|
+| `ghost_login` | Authenticate with GitHub OAuth |
+| `ghost_list` | List all databases |
+| `ghost_status` | Show space usage |
+| `ghost_create` | Create a new database |
+| `ghost_delete` | Delete a database permanently |
+| `ghost_fork` | Fork a database |
+| `ghost_resume` | Resume a paused database |
+| `ghost_rename` | Rename a database |
+| `ghost_connect` | Get a connection string for a database |
+| `ghost_sql` | Execute a SQL query against a database |
+| `ghost_schema` | Display database schema information |
+| `ghost_password` | Reset the password for a database |
+| `ghost_logs` | View logs for a database |
+| `ghost_feedback` | Submit feedback, a bug report, or a support request |
+| `search_docs` | Search PostgreSQL, PostGIS, and TimescaleDB documentation |
+| `view_skill` | Retrieve skills for PostgreSQL and TimescaleDB best practices |
 
-```bash
-gh release create v<VERSION> --generate-notes --latest
-```
+Run `ghost mcp list` to see the full list of available tools and prompts, or `ghost mcp get <name>` for details on a specific one.
+
+## Contributing
+
+Bug reports and feature requests are welcome — please [open an issue](../../issues).
+
+## License
+
+Licensed under [Apache 2.0](./LICENSE).
