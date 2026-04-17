@@ -12,7 +12,7 @@ import (
 
 // SQLInput represents input for ghost_sql
 type SQLInput struct {
-	ID         string   `json:"id"`
+	Ref        string   `json:"name_or_id"`
 	Query      string   `json:"query"`
 	Parameters []string `json:"parameters,omitempty"`
 }
@@ -64,7 +64,7 @@ func (s *Server) handleSQL(ctx context.Context, req *mcp.CallToolRequest, input 
 	result, err := common.ExecuteQuery(ctx, common.ExecuteQueryArgs{
 		Client:      client,
 		ProjectID:   projectID,
-		DatabaseRef: input.ID,
+		DatabaseRef: input.Ref,
 		Query:       input.Query,
 		Role:        "tsdbadmin",
 		Parameters:  input.Parameters,

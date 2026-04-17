@@ -18,7 +18,7 @@ import (
 
 // PasswordInput represents input for ghost_password
 type PasswordInput struct {
-	ID       string `json:"id"`
+	Ref      string `json:"name_or_id"`
 	Password string `json:"password,omitempty"`
 }
 
@@ -74,7 +74,7 @@ func (s *Server) handlePassword(ctx context.Context, req *mcp.CallToolRequest, i
 	}
 
 	// Fetch database details
-	getResp, err := client.GetDatabaseWithResponse(ctx, projectID, input.ID)
+	getResp, err := client.GetDatabaseWithResponse(ctx, projectID, input.Ref)
 	if err != nil {
 		return nil, PasswordOutput{}, fmt.Errorf("failed to get database details: %w", err)
 	}

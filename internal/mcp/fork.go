@@ -16,7 +16,7 @@ import (
 
 // ForkInput represents input for ghost_fork
 type ForkInput struct {
-	ID   string `json:"id"`
+	Ref  string `json:"name_or_id"`
 	Name string `json:"name,omitempty"`
 	Wait bool   `json:"wait,omitempty"`
 }
@@ -67,7 +67,7 @@ Note: forked databases may take a few minutes to start up. Use ghost_list to che
 
 func (s *Server) handleFork(ctx context.Context, req *mcp.CallToolRequest, input ForkInput) (*mcp.CallToolResult, ForkOutput, error) {
 	result, err := s.forkDatabase(ctx, forkDatabaseArgs{
-		sourceDatabaseRef: input.ID,
+		sourceDatabaseRef: input.Ref,
 		req: api.ForkDatabaseRequest{
 			Name: util.PtrIfNonZero(input.Name),
 		},

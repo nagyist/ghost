@@ -15,7 +15,7 @@ import (
 
 // ConnectInput represents input for ghost_connect
 type ConnectInput struct {
-	ID string `json:"id"`
+	Ref string `json:"name_or_id"`
 }
 
 func (ConnectInput) Schema() *jsonschema.Schema {
@@ -59,7 +59,7 @@ func (s *Server) handleConnect(ctx context.Context, req *mcp.CallToolRequest, in
 	}
 
 	// Fetch database details
-	resp, err := client.GetDatabaseWithResponse(ctx, projectID, input.ID)
+	resp, err := client.GetDatabaseWithResponse(ctx, projectID, input.Ref)
 	if err != nil {
 		return nil, ConnectOutput{}, fmt.Errorf("failed to get database: %w", err)
 	}

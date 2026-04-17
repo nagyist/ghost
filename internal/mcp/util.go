@@ -9,7 +9,7 @@ import (
 // Input property helpers
 
 func databaseRefInputProperties(schema *jsonschema.Schema) {
-	schema.Properties["id"].Description = "Database name or identifier"
+	schema.Properties["name_or_id"].Description = "Database name or identifier"
 }
 
 func waitInputProperties(schema *jsonschema.Schema) {

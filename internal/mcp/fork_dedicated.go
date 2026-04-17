@@ -12,7 +12,7 @@ import (
 
 // ForkDedicatedInput represents input for ghost_fork_dedicated
 type ForkDedicatedInput struct {
-	ID   string `json:"id"`
+	Ref  string `json:"name_or_id"`
 	Name string `json:"name,omitempty"`
 	Size string `json:"size,omitempty"`
 	Wait bool   `json:"wait,omitempty"`
@@ -69,7 +69,7 @@ Note: forked databases may take a few minutes to start up. Use ghost_list to che
 
 func (s *Server) handleForkDedicated(ctx context.Context, req *mcp.CallToolRequest, input ForkDedicatedInput) (*mcp.CallToolResult, ForkDedicatedOutput, error) {
 	result, err := s.forkDatabase(ctx, forkDatabaseArgs{
-		sourceDatabaseRef: input.ID,
+		sourceDatabaseRef: input.Ref,
 		req: api.ForkDatabaseRequest{
 			Name: util.PtrIfNonZero(input.Name),
 			Type: new(api.DatabaseTypeDedicated),

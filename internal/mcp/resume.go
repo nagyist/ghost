@@ -16,7 +16,7 @@ import (
 
 // ResumeInput represents input for ghost_resume
 type ResumeInput struct {
-	ID   string `json:"id"`
+	Ref  string `json:"name_or_id"`
 	Wait bool   `json:"wait,omitempty"`
 }
 
@@ -69,7 +69,7 @@ func (s *Server) handleResume(ctx context.Context, req *mcp.CallToolRequest, inp
 	resp, err := client.ResumeDatabaseWithResponse(
 		ctx,
 		api.SpaceId(projectID),
-		api.DatabaseRef(input.ID),
+		api.DatabaseRef(input.Ref),
 	)
 	if err != nil {
 		return nil, ResumeOutput{}, fmt.Errorf("failed to resume database: %w", err)

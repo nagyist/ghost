@@ -104,7 +104,7 @@ func Args(commandPath string, args []string) Option {
 	return func(properties map[string]any) {
 		filtered := slices.Clone(args)
 
-		// Redact the password positional argument from "ghost password <id> [new-password]"
+		// Redact the password positional argument from "ghost password <name-or-id> [new-password]"
 		if commandPath == "ghost password" && len(filtered) > 1 {
 			filtered[1] = "[REDACTED]"
 		}

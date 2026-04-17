@@ -14,7 +14,7 @@ import (
 
 // LogsInput represents input for ghost_logs
 type LogsInput struct {
-	ID    string    `json:"id"`
+	Ref   string    `json:"name_or_id"`
 	Tail  int       `json:"tail,omitempty"`
 	Until time.Time `json:"until,omitempty"`
 }
@@ -64,7 +64,7 @@ func (s *Server) handleLogs(ctx context.Context, req *mcp.CallToolRequest, input
 	logs, err := common.FetchLogs(ctx, common.FetchLogsArgs{
 		Client:      client,
 		ProjectID:   projectID,
-		DatabaseRef: input.ID,
+		DatabaseRef: input.Ref,
 		Tail:        input.Tail,
 		Until:       input.Until,
 	})

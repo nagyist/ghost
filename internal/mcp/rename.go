@@ -16,7 +16,7 @@ import (
 
 // RenameInput represents input for ghost_rename
 type RenameInput struct {
-	ID   string `json:"id"`
+	Ref  string `json:"name_or_id"`
 	Name string `json:"name"`
 }
 
@@ -66,7 +66,7 @@ func (s *Server) handleRename(ctx context.Context, req *mcp.CallToolRequest, inp
 	}
 
 	// Fetch database details to resolve name/ID
-	getResp, err := client.GetDatabaseWithResponse(ctx, projectID, input.ID)
+	getResp, err := client.GetDatabaseWithResponse(ctx, projectID, input.Ref)
 	if err != nil {
 		return nil, RenameOutput{}, fmt.Errorf("failed to get database details: %w", err)
 	}

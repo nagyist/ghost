@@ -12,7 +12,7 @@ import (
 
 // SchemaInput represents input for ghost_schema
 type SchemaInput struct {
-	ID string `json:"id"`
+	Ref string `json:"name_or_id"`
 }
 
 func (SchemaInput) Schema() *jsonschema.Schema {
@@ -45,7 +45,7 @@ func (s *Server) handleSchema(ctx context.Context, req *mcp.CallToolRequest, inp
 	schema, err := common.FetchDatabaseSchema(ctx, common.FetchDatabaseSchemaArgs{
 		Client:      client,
 		ProjectID:   projectID,
-		DatabaseRef: input.ID,
+		DatabaseRef: input.Ref,
 	})
 	if err != nil {
 		return nil, nil, handleDatabaseError(err)

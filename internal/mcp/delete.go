@@ -16,7 +16,7 @@ import (
 
 // DeleteInput represents input for ghost_delete
 type DeleteInput struct {
-	ID string `json:"id"`
+	Ref string `json:"name_or_id"`
 }
 
 func (DeleteInput) Schema() *jsonschema.Schema {
@@ -68,7 +68,7 @@ func (s *Server) handleDelete(ctx context.Context, req *mcp.CallToolRequest, inp
 	}
 
 	// Fetch database details to get the name
-	getResp, err := client.GetDatabaseWithResponse(ctx, projectID, input.ID)
+	getResp, err := client.GetDatabaseWithResponse(ctx, projectID, input.Ref)
 	if err != nil {
 		return nil, DeleteOutput{}, fmt.Errorf("failed to get database details: %w", err)
 	}
