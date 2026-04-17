@@ -178,6 +178,8 @@ release:
   github:
     owner: timescale
     name: ghost
+  # Overwrite existing assets so the workflow is re-runnable after a partial failure.
+  mode: replace
   draft: false
   prerelease: auto
   name_template: "Release {{ .Tag }}"
