@@ -1,0 +1,20 @@
+services:
+  ghost:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    develop:
+      watch:
+        - action: rebuild
+          path: ./
+    image: ghcr.io/timescale/ghost:${TAG:-latest}
+    container_name: ghost
+    ports:
+      - 8080:8080
+    volumes:
+      - type: bind
+        source: ${HOME}/.config/ghost
+        target: /home/ghost/.config/ghost
+      - type: bind
+        source: ${HOME}/.pgpass
+        target: /home/ghost/.pgpass

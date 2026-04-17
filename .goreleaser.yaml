@@ -1,0 +1,183 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+version: 2
+
+project_name: ghost
+
+# Create VERSION file and generate completions before building
+before:
+  hooks:
+    - sh -c 'echo "{{ .Tag }}" > latest.txt'
+    - ./scripts/completions.sh
+
+builds:
+  - main: ./cmd/ghost
+    binary: ghost
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - 386
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/timescale/ghost/internal/config.Version=v{{.Version}}
+      - -X github.com/timescale/ghost/internal/config.BuildTime={{.Date}}
+      - -X github.com/timescale/ghost/internal/config.GitCommit={{.Commit}}
+
+archives:
+  - id: archive
+    formats: [tar.gz]
+
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+
+    # this name template makes the OS and Arch compatible with the results of `uname`.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+
+    files:
+      - README.md
+      - LICENSE
+      - NOTICE
+      - completions/*
+
+# Linux package configuration (APT, RPM, etc.)
+nfpms:
+  - id: packages
+    package_name: ghost
+    vendor: Timescale, Inc., d/b/a Tiger Data
+    maintainer: Tiger Data <support@tigerdata.com>
+    homepage: https://ghost.build
+    description: |-
+      Ghost - A command-line interface for managing PostgreSQL databases.
+    license: Apache-2.0
+    formats:
+      - deb
+      - rpm
+    bindir: /usr/bin
+    priority: extra
+    file_name_template: "{{ .ConventionalFileName }}"
+    contents:
+      # Shell completions
+      - src: ./completions/ghost.bash
+        dst: /usr/share/bash-completion/completions/ghost
+        file_info:
+          mode: 0644
+          mtime: "{{ .CommitDate }}"
+      - src: ./completions/ghost.fish
+        dst: /usr/share/fish/vendor_completions.d/ghost.fish
+        file_info:
+          mode: 0644
+          mtime: "{{ .CommitDate }}"
+      - src: ./completions/ghost.zsh
+        dst: /usr/share/zsh/vendor-completions/_ghost
+        file_info:
+          mode: 0644
+          mtime: "{{ .CommitDate }}"
+    rpm:
+      group: Unspecified
+    deb:
+      lintian_overrides:
+        - statically-linked-binary
+
+dockers_v2:
+  - id: docker
+    images:
+      - ghcr.io/timescale/ghost
+    tags:
+      - "{{ .Version }}"
+      - '{{ if eq .Prerelease "" }}{{ .Major }}{{ end }}'
+      - '{{ if eq .Prerelease "" }}{{ .Major }}.{{ .Minor }}{{ end }}'
+      - '{{ if eq .Prerelease "" }}latest{{ end }}'
+    labels:
+      io.modelcontextprotocol.server.name: "io.github.timescale/ghost"
+      org.opencontainers.image.created: "{{.Date}}"
+      org.opencontainers.image.description: "A command-line interface for managing PostgreSQL databases"
+      org.opencontainers.image.licenses: "Apache-2.0"
+      org.opencontainers.image.name: "{{.ProjectName}}"
+      org.opencontainers.image.revision: "{{.FullCommit}}"
+      org.opencontainers.image.source: "https://github.com/timescale/ghost"
+      org.opencontainers.image.title: "{{.ProjectName}}"
+      org.opencontainers.image.url: "https://ghost.build"
+      org.opencontainers.image.vendor: "Timescale, Inc., d/b/a Tiger Data"
+      org.opencontainers.image.version: "{{.Version}}"
+    build_args:
+      BINARY_SOURCE: release
+    platforms:
+      - linux/amd64
+      - linux/arm64
+
+# S3 Blob Storage Configuration
+blobs:
+  # Versioned release artifacts
+  - provider: s3
+    bucket: ghost-releases
+    region: us-east-1
+    directory: "releases/{{ .Tag }}"
+    ids:
+      - archive  # Archive ID
+      - packages # nfpms package ID
+
+  # Upload install script and latest version file to bucket root (skip for prereleases)
+  - provider: s3
+    bucket: ghost-releases
+    region: us-east-1
+    directory: "{{ \"\" }}" # Can't use an empty string directly or GoReleaser defaults to "{{ .ProjectName }}/{{ .Tag }}"
+    extra_files_only: true
+    disable: '{{ ne .Prerelease "" }}' # Skip this step for prereleases
+    extra_files:
+      - glob: ./latest.txt
+        name_template: "latest.txt"
+      - glob: ./scripts/install.sh
+        name_template: "install.sh"
+      - glob: ./scripts/install.ps1
+        name_template: "install.ps1"
+
+# Checksum configuration - split into individual files for easier validation
+checksum:
+  split: true
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^specs:"
+      # TODO: Other files that should be ignored
+
+# Publishers for external registries
+publishers:
+  # Upload all Linux packages (deb, rpm) to PackageCloud
+  - name: packagecloud
+    disable: '{{ ne .Prerelease "" }}' # Skip this step for prereleases
+    ids:
+      - packages # Only publish nfpms packages (Linux packages)
+    cmd: >-
+      package_cloud push timescale/ghost/{{-
+        if contains .ArtifactPath ".deb" -}}
+          any/any
+        {{- else if contains .ArtifactPath ".rpm" -}}
+          rpm_any/rpm_any
+        {{- end }} {{ .ArtifactPath }}
+    env:
+      - PACKAGECLOUD_TOKEN={{ .Env.PACKAGECLOUD_TOKEN }}
+
+# Release configuration
+release:
+  github:
+    owner: timescale
+    name: ghost
+  draft: false
+  prerelease: auto
+  name_template: "Release {{ .Tag }}"

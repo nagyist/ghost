@@ -1,0 +1,906 @@
+openapi: 3.0.3
+info:
+  title: Ghost API
+  version: 0.1.0
+  description: Ghost database management API
+
+servers:
+  - url: https://api.ghost.build/v0
+    description: Production
+
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Health check
+      description: Returns 200 OK if the service is healthy.
+      responses:
+        "200":
+          description: Service is healthy
+
+  /auth/info:
+    get:
+      operationId: authInfo
+      summary: Get authentication info
+      description: Returns info about the authenticated API key.
+      responses:
+        "200":
+          description: Authentication info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthInfo"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces:
+    get:
+      operationId: listSpaces
+      summary: List spaces
+      description: |
+        Returns Ghost spaces accessible to the authenticated user.
+        For user JWTs, returns all Ghost spaces the user is a member of.
+        For API keys, returns the single space the key is scoped to.
+      responses:
+        "200":
+          description: List of spaces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Space"
+        default:
+          $ref: "#/components/responses/Error"
+    post:
+      operationId: createSpace
+      summary: Create a space
+      description: |
+        Creates a new Ghost space. Requires user authentication (JWT).
+        API keys cannot be used to create spaces.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSpaceRequest"
+      responses:
+        "201":
+          description: Space created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Space"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/api_keys:
+    get:
+      operationId: listApiKeys
+      summary: List API keys
+      description: |
+        Lists all API keys for the specified space.
+        Requires user authentication (JWT). API keys cannot list other API keys.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: List of API keys
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiKey"
+        default:
+          $ref: "#/components/responses/Error"
+    post:
+      operationId: createApiKey
+      summary: Create an API key
+      description: |
+        Creates a new API key (client credentials) for the specified space.
+        Requires user authentication (JWT). API keys cannot create other API keys.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateApiKeyRequest"
+      responses:
+        "201":
+          description: API key created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiKeyCredentials"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/api_keys/{prefix}:
+    delete:
+      operationId: deleteApiKey
+      summary: Delete an API key
+      description: |
+        Deletes an API key from the specified space.
+        Requires user authentication (JWT). API keys cannot delete other API keys.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/ApiKeyPrefix"
+      responses:
+        "204":
+          description: API key deleted
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/databases:
+    get:
+      operationId: listDatabases
+      summary: List databases
+      description: Lists all databases in a space.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: List of databases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Database"
+        default:
+          $ref: "#/components/responses/Error"
+    post:
+      operationId: createDatabase
+      summary: Create a database
+      description: Creates a new database in a space.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDatabaseRequest"
+      responses:
+        "202":
+          description: Database created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Database"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/databases/{database_ref}:
+    get:
+      operationId: getDatabase
+      summary: Get a database
+      description: Gets a single database by ID.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/DatabaseRef"
+      responses:
+        "200":
+          description: Database details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Database"
+        default:
+          $ref: "#/components/responses/Error"
+    delete:
+      operationId: deleteDatabase
+      summary: Delete a database
+      description: Deletes a database.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/DatabaseRef"
+      responses:
+        "202":
+          description: Database deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Database"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/databases/{database_ref}/fork:
+    post:
+      operationId: forkDatabase
+      summary: Fork a database
+      description: Forks an existing database.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/DatabaseRef"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForkDatabaseRequest"
+      responses:
+        "202":
+          description: Database forked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Database"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/databases/{database_ref}/password:
+    post:
+      operationId: updatePassword
+      summary: Update database password
+      description: Resets the database password.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/DatabaseRef"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePasswordRequest"
+      responses:
+        "204":
+          description: Password updated
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/databases/{database_ref}/pause:
+    post:
+      operationId: pauseDatabase
+      summary: Pause a database
+      description: Pauses a running database.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/DatabaseRef"
+      responses:
+        "202":
+          description: Database paused
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Database"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/databases/{database_ref}/resume:
+    post:
+      operationId: resumeDatabase
+      summary: Resume a database
+      description: Resumes a paused database.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/DatabaseRef"
+      responses:
+        "202":
+          description: Database resumed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Database"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/databases/{database_ref}/rename:
+    post:
+      operationId: renameDatabase
+      summary: Rename a database
+      description: Renames a database.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/DatabaseRef"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenameDatabaseRequest"
+      responses:
+        "204":
+          description: Database renamed
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/status:
+    get:
+      operationId: spaceStatus
+      summary: Get space status
+      description: Returns compute and storage usage for a space.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: Space status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpaceStatus"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/databases/{database_ref}/logs:
+    get:
+      operationId: databaseLogs
+      summary: Get database logs
+      description: Gets database logs.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/DatabaseRef"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: until
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Database logs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogsResponse"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/payment:
+    get:
+      operationId: listPaymentMethods
+      summary: List payment methods
+      description: Lists payment methods on file for a space.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: List of payment methods
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentMethodsResponse"
+        default:
+          $ref: "#/components/responses/Error"
+    post:
+      operationId: createPaymentMethodSetup
+      summary: Create payment method setup
+      description: Creates a Stripe Setup Intent for payment method collection and returns the client secret and payment page URL.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: Payment setup created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentSetupResponse"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/payment/{payment_id}:
+    get:
+      operationId: getPaymentMethod
+      summary: Get a payment method
+      description: Returns a single payment method by ID.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/PaymentId"
+      responses:
+        "200":
+          description: Payment method
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentMethod"
+        default:
+          $ref: "#/components/responses/Error"
+    delete:
+      operationId: deletePaymentMethod
+      summary: Delete a payment method
+      description: Deletes a payment method.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/PaymentId"
+      responses:
+        "204":
+          description: Payment method deleted
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/payment/{payment_id}/primary:
+    put:
+      operationId: setPaymentMethodPrimary
+      summary: Set primary payment method
+      description: Sets a payment method as the primary payment method for the space.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/PaymentId"
+      responses:
+        "204":
+          description: Payment method set as primary
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/payment/{payment_id}/deletion:
+    delete:
+      operationId: cancelPaymentMethodDeletion
+      summary: Cancel pending payment method deletion
+      description: Cancels a pending deletion for a payment method.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/PaymentId"
+      responses:
+        "204":
+          description: Pending deletion cancelled
+        default:
+          $ref: "#/components/responses/Error"
+
+  /analytics/identify:
+    post:
+      operationId: analyticsIdentify
+      summary: Identify user
+      description: Identifies a user for analytics.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdentifyRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /analytics/track:
+    post:
+      operationId: analyticsTrack
+      summary: Track event
+      description: Tracks an analytics event.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrackRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: Log out
+      description: |
+        Logs the user out by revoking the given refresh token.
+        Requires user authentication (JWT). API keys and project access tokens
+        cannot be used with this endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogoutRequest"
+      responses:
+        "204":
+          description: Logged out successfully
+        default:
+          $ref: "#/components/responses/Error"
+
+  /feedback:
+    post:
+      operationId: submitFeedback
+      summary: Submit feedback
+      description: Submits feedback or bug report.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeedbackRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+        default:
+          $ref: "#/components/responses/Error"
+
+components:
+  parameters:
+    SpaceId:
+      name: space_id
+      in: path
+      required: true
+      schema:
+        type: string
+    DatabaseRef:
+      name: database_ref
+      in: path
+      required: true
+      description: The database ID or name.
+      schema:
+        type: string
+    PaymentId:
+      name: payment_id
+      in: path
+      required: true
+      schema:
+        type: string
+    ApiKeyPrefix:
+      name: prefix
+      in: path
+      required: true
+      schema:
+        type: string
+
+  responses:
+    Error:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+    Database:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - status
+        - host
+        - port
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum:
+            - queued
+            - configuring
+            - running
+            - pausing
+            - paused
+            - resuming
+            - deleting
+            - deleted
+            - upgrading
+            - unstable
+            - unknown
+        host:
+          type: string
+        port:
+          type: integer
+        type:
+          $ref: "#/components/schemas/DatabaseType"
+        size:
+          $ref: "#/components/schemas/DatabaseSize"
+          nullable: true
+        storage_mib:
+          type: integer
+          nullable: true
+        password:
+          type: string
+          nullable: true
+
+    AuthInfo:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - api_key
+            - user
+        api_key:
+          $ref: "#/components/schemas/ApiKeyInfo"
+        user:
+          $ref: "#/components/schemas/UserInfo"
+
+    ApiKeyInfo:
+      type: object
+      required:
+        - space_id
+        - space_name
+        - user_id
+        - user_email
+        - user_name
+      properties:
+        space_id:
+          type: string
+        space_name:
+          type: string
+        user_id:
+          type: string
+        user_email:
+          type: string
+        user_name:
+          type: string
+
+    UserInfo:
+      type: object
+      required:
+        - id
+        - email
+        - name
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+
+    SpaceStatus:
+      type: object
+      required:
+        - storage_mib
+        - storage_limit_mib
+        - compute_minutes
+        - compute_limit_minutes
+      properties:
+        storage_mib:
+          type: integer
+          format: int64
+        storage_limit_mib:
+          type: integer
+          format: int64
+        compute_minutes:
+          type: integer
+          format: int64
+        compute_limit_minutes:
+          type: integer
+          format: int64
+
+    DatabaseSize:
+      type: string
+      enum:
+        - 1x
+        - 2x
+        - 4x
+        - 8x
+
+    DatabaseType:
+      type: string
+      enum:
+        - standard
+        - dedicated
+      default: standard
+
+    CreateDatabaseRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          $ref: "#/components/schemas/DatabaseType"
+        size:
+          $ref: "#/components/schemas/DatabaseSize"
+
+    ForkDatabaseRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          $ref: "#/components/schemas/DatabaseType"
+        size:
+          $ref: "#/components/schemas/DatabaseSize"
+
+    RenameDatabaseRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+
+    UpdatePasswordRequest:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
+
+    LogsResponse:
+      type: object
+      required:
+        - logs
+      properties:
+        logs:
+          type: array
+          items:
+            type: string
+
+    IdentifyRequest:
+      type: object
+      required:
+        - properties
+      properties:
+        properties:
+          type: object
+          additionalProperties: true
+
+    TrackRequest:
+      type: object
+      required:
+        - event
+      properties:
+        event:
+          type: string
+        properties:
+          type: object
+          additionalProperties: true
+
+    FeedbackRequest:
+      type: object
+      required:
+        - message
+        - source
+        - version
+        - os
+      properties:
+        message:
+          type: string
+        source:
+          type: string
+        version:
+          type: string
+        os:
+          type: string
+
+    StatusResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+
+    Space:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+
+    CreateSpaceRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+
+    CreateApiKeyRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+
+    ApiKeyCredentials:
+      type: object
+      required:
+        - api_key
+        - access_key
+        - secret_key
+      properties:
+        api_key:
+          type: string
+        access_key:
+          type: string
+          deprecated: true
+        secret_key:
+          type: string
+          deprecated: true
+
+    ApiKey:
+      type: object
+      required:
+        - prefix
+        - name
+        - created_at
+      properties:
+        prefix:
+          type: string
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    LogoutRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+
+    PaymentMethod:
+      type: object
+      required:
+        - id
+        - primary
+        - pending_deletion
+        - brand
+        - last4
+        - exp_month
+        - exp_year
+      properties:
+        id:
+          type: string
+        primary:
+          type: boolean
+        pending_deletion:
+          type: boolean
+        brand:
+          type: string
+        last4:
+          type: string
+        exp_month:
+          type: integer
+        exp_year:
+          type: integer
+
+    PaymentMethodsResponse:
+      type: object
+      required:
+        - payment_methods
+      properties:
+        payment_methods:
+          type: array
+          items:
+            $ref: "#/components/schemas/PaymentMethod"
+
+    PaymentSetupResponse:
+      type: object
+      required:
+        - client_secret
+        - payment_url
+      properties:
+        client_secret:
+          type: string
+        payment_url:
+          type: string
+
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
