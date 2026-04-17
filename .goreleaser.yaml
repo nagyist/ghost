@@ -164,7 +164,7 @@ publishers:
     ids:
       - packages # Only publish nfpms packages (Linux packages)
     cmd: >-
-      package_cloud push timescale/ghost/{{-
+      package_cloud push --skip-errors timescale/ghost/{{-
         if contains .ArtifactPath ".deb" -}}
           any/any
         {{- else if contains .ArtifactPath ".rpm" -}}
