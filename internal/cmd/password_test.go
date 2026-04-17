@@ -144,7 +144,7 @@ func TestPasswordCmd(t *testing.T) {
 						HTTPResponse: httpResponse(http.StatusNoContent),
 					}, nil)
 			},
-			wantStdout: "Password updated for 'mydb'\n",
+			wantStdout: "Password updated for 'mydb' (abc1234567)\n",
 		},
 		{
 			name: "generate flag",
@@ -153,7 +153,7 @@ func TestPasswordCmd(t *testing.T) {
 				successfulGet(m)
 				successfulUpdate(m)
 			},
-			wantStdout: "Password updated for 'mydb'\n",
+			wantStdout: "Password updated for 'mydb' (abc1234567)\n",
 		},
 	}
 

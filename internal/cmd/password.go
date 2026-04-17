@@ -115,7 +115,7 @@ PostgreSQL tools.`,
 				cmd.PrintErrf("Warning: failed to save password to .pgpass: %v\n", err)
 			}
 
-			cmd.Printf("Password updated for '%s'\n", database.Name)
+			cmd.Printf("Password updated for '%s' (%s)\n", database.Name, database.Id)
 			return nil
 		},
 	}

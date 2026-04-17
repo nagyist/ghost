@@ -30,6 +30,7 @@ func (ResumeInput) Schema() *jsonschema.Schema {
 // ResumeOutput represents output for ghost_resume
 type ResumeOutput struct {
 	ID               string   `json:"id"`
+	Name             string   `json:"name"`
 	ConnectionString string   `json:"connection_string"`
 	Warnings         []string `json:"warnings,omitempty"`
 }
@@ -37,6 +38,7 @@ type ResumeOutput struct {
 func (ResumeOutput) Schema() *jsonschema.Schema {
 	schema := util.Must(jsonschema.For[ResumeOutput](nil))
 	databaseIDOutputProperties(schema)
+	databaseNameOutputProperties(schema)
 	connectionStringOutputProperties(schema)
 	warningsOutputProperties(schema)
 	return schema
@@ -115,6 +117,7 @@ func (s *Server) handleResume(ctx context.Context, req *mcp.CallToolRequest, inp
 
 	return nil, ResumeOutput{
 		ID:               database.Id,
+		Name:             database.Name,
 		ConnectionString: connStr,
 		Warnings:         warnings,
 	}, nil

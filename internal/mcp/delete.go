@@ -27,15 +27,17 @@ func (DeleteInput) Schema() *jsonschema.Schema {
 
 // DeleteOutput represents output for ghost_delete
 type DeleteOutput struct {
-	Success     bool     `json:"success"`
-	DeletedName string   `json:"deleted_name"`
-	Warnings    []string `json:"warnings,omitempty"`
+	Success  bool     `json:"success"`
+	ID       string   `json:"id"`
+	Name     string   `json:"name"`
+	Warnings []string `json:"warnings,omitempty"`
 }
 
 func (DeleteOutput) Schema() *jsonschema.Schema {
 	schema := util.Must(jsonschema.For[DeleteOutput](nil))
 	successOutputProperties(schema)
-	schema.Properties["deleted_name"].Description = "Name of the deleted database"
+	schema.Properties["id"].Description = "Identifier of the deleted database"
+	schema.Properties["name"].Description = "Name of the deleted database"
 	warningsOutputProperties(schema)
 	return schema
 }
@@ -81,7 +83,6 @@ func (s *Server) handleDelete(ctx context.Context, req *mcp.CallToolRequest, inp
 		return nil, DeleteOutput{}, errors.New("empty response from API")
 	}
 	database := *getResp.JSON200
-	databaseName := database.Name
 
 	// Make the delete request using the resolved ID (no confirmation prompt for MCP - agents handle this)
 	resp, err := client.DeleteDatabaseWithResponse(
@@ -105,8 +106,9 @@ func (s *Server) handleDelete(ctx context.Context, req *mcp.CallToolRequest, inp
 	}
 
 	return nil, DeleteOutput{
-		Success:     true,
-		DeletedName: databaseName,
-		Warnings:    warnings,
+		Success:  true,
+		ID:       database.Id,
+		Name:     database.Name,
+		Warnings: warnings,
 	}, nil
 }

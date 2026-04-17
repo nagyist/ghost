@@ -63,7 +63,7 @@ func TestResumeCmd(t *testing.T) {
 			},
 			opts:       []runOption{withEnv("HOME", t.TempDir())},
 			wantStderr: "Warning: failed to get password: password not found\n",
-			wantStdout: `Resuming 'mydb'...
+			wantStdout: `Resuming 'mydb' (abc1234567)...
 Connection: postgresql://tsdbadmin@host.example.com:5432/tsdb
 `,
 		},

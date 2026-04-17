@@ -29,12 +29,18 @@ func (RenameInput) Schema() *jsonschema.Schema {
 
 // RenameOutput represents output for ghost_rename
 type RenameOutput struct {
-	Success bool `json:"success"`
+	Success bool   `json:"success"`
+	ID      string `json:"id"`
+	OldName string `json:"old_name"`
+	Name    string `json:"name"`
 }
 
 func (RenameOutput) Schema() *jsonschema.Schema {
 	schema := util.Must(jsonschema.For[RenameOutput](nil))
 	successOutputProperties(schema)
+	databaseIDOutputProperties(schema)
+	schema.Properties["old_name"].Description = "Previous name of the database"
+	schema.Properties["name"].Description = "New name of the database"
 	return schema
 }
 
@@ -94,5 +100,10 @@ func (s *Server) handleRename(ctx context.Context, req *mcp.CallToolRequest, inp
 		return nil, RenameOutput{}, common.ExitWithErrorFromStatusCode(resp.StatusCode(), resp.JSONDefault)
 	}
 
-	return nil, RenameOutput{Success: true}, nil
+	return nil, RenameOutput{
+		Success: true,
+		ID:      database.Id,
+		OldName: database.Name,
+		Name:    input.Name,
+	}, nil
 }

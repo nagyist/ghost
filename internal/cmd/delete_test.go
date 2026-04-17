@@ -120,7 +120,7 @@ func TestDeleteCmd(t *testing.T) {
 			},
 			opts:       []runOption{withStdin("y\n"), withIsTerminal(true)},
 			wantStderr: "Delete 'mydb' (abc1234567)? This cannot be undone. [y/N] ",
-			wantStdout: "Deleted 'mydb'\n",
+			wantStdout: "Deleted 'mydb' (abc1234567)\n",
 		},
 		{
 			name: "confirm flag",
@@ -129,7 +129,7 @@ func TestDeleteCmd(t *testing.T) {
 				setupGet(m)
 				setupDelete(m)
 			},
-			wantStdout: "Deleted 'mydb'\n",
+			wantStdout: "Deleted 'mydb' (abc1234567)\n",
 		},
 		{
 			name: "rm alias",
@@ -138,7 +138,7 @@ func TestDeleteCmd(t *testing.T) {
 				setupGet(m)
 				setupDelete(m)
 			},
-			wantStdout: "Deleted 'mydb'\n",
+			wantStdout: "Deleted 'mydb' (abc1234567)\n",
 		},
 	}
 

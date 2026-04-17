@@ -53,9 +53,8 @@ func buildResumeCmd(app *common.App) *cobra.Command {
 				return errors.New("empty response from API")
 			}
 			database := *resp.JSON202
-			databaseName := database.Name
 
-			cmd.Printf("Resuming '%s'...\n", databaseName)
+			cmd.Printf("Resuming '%s' (%s)...\n", database.Name, database.Id)
 
 			// Get password for database
 			password, err := common.GetPassword(database, "tsdbadmin")

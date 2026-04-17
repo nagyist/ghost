@@ -94,7 +94,7 @@ the deletion, unless you use the --confirm flag.`,
 				cmd.PrintErrf("Warning: failed to remove .pgpass entry: %v\n", err)
 			}
 
-			cmd.Printf("Deleted '%s'\n", database.Name)
+			cmd.Printf("Deleted '%s' (%s)\n", database.Name, database.Id)
 			return nil
 		},
 	}

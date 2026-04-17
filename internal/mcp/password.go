@@ -32,6 +32,7 @@ func (PasswordInput) Schema() *jsonschema.Schema {
 // PasswordOutput represents output for ghost_password
 type PasswordOutput struct {
 	ID               string   `json:"id"`
+	Name             string   `json:"name"`
 	Password         string   `json:"password"`
 	ConnectionString string   `json:"connection_string"`
 	Warnings         []string `json:"warnings,omitempty"`
@@ -40,6 +41,7 @@ type PasswordOutput struct {
 func (PasswordOutput) Schema() *jsonschema.Schema {
 	schema := util.Must(jsonschema.For[PasswordOutput](nil))
 	databaseIDOutputProperties(schema)
+	databaseNameOutputProperties(schema)
 	schema.Properties["password"].Description = "The new password"
 	connectionStringOutputProperties(schema)
 	warningsOutputProperties(schema)
@@ -131,6 +133,7 @@ func (s *Server) handlePassword(ctx context.Context, req *mcp.CallToolRequest, i
 
 	return nil, PasswordOutput{
 		ID:               database.Id,
+		Name:             database.Name,
 		Password:         password,
 		ConnectionString: connStr,
 		Warnings:         warnings,
