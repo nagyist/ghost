@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/colorprofile"
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 
 	"github.com/timescale/ghost/internal/analytics"
 	"github.com/timescale/ghost/internal/common"
@@ -33,6 +35,10 @@ func BuildRootCmd() (*cobra.Command, error) {
 }
 
 func buildRootCmd() (*cobra.Command, *common.App, error) {
+	// Match command names and aliases case-insensitively (e.g. `ghost LIST`
+	// works the same as `ghost list`). Cobra only exposes this as a global.
+	cobra.EnableCaseInsensitive = true
+
 	experimental, _ := strconv.ParseBool(os.Getenv("GHOST_EXPERIMENTAL"))
 
 	app := &common.App{
@@ -78,6 +84,12 @@ func buildRootCmd() (*cobra.Command, *common.App, error) {
 	// flows through these writers, giving us a single place to control color output.
 	cmd.SetOut(stdoutWriter)
 	cmd.SetErr(stderrWriter)
+
+	// Match flag names case-insensitively (e.g. `--JSON` works the same as
+	// `--json`). Propagates to all subcommands added after this point.
+	cmd.SetGlobalNormalizationFunc(func(_ *flag.FlagSet, name string) flag.NormalizedName {
+		return flag.NormalizedName(strings.ToLower(name))
+	})
 
 	// Add persistent flags
 	cmd.PersistentFlags().StringVar(&configDirFlag, "config-dir", config.DefaultConfigDir, "config directory")

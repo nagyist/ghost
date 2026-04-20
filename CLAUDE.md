@@ -105,6 +105,10 @@ All cobra commands must:
 
 Consider adding common aliases for commands (e.g. `ls` for `list`, `rm` for `delete`) to match user expectations from other CLI tools.
 
+## Case Insensitivity
+
+Commands, aliases, and flags are matched case-insensitively (configured in `root.go`). Always declare them in lowercase — that's the canonical form. Two names that differ only in case are a collision and must be avoided.
+
 ## Logging
 
 The `slog` logger (configured in `internal/cmd/logger.go`) is reserved for the MCP server only, since that's the only context where the CLI acts as a long-running backend process that needs structured logging. Normal CLI commands should never emit log output — it looks bad and interferes with the user-facing output.
