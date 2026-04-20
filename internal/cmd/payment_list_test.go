@@ -17,19 +17,16 @@ func TestPaymentListCmd(t *testing.T) {
 		},
 	}
 
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	tests := []cmdTest{
 		{
 			name:    "not logged in",
 			args:    []string{"payment", "list"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error",
 			args: []string{"payment", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-project").
 					Return(nil, errors.New("connection refused"))
@@ -39,7 +36,6 @@ func TestPaymentListCmd(t *testing.T) {
 		{
 			name: "API error",
 			args: []string{"payment", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-project").
 					Return(&api.ListPaymentMethodsResponse{
@@ -52,7 +48,6 @@ func TestPaymentListCmd(t *testing.T) {
 		{
 			name: "nil response body",
 			args: []string{"payment", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-project").
 					Return(&api.ListPaymentMethodsResponse{
@@ -65,7 +60,6 @@ func TestPaymentListCmd(t *testing.T) {
 		{
 			name: "empty list",
 			args: []string{"payment", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-project").
 					Return(&api.ListPaymentMethodsResponse{
@@ -78,7 +72,6 @@ func TestPaymentListCmd(t *testing.T) {
 		{
 			name: "text output",
 			args: []string{"payment", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-project").
 					Return(&api.ListPaymentMethodsResponse{
@@ -91,7 +84,6 @@ func TestPaymentListCmd(t *testing.T) {
 		{
 			name: "json output",
 			args: []string{"payment", "list", "--json"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-project").
 					Return(&api.ListPaymentMethodsResponse{
@@ -124,7 +116,6 @@ func TestPaymentListCmd(t *testing.T) {
 		{
 			name: "yaml output",
 			args: []string{"payment", "list", "--yaml"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-project").
 					Return(&api.ListPaymentMethodsResponse{
@@ -151,7 +142,6 @@ func TestPaymentListCmd(t *testing.T) {
 		{
 			name: "ls alias",
 			args: []string{"payment", "ls"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-project").
 					Return(&api.ListPaymentMethodsResponse{

@@ -101,12 +101,8 @@ func (s *Server) registerTools(ctx context.Context) {
 	mcp.AddTool(s.mcpServer, newLogsTool(), s.handleLogs)
 	mcp.AddTool(s.mcpServer, newFeedbackTool(), s.handleFeedback)
 	mcp.AddTool(s.mcpServer, newRenameTool(), s.handleRename)
-
-	// Register experimental tools
-	if s.app.Experimental {
-		mcp.AddTool(s.mcpServer, newCreateDedicatedTool(), s.handleCreateDedicated)
-		mcp.AddTool(s.mcpServer, newForkDedicatedTool(), s.handleForkDedicated)
-	}
+	mcp.AddTool(s.mcpServer, newCreateDedicatedTool(), s.handleCreateDedicated)
+	mcp.AddTool(s.mcpServer, newForkDedicatedTool(), s.handleForkDedicated)
 }
 
 // analyticsMiddleware tracks analytics for all MCP requests

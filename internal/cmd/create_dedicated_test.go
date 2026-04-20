@@ -16,8 +16,6 @@ func TestCreateDedicatedCmd(t *testing.T) {
 		db.Type = api.DatabaseTypeDedicated
 	})
 
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	defaultReq := api.CreateDatabaseRequest{
 		Type: new(api.DatabaseTypeDedicated),
 		Size: new(api.DatabaseSize("1x")),
@@ -42,13 +40,12 @@ func TestCreateDedicatedCmd(t *testing.T) {
 		{
 			name:    "not logged in",
 			args:    []string{"create", "dedicated", "--name", "mydb"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error",
 			args: []string{"create", "dedicated", "--name", "mydb"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
 					Return(nil, errors.New("connection refused"))
@@ -58,7 +55,6 @@ func TestCreateDedicatedCmd(t *testing.T) {
 		{
 			name: "API error",
 			args: []string{"create", "dedicated", "--name", "mydb"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
@@ -71,7 +67,6 @@ func TestCreateDedicatedCmd(t *testing.T) {
 		{
 			name: "nil response body",
 			args: []string{"create", "dedicated", "--name", "mydb"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
@@ -84,7 +79,6 @@ func TestCreateDedicatedCmd(t *testing.T) {
 		{
 			name: "auto-generated name",
 			args: []string{"create", "dedicated"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				autoDb := sampleDatabase(func(db *api.Database) {
 					db.Name = "ghost-12345"
@@ -102,7 +96,6 @@ func TestCreateDedicatedCmd(t *testing.T) {
 		{
 			name: "text output with default size",
 			args: []string{"create", "dedicated", "--name", "mydb"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
@@ -118,7 +111,6 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb
 		{
 			name: "text output with custom size",
 			args: []string{"create", "dedicated", "--size", "4x"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", sizedReq("4x")).
 					Return(&api.CreateDatabaseResponse{
@@ -134,7 +126,6 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb
 		{
 			name: "json output",
 			args: []string{"create", "dedicated", "--name", "mydb", "--json"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
@@ -153,7 +144,6 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb
 		{
 			name: "yaml output",
 			args: []string{"create", "dedicated", "--name", "mydb", "--yaml"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{

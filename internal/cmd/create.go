@@ -58,9 +58,7 @@ func buildCreateCmd(app *common.App) *cobra.Command {
 	cmd.MarkFlagsMutuallyExclusive("json", "yaml")
 
 	// Add subcommands
-	if app.Experimental {
-		cmd.AddCommand(buildCreateDedicatedCmd(app))
-	}
+	cmd.AddCommand(buildCreateDedicatedCmd(app))
 
 	return cmd
 }

@@ -10,8 +10,6 @@ import (
 )
 
 func TestPaymentDeleteCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	pm := api.PaymentMethod{
 		Id: "pm_123", Brand: "Visa", Last4: "4242", ExpMonth: 12, ExpYear: 2025, Primary: true,
 	}
@@ -35,13 +33,12 @@ func TestPaymentDeleteCmd(t *testing.T) {
 		{
 			name:    "not logged in",
 			args:    []string{"payment", "delete", "pm_123"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error on get",
 			args: []string{"payment", "delete", "pm_123"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
 					Return(nil, errors.New("connection refused"))
@@ -51,7 +48,6 @@ func TestPaymentDeleteCmd(t *testing.T) {
 		{
 			name: "API error on get",
 			args: []string{"payment", "delete", "pm_123"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
 					Return(&api.GetPaymentMethodResponse{
@@ -64,7 +60,6 @@ func TestPaymentDeleteCmd(t *testing.T) {
 		{
 			name: "nil response body on get",
 			args: []string{"payment", "delete", "pm_123"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
 					Return(&api.GetPaymentMethodResponse{
@@ -77,7 +72,6 @@ func TestPaymentDeleteCmd(t *testing.T) {
 		{
 			name: "non-interactive stdin",
 			args: []string{"payment", "delete", "pm_123"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
 			},
@@ -86,7 +80,7 @@ func TestPaymentDeleteCmd(t *testing.T) {
 		{
 			name: "confirmation declined",
 			args: []string{"payment", "delete", "pm_123"},
-			opts: []runOption{experimental, withStdin("n\n"), withIsTerminal(true)},
+			opts: []runOption{withStdin("n\n"), withIsTerminal(true)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
 			},
@@ -96,7 +90,7 @@ func TestPaymentDeleteCmd(t *testing.T) {
 		{
 			name: "network error on delete",
 			args: []string{"payment", "delete", "pm_123"},
-			opts: []runOption{experimental, withStdin("y\n"), withIsTerminal(true)},
+			opts: []runOption{withStdin("y\n"), withIsTerminal(true)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
 				m.EXPECT().DeletePaymentMethodWithResponse(validCtx, "test-project", "pm_123").
@@ -108,7 +102,6 @@ func TestPaymentDeleteCmd(t *testing.T) {
 		{
 			name: "API error on delete",
 			args: []string{"payment", "delete", "pm_123", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
 				m.EXPECT().DeletePaymentMethodWithResponse(validCtx, "test-project", "pm_123").
@@ -122,7 +115,7 @@ func TestPaymentDeleteCmd(t *testing.T) {
 		{
 			name: "confirmation accepted",
 			args: []string{"payment", "delete", "pm_123"},
-			opts: []runOption{experimental, withStdin("y\n"), withIsTerminal(true)},
+			opts: []runOption{withStdin("y\n"), withIsTerminal(true)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
 				setupDelete(m)
@@ -133,7 +126,6 @@ func TestPaymentDeleteCmd(t *testing.T) {
 		{
 			name: "confirm flag",
 			args: []string{"payment", "delete", "pm_123", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
 				setupDelete(m)
@@ -143,7 +135,6 @@ func TestPaymentDeleteCmd(t *testing.T) {
 		{
 			name: "rm alias",
 			args: []string{"payment", "rm", "pm_123", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
 				setupDelete(m)

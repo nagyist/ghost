@@ -10,8 +10,6 @@ import (
 )
 
 func TestPaymentPrimaryCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	pm := api.PaymentMethod{
 		Id: "pm_123", Brand: "Visa", Last4: "4242", ExpMonth: 12, ExpYear: 2025,
 	}
@@ -24,13 +22,12 @@ func TestPaymentPrimaryCmd(t *testing.T) {
 		{
 			name:    "not logged in",
 			args:    []string{"payment", "primary", "pm_123"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error on get",
 			args: []string{"payment", "primary", "pm_123"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
 					Return(nil, errors.New("connection refused"))
@@ -40,7 +37,6 @@ func TestPaymentPrimaryCmd(t *testing.T) {
 		{
 			name: "API error on get",
 			args: []string{"payment", "primary", "pm_123"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
 					Return(&api.GetPaymentMethodResponse{
@@ -53,7 +49,6 @@ func TestPaymentPrimaryCmd(t *testing.T) {
 		{
 			name: "nil response body on get",
 			args: []string{"payment", "primary", "pm_123"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
 					Return(&api.GetPaymentMethodResponse{
@@ -66,7 +61,6 @@ func TestPaymentPrimaryCmd(t *testing.T) {
 		{
 			name: "already primary",
 			args: []string{"payment", "primary", "pm_123"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
 					Return(&api.GetPaymentMethodResponse{
@@ -79,7 +73,6 @@ func TestPaymentPrimaryCmd(t *testing.T) {
 		{
 			name: "network error on set primary",
 			args: []string{"payment", "primary", "pm_123"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
 					Return(&api.GetPaymentMethodResponse{
@@ -94,7 +87,6 @@ func TestPaymentPrimaryCmd(t *testing.T) {
 		{
 			name: "success",
 			args: []string{"payment", "primary", "pm_123"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
 					Return(&api.GetPaymentMethodResponse{
