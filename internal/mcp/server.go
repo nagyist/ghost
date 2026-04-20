@@ -38,7 +38,7 @@ func NewServer(ctx context.Context, app *common.App, logger *slog.Logger) (*Serv
 		Version: config.Version,
 	}, &mcp.ServerOptions{
 		Instructions: "Ghost provides tools for creating, managing, and querying fully-managed PostgreSQL databases. " +
-			"Use it to provision new databases, fork existing ones, resume paused instances, execute SQL queries, inspect schemas, and manage credentials. " +
+			"Use it to provision new databases, fork existing ones, pause and resume instances, execute SQL queries, inspect schemas, and manage credentials. " +
 			"It also provides access to PostgreSQL documentation through semantic and keyword search.",
 		Logger: logger,
 	})
@@ -93,6 +93,7 @@ func (s *Server) registerTools(ctx context.Context) {
 	mcp.AddTool(s.mcpServer, newCreateTool(), s.handleCreate)
 	mcp.AddTool(s.mcpServer, newDeleteTool(), s.handleDelete)
 	mcp.AddTool(s.mcpServer, newForkTool(), s.handleFork)
+	mcp.AddTool(s.mcpServer, newPauseTool(), s.handlePause)
 	mcp.AddTool(s.mcpServer, newResumeTool(), s.handleResume)
 	mcp.AddTool(s.mcpServer, newConnectTool(), s.handleConnect)
 	mcp.AddTool(s.mcpServer, newSQLTool(), s.handleSQL)

@@ -66,6 +66,7 @@ ghost list        # List all databases
 | `logout` | Remove stored credentials |
 | `mcp` | Ghost Model Context Protocol (MCP) server |
 | `password` | Reset the password for a database |
+| `pause` | Pause a running database |
 | `psql` | Connect to a database using psql |
 | `rename` | Rename a database |
 | `resume` | Resume a paused database |

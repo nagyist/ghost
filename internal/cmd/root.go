@@ -96,6 +96,7 @@ func buildRootCmd() (*cobra.Command, *common.App, error) {
 	cmd.AddCommand(buildListCmd(app))
 	cmd.AddCommand(buildStatusCmd(app))
 	cmd.AddCommand(buildDeleteCmd(app))
+	cmd.AddCommand(buildPauseCmd(app))
 	cmd.AddCommand(buildResumeCmd(app))
 	cmd.AddCommand(buildConnectCmd(app))
 	cmd.AddCommand(buildPsqlCmd(app))
