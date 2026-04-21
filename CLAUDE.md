@@ -310,7 +310,7 @@ Creating a release automatically triggers a build and publish via GoReleaser. To
    gh run watch $(gh run list -w Release -b v<NEXT_VERSION> -L 1 --json databaseId -q '.[0].databaseId')
    ```
 
-The tag push triggers the `Release` workflow, which runs GoReleaser to build binaries, Docker images, and Linux packages, then publishes them to GitHub Releases, S3, GHCR, and PackageCloud. No manual deploy step is needed.
+The tag push triggers the `Release` workflow, which runs GoReleaser to build binaries, Docker images, and Linux packages, then publishes them to GitHub Releases, S3, GHCR, PackageCloud, and the [Homebrew tap](https://github.com/timescale/homebrew-tap). No manual deploy step is needed.
 
 ## Keeping Documentation Up to Date
 
