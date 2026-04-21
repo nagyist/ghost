@@ -183,6 +183,7 @@ cfg, client, projectID := app.TryGetAll()
 - Use `common.ExitWithCode()` for specific exit codes (defined in `internal/common/errors.go`)
 - Error messages should start with a lowercase letter
 - Use `errors.New()` for static error strings; only use `fmt.Errorf()` when you need format verbs (`%w`, `%v`, `%s`, etc.)
+- **Handle `Close()` errors (and other deferred cleanup errors) explicitly.** Use `defer x.Close()` for best-effort cleanup on error/panic paths, *and also* call `x.Close()` explicitly at the end of the happy path and return its error. That way, if an earlier error occurred it's returned first; if the only error is from close, it still gets returned. This relies on `Close()` being idempotent, which is typical.
 
 ## Password Errors
 
