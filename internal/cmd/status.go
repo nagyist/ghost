@@ -104,6 +104,14 @@ func outputStatus(cmd *cobra.Command, status common.Status) {
 	} else {
 		cmd.Printf("Databases: %d\n", total)
 	}
+	// Show cost only when at least one field is non-zero. Free-tier users
+	// usually have zero cost, and "$0.00" adds noise.
+	costToDate := util.Deref(status.CostToDate)
+	estimatedTotalCost := util.Deref(status.EstimatedTotalCost)
+	if costToDate > 0 || estimatedTotalCost > 0 {
+		cmd.Printf("Cost: $%.2f so far this cycle ($%.2f estimated total)\n",
+			costToDate, estimatedTotalCost)
+	}
 }
 
 // formatPercent formats a percentage value, dropping the trailing ".0" for whole numbers.

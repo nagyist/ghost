@@ -165,6 +165,65 @@ Storage: 512MiB/1TiB (0%)
 Databases: 2 (1 running, 1 paused)
 `,
 		},
+		{
+			name: "text output with cost",
+			args: []string{"status"},
+			setup: func(m *mock.MockClientWithResponsesInterface) {
+				m.EXPECT().SpaceStatusWithResponse(validCtx, "test-project").
+					Return(&api.SpaceStatusResponse{
+						HTTPResponse: httpResponse(http.StatusOK),
+						JSON200: &api.SpaceStatus{
+							ComputeMinutes:      120,
+							ComputeLimitMinutes: 600,
+							StorageMib:          512,
+							StorageLimitMib:     1048576,
+							CostToDate:          new(12.34),
+							EstimatedTotalCost:  new(27.50),
+						},
+					}, nil)
+				databases := []api.Database{sampleDatabase()}
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+					Return(&api.ListDatabasesResponse{
+						HTTPResponse: httpResponse(http.StatusOK),
+						JSON200:      &databases,
+					}, nil)
+			},
+			wantStdout: `Space Usage
+Compute: 2/10 hours (20%)
+Storage: 512MiB/1TiB (0%)
+Databases: 1 (1 running)
+Cost: $12.34 so far this cycle ($27.50 estimated total)
+`,
+		},
+		{
+			name: "text output with zero cost is omitted",
+			args: []string{"status"},
+			setup: func(m *mock.MockClientWithResponsesInterface) {
+				m.EXPECT().SpaceStatusWithResponse(validCtx, "test-project").
+					Return(&api.SpaceStatusResponse{
+						HTTPResponse: httpResponse(http.StatusOK),
+						JSON200: &api.SpaceStatus{
+							ComputeMinutes:      120,
+							ComputeLimitMinutes: 600,
+							StorageMib:          512,
+							StorageLimitMib:     1048576,
+							CostToDate:          new(0.0),
+							EstimatedTotalCost:  new(0.0),
+						},
+					}, nil)
+				databases := []api.Database{sampleDatabase()}
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+					Return(&api.ListDatabasesResponse{
+						HTTPResponse: httpResponse(http.StatusOK),
+						JSON200:      &databases,
+					}, nil)
+			},
+			wantStdout: `Space Usage
+Compute: 2/10 hours (20%)
+Storage: 512MiB/1TiB (0%)
+Databases: 1 (1 running)
+`,
+		},
 	}
 
 	runCmdTests(t, tests)

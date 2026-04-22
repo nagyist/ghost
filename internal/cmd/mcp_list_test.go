@@ -5,10 +5,13 @@ import (
 )
 
 func TestMCPListCmd(t *testing.T) {
+	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
+
 	tests := []cmdTest{
 		{
 			name: "text output",
 			args: []string{"mcp", "list"},
+			opts: []runOption{experimental},
 			wantStdout: "TYPE    NAME                                    \n" +
 				"prompt  design-postgis-tables                   \n" +
 				"prompt  design-postgres-tables                  \n" +
@@ -25,6 +28,8 @@ func TestMCPListCmd(t *testing.T) {
 				"tool    ghost_feedback                          \n" +
 				"tool    ghost_fork                              \n" +
 				"tool    ghost_fork_dedicated                    \n" +
+				"tool    ghost_invoice                           \n" +
+				"tool    ghost_invoice_list                      \n" +
 				"tool    ghost_list                              \n" +
 				"tool    ghost_login                             \n" +
 				"tool    ghost_logs                              \n" +
@@ -43,11 +48,13 @@ func TestMCPListCmd(t *testing.T) {
 			// it doesn't error. The text test above validates the capability list.
 			name: "json output",
 			args: []string{"mcp", "list", "--json"},
+			opts: []runOption{experimental},
 		},
 		{
 			// Same rationale as JSON.
 			name: "yaml output",
 			args: []string{"mcp", "list", "--yaml"},
+			opts: []runOption{experimental},
 		},
 	}
 

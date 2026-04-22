@@ -325,6 +325,50 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
+  /spaces/{space_id}/invoices:
+    get:
+      operationId: listInvoices
+      summary: List invoices
+      description: |
+        Lists the most recent invoices for a space.
+        Requires a user JWT; API keys are not authorized.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: List of invoices
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoicesResponse"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/invoices/{invoice_id}:
+    get:
+      operationId: getInvoice
+      summary: Get invoice detail
+      description: |
+        Returns the line-item breakdown for a single invoice, looked up by the
+        invoice ID returned from `listInvoices`.
+        Requires a user JWT; API keys are not authorized.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - name: invoice_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Invoice detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoiceDetail"
+        default:
+          $ref: "#/components/responses/Error"
+
   /spaces/{space_id}/databases/{database_ref}/logs:
     get:
       operationId: databaseLogs
@@ -351,6 +395,71 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LogsResponse"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/databases/{database_ref}/share:
+    post:
+      operationId: shareDatabase
+      summary: Share a database
+      description: Creates a shareable snapshot of a database. Returns a share token that can be used to fork the database into another space.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/DatabaseRef"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShareDatabaseRequest"
+      responses:
+        "201":
+          description: Share created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatabaseShare"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/shares:
+    get:
+      operationId: listShares
+      summary: List database shares
+      description: Lists all shared snapshots for a space.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: List of shares
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DatabaseShare"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/shares/{share_id}:
+    delete:
+      operationId: revokeShare
+      summary: Revoke a database share
+      description: Revokes a shared snapshot, deleting the underlying storage snapshot.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - name: share_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Share revoked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatabaseShare"
         default:
           $ref: "#/components/responses/Error"
 
@@ -677,6 +786,100 @@ components:
         compute_limit_minutes:
           type: integer
           format: int64
+        cost_to_date:
+          type: number
+          format: double
+          description: Net cost accrued so far this billing cycle.
+        estimated_total_cost:
+          type: number
+          format: double
+          description: Projected net total for the current billing cycle based on usage to date.
+        billing_period_start:
+          type: string
+          format: date-time
+        billing_period_end:
+          type: string
+          format: date-time
+
+    InvoicesResponse:
+      type: object
+      required:
+        - invoices
+      properties:
+        invoices:
+          type: array
+          items:
+            $ref: "#/components/schemas/Invoice"
+
+    Invoice:
+      type: object
+      required:
+        - id
+        - invoice_number
+        - invoice_date
+        - total
+        - status
+      properties:
+        id:
+          type: string
+          description: Opaque invoice ID used to look up invoice details.
+        invoice_number:
+          type: string
+          description: Human-readable invoice number (e.g. "INV-12345").
+        invoice_date:
+          type: string
+          format: date-time
+        total:
+          type: number
+          format: double
+          description: Invoice total.
+        status:
+          type: string
+          enum: [paid, issued, delinquent]
+          description: |
+            Invoice status:
+            - `paid` — invoice has been paid.
+            - `issued` — invoice has been issued and is within its net-terms payment window (not yet paid, not yet delinquent).
+            - `delinquent` — payment has failed and the invoice needs to be resolved by the user.
+
+    InvoiceDetail:
+      type: object
+      required:
+        - line_items
+      properties:
+        line_items:
+          type: array
+          items:
+            $ref: "#/components/schemas/InvoiceLineItem"
+
+    InvoiceLineItem:
+      type: object
+      required:
+        - product_type
+        - quantity
+        - unit_price
+        - line_total
+      properties:
+        database_id:
+          type: string
+          description: Ghost database ID this line item is attributed to, if any.
+        product_type:
+          type: string
+          description: "Product category (e.g. storage, compute)."
+        detailed_spec:
+          type: string
+          description: Additional spec details (e.g. tier, size).
+        quantity:
+          type: number
+          format: double
+        unit_price:
+          type: number
+          format: double
+          description: Unit price.
+        line_total:
+          type: number
+          format: double
+          description: Line total.
 
     DatabaseSize:
       type: string
@@ -702,6 +905,44 @@ components:
           $ref: "#/components/schemas/DatabaseType"
         size:
           $ref: "#/components/schemas/DatabaseSize"
+        share_token:
+          type: string
+          description: Share token from a database share. When provided, creates a fork from the shared snapshot into this space.
+
+    ShareDatabaseRequest:
+      type: object
+      properties:
+        expires_at:
+          type: string
+          format: date-time
+          description: Timestamp after which the share expires. If omitted, the share does not expire.
+
+    DatabaseShare:
+      type: object
+      required:
+        - id
+        - share_token
+        - database_id
+        - database_name
+        - created_at
+      properties:
+        id:
+          type: string
+        share_token:
+          type: string
+        database_id:
+          type: string
+        database_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        revoked_at:
+          type: string
+          format: date-time
 
     ForkDatabaseRequest:
       type: object

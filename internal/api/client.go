@@ -172,6 +172,17 @@ type ClientInterface interface {
 	// ResumeDatabase request
 	ResumeDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ShareDatabaseWithBody request with any body
+	ShareDatabaseWithBody(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ShareDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListInvoices request
+	ListInvoices(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetInvoice request
+	GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListPaymentMethods request
 	ListPaymentMethods(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -189,6 +200,12 @@ type ClientInterface interface {
 
 	// SetPaymentMethodPrimary request
 	SetPaymentMethodPrimary(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListShares request
+	ListShares(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RevokeShare request
+	RevokeShare(ctx context.Context, spaceId SpaceId, shareId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SpaceStatus request
 	SpaceStatus(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -566,6 +583,54 @@ func (c *Client) ResumeDatabase(ctx context.Context, spaceId SpaceId, databaseRe
 	return c.Client.Do(req)
 }
 
+func (c *Client) ShareDatabaseWithBody(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewShareDatabaseRequestWithBody(c.Server, spaceId, databaseRef, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ShareDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewShareDatabaseRequest(c.Server, spaceId, databaseRef, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListInvoices(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListInvoicesRequest(c.Server, spaceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetInvoiceRequest(c.Server, spaceId, invoiceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListPaymentMethods(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListPaymentMethodsRequest(c.Server, spaceId)
 	if err != nil {
@@ -628,6 +693,30 @@ func (c *Client) CancelPaymentMethodDeletion(ctx context.Context, spaceId SpaceI
 
 func (c *Client) SetPaymentMethodPrimary(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSetPaymentMethodPrimaryRequest(c.Server, spaceId, paymentId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListShares(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListSharesRequest(c.Server, spaceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RevokeShare(ctx context.Context, spaceId SpaceId, shareId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeShareRequest(c.Server, spaceId, shareId)
 	if err != nil {
 		return nil, err
 	}
@@ -1539,6 +1628,135 @@ func NewResumeDatabaseRequest(server string, spaceId SpaceId, databaseRef Databa
 	return req, nil
 }
 
+// NewShareDatabaseRequest calls the generic ShareDatabase builder with application/json body
+func NewShareDatabaseRequest(server string, spaceId SpaceId, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewShareDatabaseRequestWithBody(server, spaceId, databaseRef, "application/json", bodyReader)
+}
+
+// NewShareDatabaseRequestWithBody generates requests for ShareDatabase with any type of body
+func NewShareDatabaseRequestWithBody(server string, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "database_ref", runtime.ParamLocationPath, databaseRef)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s/databases/%s/share", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListInvoicesRequest generates requests for ListInvoices
+func NewListInvoicesRequest(server string, spaceId SpaceId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s/invoices", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetInvoiceRequest generates requests for GetInvoice
+func NewGetInvoiceRequest(server string, spaceId SpaceId, invoiceId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "invoice_id", runtime.ParamLocationPath, invoiceId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s/invoices/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListPaymentMethodsRequest generates requests for ListPaymentMethods
 func NewListPaymentMethodsRequest(server string, spaceId SpaceId) (*http.Request, error) {
 	var err error
@@ -1771,6 +1989,81 @@ func NewSetPaymentMethodPrimaryRequest(server string, spaceId SpaceId, paymentId
 	return req, nil
 }
 
+// NewListSharesRequest generates requests for ListShares
+func NewListSharesRequest(server string, spaceId SpaceId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s/shares", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRevokeShareRequest generates requests for RevokeShare
+func NewRevokeShareRequest(server string, spaceId SpaceId, shareId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "share_id", runtime.ParamLocationPath, shareId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s/shares/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewSpaceStatusRequest generates requests for SpaceStatus
 func NewSpaceStatusRequest(server string, spaceId SpaceId) (*http.Request, error) {
 	var err error
@@ -1931,6 +2224,17 @@ type ClientWithResponsesInterface interface {
 	// ResumeDatabaseWithResponse request
 	ResumeDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*ResumeDatabaseResponse, error)
 
+	// ShareDatabaseWithBodyWithResponse request with any body
+	ShareDatabaseWithBodyWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ShareDatabaseResponse, error)
+
+	ShareDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ShareDatabaseResponse, error)
+
+	// ListInvoicesWithResponse request
+	ListInvoicesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListInvoicesResponse, error)
+
+	// GetInvoiceWithResponse request
+	GetInvoiceWithResponse(ctx context.Context, spaceId SpaceId, invoiceId string, reqEditors ...RequestEditorFn) (*GetInvoiceResponse, error)
+
 	// ListPaymentMethodsWithResponse request
 	ListPaymentMethodsWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListPaymentMethodsResponse, error)
 
@@ -1948,6 +2252,12 @@ type ClientWithResponsesInterface interface {
 
 	// SetPaymentMethodPrimaryWithResponse request
 	SetPaymentMethodPrimaryWithResponse(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*SetPaymentMethodPrimaryResponse, error)
+
+	// ListSharesWithResponse request
+	ListSharesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListSharesResponse, error)
+
+	// RevokeShareWithResponse request
+	RevokeShareWithResponse(ctx context.Context, spaceId SpaceId, shareId string, reqEditors ...RequestEditorFn) (*RevokeShareResponse, error)
 
 	// SpaceStatusWithResponse request
 	SpaceStatusWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*SpaceStatusResponse, error)
@@ -2430,6 +2740,75 @@ func (r ResumeDatabaseResponse) StatusCode() int {
 	return 0
 }
 
+type ShareDatabaseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *DatabaseShare
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ShareDatabaseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ShareDatabaseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListInvoicesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *InvoicesResponse
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ListInvoicesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListInvoicesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetInvoiceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *InvoiceDetail
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r GetInvoiceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetInvoiceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListPaymentMethodsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2559,6 +2938,52 @@ func (r SetPaymentMethodPrimaryResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r SetPaymentMethodPrimaryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListSharesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]DatabaseShare
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ListSharesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListSharesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RevokeShareResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DatabaseShare
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r RevokeShareResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RevokeShareResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2857,6 +3282,41 @@ func (c *ClientWithResponses) ResumeDatabaseWithResponse(ctx context.Context, sp
 	return ParseResumeDatabaseResponse(rsp)
 }
 
+// ShareDatabaseWithBodyWithResponse request with arbitrary body returning *ShareDatabaseResponse
+func (c *ClientWithResponses) ShareDatabaseWithBodyWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ShareDatabaseResponse, error) {
+	rsp, err := c.ShareDatabaseWithBody(ctx, spaceId, databaseRef, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseShareDatabaseResponse(rsp)
+}
+
+func (c *ClientWithResponses) ShareDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ShareDatabaseResponse, error) {
+	rsp, err := c.ShareDatabase(ctx, spaceId, databaseRef, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseShareDatabaseResponse(rsp)
+}
+
+// ListInvoicesWithResponse request returning *ListInvoicesResponse
+func (c *ClientWithResponses) ListInvoicesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListInvoicesResponse, error) {
+	rsp, err := c.ListInvoices(ctx, spaceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListInvoicesResponse(rsp)
+}
+
+// GetInvoiceWithResponse request returning *GetInvoiceResponse
+func (c *ClientWithResponses) GetInvoiceWithResponse(ctx context.Context, spaceId SpaceId, invoiceId string, reqEditors ...RequestEditorFn) (*GetInvoiceResponse, error) {
+	rsp, err := c.GetInvoice(ctx, spaceId, invoiceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetInvoiceResponse(rsp)
+}
+
 // ListPaymentMethodsWithResponse request returning *ListPaymentMethodsResponse
 func (c *ClientWithResponses) ListPaymentMethodsWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListPaymentMethodsResponse, error) {
 	rsp, err := c.ListPaymentMethods(ctx, spaceId, reqEditors...)
@@ -2909,6 +3369,24 @@ func (c *ClientWithResponses) SetPaymentMethodPrimaryWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseSetPaymentMethodPrimaryResponse(rsp)
+}
+
+// ListSharesWithResponse request returning *ListSharesResponse
+func (c *ClientWithResponses) ListSharesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListSharesResponse, error) {
+	rsp, err := c.ListShares(ctx, spaceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListSharesResponse(rsp)
+}
+
+// RevokeShareWithResponse request returning *RevokeShareResponse
+func (c *ClientWithResponses) RevokeShareWithResponse(ctx context.Context, spaceId SpaceId, shareId string, reqEditors ...RequestEditorFn) (*RevokeShareResponse, error) {
+	rsp, err := c.RevokeShare(ctx, spaceId, shareId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeShareResponse(rsp)
 }
 
 // SpaceStatusWithResponse request returning *SpaceStatusResponse
@@ -3568,6 +4046,105 @@ func ParseResumeDatabaseResponse(rsp *http.Response) (*ResumeDatabaseResponse, e
 	return response, nil
 }
 
+// ParseShareDatabaseResponse parses an HTTP response from a ShareDatabaseWithResponse call
+func ParseShareDatabaseResponse(rsp *http.Response) (*ShareDatabaseResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ShareDatabaseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest DatabaseShare
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListInvoicesResponse parses an HTTP response from a ListInvoicesWithResponse call
+func ParseListInvoicesResponse(rsp *http.Response) (*ListInvoicesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListInvoicesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest InvoicesResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetInvoiceResponse parses an HTTP response from a GetInvoiceWithResponse call
+func ParseGetInvoiceResponse(rsp *http.Response) (*GetInvoiceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetInvoiceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest InvoiceDetail
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListPaymentMethodsResponse parses an HTTP response from a ListPaymentMethodsWithResponse call
 func ParseListPaymentMethodsResponse(rsp *http.Response) (*ListPaymentMethodsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -3733,6 +4310,72 @@ func ParseSetPaymentMethodPrimaryResponse(rsp *http.Response) (*SetPaymentMethod
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListSharesResponse parses an HTTP response from a ListSharesWithResponse call
+func ParseListSharesResponse(rsp *http.Response) (*ListSharesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListSharesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []DatabaseShare
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRevokeShareResponse parses an HTTP response from a RevokeShareWithResponse call
+func ParseRevokeShareResponse(rsp *http.Response) (*RevokeShareResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RevokeShareResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DatabaseShare
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

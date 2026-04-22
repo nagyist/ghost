@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 
@@ -33,6 +34,10 @@ type Status struct {
 	StorageMib          int64          `json:"storage_mib"`
 	StorageLimitMib     int64          `json:"storage_limit_mib"`
 	Databases           DatabaseCounts `json:"databases"`
+	CostToDate          *float64       `json:"cost_to_date,omitempty"`
+	EstimatedTotalCost  *float64       `json:"estimated_total_cost,omitempty"`
+	BillingPeriodStart  *time.Time     `json:"billing_period_start,omitempty"`
+	BillingPeriodEnd    *time.Time     `json:"billing_period_end,omitempty"`
 }
 
 // FetchStatus fetches space usage and database counts from the API.
@@ -111,5 +116,9 @@ func FetchStatus(ctx context.Context, client api.ClientWithResponsesInterface, p
 		StorageMib:          spaceStatus.StorageMib,
 		StorageLimitMib:     spaceStatus.StorageLimitMib,
 		Databases:           counts,
+		CostToDate:          spaceStatus.CostToDate,
+		EstimatedTotalCost:  spaceStatus.EstimatedTotalCost,
+		BillingPeriodStart:  spaceStatus.BillingPeriodStart,
+		BillingPeriodEnd:    spaceStatus.BillingPeriodEnd,
 	}, nil
 }

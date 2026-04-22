@@ -120,6 +120,9 @@ func buildRootCmd() (*cobra.Command, *common.App, error) {
 	cmd.AddCommand(buildRenameCmd(app))
 	cmd.AddCommand(buildApiKeyCmd(app))
 	cmd.AddCommand(buildPaymentInteractiveCmd(app))
+	if app.Experimental {
+		cmd.AddCommand(buildInvoiceCmd(app))
+	}
 
 	wrapCommands(cmd, app)
 

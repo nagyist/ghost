@@ -42,6 +42,13 @@ const (
 	DatabaseTypeStandard  DatabaseType = "standard"
 )
 
+// Defines values for InvoiceStatus.
+const (
+	InvoiceStatusDelinquent InvoiceStatus = "delinquent"
+	InvoiceStatusIssued     InvoiceStatus = "issued"
+	InvoiceStatusPaid       InvoiceStatus = "paid"
+)
+
 // ApiKey defines model for ApiKey.
 type ApiKey struct {
 	CreatedAt time.Time `json:"created_at"`
@@ -84,9 +91,12 @@ type CreateApiKeyRequest struct {
 
 // CreateDatabaseRequest defines model for CreateDatabaseRequest.
 type CreateDatabaseRequest struct {
-	Name *string       `json:"name,omitempty"`
-	Size *DatabaseSize `json:"size,omitempty"`
-	Type *DatabaseType `json:"type,omitempty"`
+	Name *string `json:"name,omitempty"`
+
+	// ShareToken Share token from a database share. When provided, creates a fork from the shared snapshot into this space.
+	ShareToken *string       `json:"share_token,omitempty"`
+	Size       *DatabaseSize `json:"size,omitempty"`
+	Type       *DatabaseType `json:"type,omitempty"`
 }
 
 // CreateSpaceRequest defines model for CreateSpaceRequest.
@@ -109,6 +119,17 @@ type Database struct {
 
 // DatabaseStatus defines model for Database.Status.
 type DatabaseStatus string
+
+// DatabaseShare defines model for DatabaseShare.
+type DatabaseShare struct {
+	CreatedAt    time.Time  `json:"created_at"`
+	DatabaseId   string     `json:"database_id"`
+	DatabaseName string     `json:"database_name"`
+	ExpiresAt    *time.Time `json:"expires_at,omitempty"`
+	Id           string     `json:"id"`
+	RevokedAt    *time.Time `json:"revoked_at,omitempty"`
+	ShareToken   string     `json:"share_token"`
+}
 
 // DatabaseSize defines model for DatabaseSize.
 type DatabaseSize string
@@ -139,6 +160,60 @@ type ForkDatabaseRequest struct {
 // IdentifyRequest defines model for IdentifyRequest.
 type IdentifyRequest struct {
 	Properties map[string]interface{} `json:"properties"`
+}
+
+// Invoice defines model for Invoice.
+type Invoice struct {
+	// Id Opaque invoice ID used to look up invoice details.
+	Id          string    `json:"id"`
+	InvoiceDate time.Time `json:"invoice_date"`
+
+	// InvoiceNumber Human-readable invoice number (e.g. "INV-12345").
+	InvoiceNumber string `json:"invoice_number"`
+
+	// Status Invoice status:
+	// - `paid` — invoice has been paid.
+	// - `issued` — invoice has been issued and is within its net-terms payment window (not yet paid, not yet delinquent).
+	// - `delinquent` — payment has failed and the invoice needs to be resolved by the user.
+	Status InvoiceStatus `json:"status"`
+
+	// Total Invoice total.
+	Total float64 `json:"total"`
+}
+
+// InvoiceStatus Invoice status:
+// - `paid` — invoice has been paid.
+// - `issued` — invoice has been issued and is within its net-terms payment window (not yet paid, not yet delinquent).
+// - `delinquent` — payment has failed and the invoice needs to be resolved by the user.
+type InvoiceStatus string
+
+// InvoiceDetail defines model for InvoiceDetail.
+type InvoiceDetail struct {
+	LineItems []InvoiceLineItem `json:"line_items"`
+}
+
+// InvoiceLineItem defines model for InvoiceLineItem.
+type InvoiceLineItem struct {
+	// DatabaseId Ghost database ID this line item is attributed to, if any.
+	DatabaseId *string `json:"database_id,omitempty"`
+
+	// DetailedSpec Additional spec details (e.g. tier, size).
+	DetailedSpec *string `json:"detailed_spec,omitempty"`
+
+	// LineTotal Line total.
+	LineTotal float64 `json:"line_total"`
+
+	// ProductType Product category (e.g. storage, compute).
+	ProductType string  `json:"product_type"`
+	Quantity    float64 `json:"quantity"`
+
+	// UnitPrice Unit price.
+	UnitPrice float64 `json:"unit_price"`
+}
+
+// InvoicesResponse defines model for InvoicesResponse.
+type InvoicesResponse struct {
+	Invoices []Invoice `json:"invoices"`
 }
 
 // LogoutRequest defines model for LogoutRequest.
@@ -178,6 +253,12 @@ type RenameDatabaseRequest struct {
 	Name string `json:"name"`
 }
 
+// ShareDatabaseRequest defines model for ShareDatabaseRequest.
+type ShareDatabaseRequest struct {
+	// ExpiresAt Timestamp after which the share expires. If omitted, the share does not expire.
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+}
+
 // Space defines model for Space.
 type Space struct {
 	Id   string `json:"id"`
@@ -186,10 +267,18 @@ type Space struct {
 
 // SpaceStatus defines model for SpaceStatus.
 type SpaceStatus struct {
-	ComputeLimitMinutes int64 `json:"compute_limit_minutes"`
-	ComputeMinutes      int64 `json:"compute_minutes"`
-	StorageLimitMib     int64 `json:"storage_limit_mib"`
-	StorageMib          int64 `json:"storage_mib"`
+	BillingPeriodEnd    *time.Time `json:"billing_period_end,omitempty"`
+	BillingPeriodStart  *time.Time `json:"billing_period_start,omitempty"`
+	ComputeLimitMinutes int64      `json:"compute_limit_minutes"`
+	ComputeMinutes      int64      `json:"compute_minutes"`
+
+	// CostToDate Net cost accrued so far this billing cycle.
+	CostToDate *float64 `json:"cost_to_date,omitempty"`
+
+	// EstimatedTotalCost Projected net total for the current billing cycle based on usage to date.
+	EstimatedTotalCost *float64 `json:"estimated_total_cost,omitempty"`
+	StorageLimitMib    int64    `json:"storage_limit_mib"`
+	StorageMib         int64    `json:"storage_mib"`
 }
 
 // StatusResponse defines model for StatusResponse.
@@ -262,3 +351,6 @@ type UpdatePasswordJSONRequestBody = UpdatePasswordRequest
 
 // RenameDatabaseJSONRequestBody defines body for RenameDatabase for application/json ContentType.
 type RenameDatabaseJSONRequestBody = RenameDatabaseRequest
+
+// ShareDatabaseJSONRequestBody defines body for ShareDatabase for application/json ContentType.
+type ShareDatabaseJSONRequestBody = ShareDatabaseRequest
