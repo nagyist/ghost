@@ -272,10 +272,10 @@ type SpaceStatus struct {
 	ComputeLimitMinutes int64      `json:"compute_limit_minutes"`
 	ComputeMinutes      int64      `json:"compute_minutes"`
 
-	// CostToDate Net cost accrued so far this billing cycle.
+	// CostToDate Gross cost accrued so far this billing cycle.
 	CostToDate *float64 `json:"cost_to_date,omitempty"`
 
-	// EstimatedTotalCost Projected net total for the current billing cycle based on usage to date.
+	// EstimatedTotalCost Projected gross total for the current billing cycle based on usage to date.
 	EstimatedTotalCost *float64 `json:"estimated_total_cost,omitempty"`
 	StorageLimitMib    int64    `json:"storage_limit_mib"`
 	StorageMib         int64    `json:"storage_mib"`

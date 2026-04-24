@@ -9,6 +9,8 @@ servers:
     description: Production
 
 paths:
+  # --- System ---
+
   /health:
     get:
       operationId: health
@@ -17,6 +19,8 @@ paths:
       responses:
         "200":
           description: Service is healthy
+
+  # --- Auth ---
 
   /auth/info:
     get:
@@ -32,6 +36,28 @@ paths:
                 $ref: "#/components/schemas/AuthInfo"
         default:
           $ref: "#/components/responses/Error"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: Log out
+      description: |
+        Logs the user out by revoking the given refresh token.
+        Requires user authentication (JWT). API keys and project access tokens
+        cannot be used with this endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogoutRequest"
+      responses:
+        "204":
+          description: Logged out successfully
+        default:
+          $ref: "#/components/responses/Error"
+
+  # --- Spaces ---
 
   /spaces:
     get:
@@ -73,6 +99,25 @@ paths:
                 $ref: "#/components/schemas/Space"
         default:
           $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/status:
+    get:
+      operationId: spaceStatus
+      summary: Get space status
+      description: Returns compute and storage usage for a space.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: Space status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpaceStatus"
+        default:
+          $ref: "#/components/responses/Error"
+
+  # --- API Keys ---
 
   /spaces/{space_id}/api_keys:
     get:
@@ -133,6 +178,8 @@ paths:
           description: API key deleted
         default:
           $ref: "#/components/responses/Error"
+
+  # --- Databases ---
 
   /spaces/{space_id}/databases:
     get:
@@ -232,26 +279,6 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
-  /spaces/{space_id}/databases/{database_ref}/password:
-    post:
-      operationId: updatePassword
-      summary: Update database password
-      description: Resets the database password.
-      parameters:
-        - $ref: "#/components/parameters/SpaceId"
-        - $ref: "#/components/parameters/DatabaseRef"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UpdatePasswordRequest"
-      responses:
-        "204":
-          description: Password updated
-        default:
-          $ref: "#/components/responses/Error"
-
   /spaces/{space_id}/databases/{database_ref}/pause:
     post:
       operationId: pauseDatabase
@@ -308,64 +335,23 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
-  /spaces/{space_id}/status:
-    get:
-      operationId: spaceStatus
-      summary: Get space status
-      description: Returns compute and storage usage for a space.
+  /spaces/{space_id}/databases/{database_ref}/password:
+    post:
+      operationId: updatePassword
+      summary: Update database password
+      description: Resets the database password.
       parameters:
         - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/DatabaseRef"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePasswordRequest"
       responses:
-        "200":
-          description: Space status
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SpaceStatus"
-        default:
-          $ref: "#/components/responses/Error"
-
-  /spaces/{space_id}/invoices:
-    get:
-      operationId: listInvoices
-      summary: List invoices
-      description: |
-        Lists the most recent invoices for a space.
-        Requires a user JWT; API keys are not authorized.
-      parameters:
-        - $ref: "#/components/parameters/SpaceId"
-      responses:
-        "200":
-          description: List of invoices
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvoicesResponse"
-        default:
-          $ref: "#/components/responses/Error"
-
-  /spaces/{space_id}/invoices/{invoice_id}:
-    get:
-      operationId: getInvoice
-      summary: Get invoice detail
-      description: |
-        Returns the line-item breakdown for a single invoice, looked up by the
-        invoice ID returned from `listInvoices`.
-        Requires a user JWT; API keys are not authorized.
-      parameters:
-        - $ref: "#/components/parameters/SpaceId"
-        - name: invoice_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Invoice detail
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvoiceDetail"
+        "204":
+          description: Password updated
         default:
           $ref: "#/components/responses/Error"
 
@@ -422,6 +408,8 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
+  # --- Shares ---
+
   /spaces/{space_id}/shares:
     get:
       operationId: listShares
@@ -460,6 +448,52 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DatabaseShare"
+        default:
+          $ref: "#/components/responses/Error"
+
+  # --- Billing ---
+
+  /spaces/{space_id}/invoices:
+    get:
+      operationId: listInvoices
+      summary: List invoices
+      description: |
+        Lists the most recent invoices for a space.
+        Requires a user JWT; API keys are not authorized.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: List of invoices
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoicesResponse"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/invoices/{invoice_id}:
+    get:
+      operationId: getInvoice
+      summary: Get invoice detail
+      description: |
+        Returns the line-item breakdown for a single invoice, looked up by the
+        invoice ID returned from `listInvoices`.
+        Requires a user JWT; API keys are not authorized.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - name: invoice_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Invoice detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoiceDetail"
         default:
           $ref: "#/components/responses/Error"
 
@@ -553,6 +587,8 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
+  # --- Analytics ---
+
   /analytics/identify:
     post:
       operationId: analyticsIdentify
@@ -595,25 +631,7 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
-  /auth/logout:
-    post:
-      operationId: logout
-      summary: Log out
-      description: |
-        Logs the user out by revoking the given refresh token.
-        Requires user authentication (JWT). API keys and project access tokens
-        cannot be used with this endpoint.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/LogoutRequest"
-      responses:
-        "204":
-          description: Logged out successfully
-        default:
-          $ref: "#/components/responses/Error"
+  # --- Feedback ---
 
   /feedback:
     post:
@@ -673,6 +691,182 @@ components:
             $ref: "#/components/schemas/Error"
 
   schemas:
+    # --- Common ---
+
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+
+    StatusResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+
+    # --- Auth ---
+
+    AuthInfo:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - api_key
+            - user
+        api_key:
+          $ref: "#/components/schemas/ApiKeyInfo"
+        user:
+          $ref: "#/components/schemas/UserInfo"
+
+    UserInfo:
+      type: object
+      required:
+        - id
+        - email
+        - name
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+
+    ApiKeyInfo:
+      type: object
+      required:
+        - space_id
+        - space_name
+        - user_id
+        - user_email
+        - user_name
+      properties:
+        space_id:
+          type: string
+        space_name:
+          type: string
+        user_id:
+          type: string
+        user_email:
+          type: string
+        user_name:
+          type: string
+
+    LogoutRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+
+    # --- Spaces ---
+
+    Space:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+
+    CreateSpaceRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+
+    SpaceStatus:
+      type: object
+      required:
+        - storage_mib
+        - storage_limit_mib
+        - compute_minutes
+        - compute_limit_minutes
+      properties:
+        storage_mib:
+          type: integer
+          format: int64
+        storage_limit_mib:
+          type: integer
+          format: int64
+        compute_minutes:
+          type: integer
+          format: int64
+        compute_limit_minutes:
+          type: integer
+          format: int64
+        cost_to_date:
+          type: number
+          format: double
+          description: Gross cost accrued so far this billing cycle.
+        estimated_total_cost:
+          type: number
+          format: double
+          description: Projected gross total for the current billing cycle based on usage to date.
+        billing_period_start:
+          type: string
+          format: date-time
+        billing_period_end:
+          type: string
+          format: date-time
+
+    # --- API Keys ---
+
+    ApiKey:
+      type: object
+      required:
+        - prefix
+        - name
+        - created_at
+      properties:
+        prefix:
+          type: string
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    ApiKeyCredentials:
+      type: object
+      required:
+        - api_key
+        - access_key
+        - secret_key
+      properties:
+        api_key:
+          type: string
+        access_key:
+          type: string
+          deprecated: true
+        secret_key:
+          type: string
+          deprecated: true
+
+    CreateApiKeyRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+
+    # --- Databases ---
+
     Database:
       type: object
       required:
@@ -717,89 +911,108 @@ components:
           type: string
           nullable: true
 
-    AuthInfo:
+    DatabaseType:
+      type: string
+      enum:
+        - standard
+        - dedicated
+      default: standard
+
+    DatabaseSize:
+      type: string
+      enum:
+        - 1x
+        - 2x
+        - 4x
+        - 8x
+
+    CreateDatabaseRequest:
       type: object
-      required:
-        - type
       properties:
+        name:
+          type: string
         type:
+          $ref: "#/components/schemas/DatabaseType"
+        size:
+          $ref: "#/components/schemas/DatabaseSize"
+        share_token:
           type: string
-          enum:
-            - api_key
-            - user
-        api_key:
-          $ref: "#/components/schemas/ApiKeyInfo"
-        user:
-          $ref: "#/components/schemas/UserInfo"
+          description: Share token from a database share. When provided, creates a fork from the shared snapshot into this space.
 
-    ApiKeyInfo:
+    ForkDatabaseRequest:
       type: object
-      required:
-        - space_id
-        - space_name
-        - user_id
-        - user_email
-        - user_name
       properties:
-        space_id:
+        name:
           type: string
-        space_name:
-          type: string
-        user_id:
-          type: string
-        user_email:
-          type: string
-        user_name:
-          type: string
+        type:
+          $ref: "#/components/schemas/DatabaseType"
+        size:
+          $ref: "#/components/schemas/DatabaseSize"
 
-    UserInfo:
+    RenameDatabaseRequest:
       type: object
       required:
-        - id
-        - email
         - name
       properties:
-        id:
-          type: string
-        email:
-          type: string
         name:
           type: string
 
-    SpaceStatus:
+    UpdatePasswordRequest:
       type: object
       required:
-        - storage_mib
-        - storage_limit_mib
-        - compute_minutes
-        - compute_limit_minutes
+        - password
       properties:
-        storage_mib:
-          type: integer
-          format: int64
-        storage_limit_mib:
-          type: integer
-          format: int64
-        compute_minutes:
-          type: integer
-          format: int64
-        compute_limit_minutes:
-          type: integer
-          format: int64
-        cost_to_date:
-          type: number
-          format: double
-          description: Net cost accrued so far this billing cycle.
-        estimated_total_cost:
-          type: number
-          format: double
-          description: Projected net total for the current billing cycle based on usage to date.
-        billing_period_start:
+        password:
+          type: string
+
+    LogsResponse:
+      type: object
+      required:
+        - logs
+      properties:
+        logs:
+          type: array
+          items:
+            type: string
+
+    # --- Shares ---
+
+    DatabaseShare:
+      type: object
+      required:
+        - id
+        - share_token
+        - database_id
+        - database_name
+        - created_at
+      properties:
+        id:
+          type: string
+        share_token:
+          type: string
+        database_id:
+          type: string
+        database_name:
+          type: string
+        created_at:
           type: string
           format: date-time
-        billing_period_end:
+        expires_at:
           type: string
           format: date-time
+        revoked_at:
+          type: string
+          format: date-time
+
+    ShareDatabaseRequest:
+      type: object
+      properties:
+        expires_at:
+          type: string
+          format: date-time
+          description: Timestamp after which the share expires. If omitted, the share does not expire.
+
+    # --- Billing ---
 
     InvoicesResponse:
       type: object
@@ -881,216 +1094,6 @@ components:
           format: double
           description: Line total.
 
-    DatabaseSize:
-      type: string
-      enum:
-        - 1x
-        - 2x
-        - 4x
-        - 8x
-
-    DatabaseType:
-      type: string
-      enum:
-        - standard
-        - dedicated
-      default: standard
-
-    CreateDatabaseRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        type:
-          $ref: "#/components/schemas/DatabaseType"
-        size:
-          $ref: "#/components/schemas/DatabaseSize"
-        share_token:
-          type: string
-          description: Share token from a database share. When provided, creates a fork from the shared snapshot into this space.
-
-    ShareDatabaseRequest:
-      type: object
-      properties:
-        expires_at:
-          type: string
-          format: date-time
-          description: Timestamp after which the share expires. If omitted, the share does not expire.
-
-    DatabaseShare:
-      type: object
-      required:
-        - id
-        - share_token
-        - database_id
-        - database_name
-        - created_at
-      properties:
-        id:
-          type: string
-        share_token:
-          type: string
-        database_id:
-          type: string
-        database_name:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-        expires_at:
-          type: string
-          format: date-time
-        revoked_at:
-          type: string
-          format: date-time
-
-    ForkDatabaseRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        type:
-          $ref: "#/components/schemas/DatabaseType"
-        size:
-          $ref: "#/components/schemas/DatabaseSize"
-
-    RenameDatabaseRequest:
-      type: object
-      required:
-        - name
-      properties:
-        name:
-          type: string
-
-    UpdatePasswordRequest:
-      type: object
-      required:
-        - password
-      properties:
-        password:
-          type: string
-
-    LogsResponse:
-      type: object
-      required:
-        - logs
-      properties:
-        logs:
-          type: array
-          items:
-            type: string
-
-    IdentifyRequest:
-      type: object
-      required:
-        - properties
-      properties:
-        properties:
-          type: object
-          additionalProperties: true
-
-    TrackRequest:
-      type: object
-      required:
-        - event
-      properties:
-        event:
-          type: string
-        properties:
-          type: object
-          additionalProperties: true
-
-    FeedbackRequest:
-      type: object
-      required:
-        - message
-        - source
-        - version
-        - os
-      properties:
-        message:
-          type: string
-        source:
-          type: string
-        version:
-          type: string
-        os:
-          type: string
-
-    StatusResponse:
-      type: object
-      required:
-        - status
-      properties:
-        status:
-          type: string
-
-    Space:
-      type: object
-      required:
-        - id
-        - name
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-
-    CreateSpaceRequest:
-      type: object
-      required:
-        - name
-      properties:
-        name:
-          type: string
-
-    CreateApiKeyRequest:
-      type: object
-      required:
-        - name
-      properties:
-        name:
-          type: string
-
-    ApiKeyCredentials:
-      type: object
-      required:
-        - api_key
-        - access_key
-        - secret_key
-      properties:
-        api_key:
-          type: string
-        access_key:
-          type: string
-          deprecated: true
-        secret_key:
-          type: string
-          deprecated: true
-
-    ApiKey:
-      type: object
-      required:
-        - prefix
-        - name
-        - created_at
-      properties:
-        prefix:
-          type: string
-        name:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-
-    LogoutRequest:
-      type: object
-      required:
-        - refreshToken
-      properties:
-        refreshToken:
-          type: string
-
     PaymentMethod:
       type: object
       required:
@@ -1138,10 +1141,43 @@ components:
         payment_url:
           type: string
 
-    Error:
+    # --- Analytics ---
+
+    IdentifyRequest:
+      type: object
+      required:
+        - properties
+      properties:
+        properties:
+          type: object
+          additionalProperties: true
+
+    TrackRequest:
+      type: object
+      required:
+        - event
+      properties:
+        event:
+          type: string
+        properties:
+          type: object
+          additionalProperties: true
+
+    # --- Feedback ---
+
+    FeedbackRequest:
       type: object
       required:
         - message
+        - source
+        - version
+        - os
       properties:
         message:
+          type: string
+        source:
+          type: string
+        version:
+          type: string
+        os:
           type: string
