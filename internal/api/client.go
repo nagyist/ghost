@@ -205,7 +205,7 @@ type ClientInterface interface {
 	ListShares(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RevokeShare request
-	RevokeShare(ctx context.Context, spaceId SpaceId, shareId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	RevokeShare(ctx context.Context, spaceId SpaceId, shareToken string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SpaceStatus request
 	SpaceStatus(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -715,8 +715,8 @@ func (c *Client) ListShares(ctx context.Context, spaceId SpaceId, reqEditors ...
 	return c.Client.Do(req)
 }
 
-func (c *Client) RevokeShare(ctx context.Context, spaceId SpaceId, shareId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRevokeShareRequest(c.Server, spaceId, shareId)
+func (c *Client) RevokeShare(ctx context.Context, spaceId SpaceId, shareToken string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeShareRequest(c.Server, spaceId, shareToken)
 	if err != nil {
 		return nil, err
 	}
@@ -2024,7 +2024,7 @@ func NewListSharesRequest(server string, spaceId SpaceId) (*http.Request, error)
 }
 
 // NewRevokeShareRequest generates requests for RevokeShare
-func NewRevokeShareRequest(server string, spaceId SpaceId, shareId string) (*http.Request, error) {
+func NewRevokeShareRequest(server string, spaceId SpaceId, shareToken string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -2036,7 +2036,7 @@ func NewRevokeShareRequest(server string, spaceId SpaceId, shareId string) (*htt
 
 	var pathParam1 string
 
-	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "share_id", runtime.ParamLocationPath, shareId)
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "share_token", runtime.ParamLocationPath, shareToken)
 	if err != nil {
 		return nil, err
 	}
@@ -2257,7 +2257,7 @@ type ClientWithResponsesInterface interface {
 	ListSharesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListSharesResponse, error)
 
 	// RevokeShareWithResponse request
-	RevokeShareWithResponse(ctx context.Context, spaceId SpaceId, shareId string, reqEditors ...RequestEditorFn) (*RevokeShareResponse, error)
+	RevokeShareWithResponse(ctx context.Context, spaceId SpaceId, shareToken string, reqEditors ...RequestEditorFn) (*RevokeShareResponse, error)
 
 	// SpaceStatusWithResponse request
 	SpaceStatusWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*SpaceStatusResponse, error)
@@ -3381,8 +3381,8 @@ func (c *ClientWithResponses) ListSharesWithResponse(ctx context.Context, spaceI
 }
 
 // RevokeShareWithResponse request returning *RevokeShareResponse
-func (c *ClientWithResponses) RevokeShareWithResponse(ctx context.Context, spaceId SpaceId, shareId string, reqEditors ...RequestEditorFn) (*RevokeShareResponse, error) {
-	rsp, err := c.RevokeShare(ctx, spaceId, shareId, reqEditors...)
+func (c *ClientWithResponses) RevokeShareWithResponse(ctx context.Context, spaceId SpaceId, shareToken string, reqEditors ...RequestEditorFn) (*RevokeShareResponse, error) {
+	rsp, err := c.RevokeShare(ctx, spaceId, shareToken, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

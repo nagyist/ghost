@@ -783,9 +783,9 @@ func (mr *MockClientInterfaceMockRecorder) ResumeDatabase(ctx, spaceId, database
 }
 
 // RevokeShare mocks base method.
-func (m *MockClientInterface) RevokeShare(ctx context.Context, spaceId api.SpaceId, shareId string, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+func (m *MockClientInterface) RevokeShare(ctx context.Context, spaceId api.SpaceId, shareToken string, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
 	m.ctrl.T.Helper()
-	varargs := []any{ctx, spaceId, shareId}
+	varargs := []any{ctx, spaceId, shareToken}
 	for _, a := range reqEditors {
 		varargs = append(varargs, a)
 	}
@@ -796,9 +796,9 @@ func (m *MockClientInterface) RevokeShare(ctx context.Context, spaceId api.Space
 }
 
 // RevokeShare indicates an expected call of RevokeShare.
-func (mr *MockClientInterfaceMockRecorder) RevokeShare(ctx, spaceId, shareId any, reqEditors ...any) *gomock.Call {
+func (mr *MockClientInterfaceMockRecorder) RevokeShare(ctx, spaceId, shareToken any, reqEditors ...any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, spaceId, shareId}, reqEditors...)
+	varargs := append([]any{ctx, spaceId, shareToken}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RevokeShare", reflect.TypeOf((*MockClientInterface)(nil).RevokeShare), varargs...)
 }
 
@@ -1687,9 +1687,9 @@ func (mr *MockClientWithResponsesInterfaceMockRecorder) ResumeDatabaseWithRespon
 }
 
 // RevokeShareWithResponse mocks base method.
-func (m *MockClientWithResponsesInterface) RevokeShareWithResponse(ctx context.Context, spaceId api.SpaceId, shareId string, reqEditors ...api.RequestEditorFn) (*api.RevokeShareResponse, error) {
+func (m *MockClientWithResponsesInterface) RevokeShareWithResponse(ctx context.Context, spaceId api.SpaceId, shareToken string, reqEditors ...api.RequestEditorFn) (*api.RevokeShareResponse, error) {
 	m.ctrl.T.Helper()
-	varargs := []any{ctx, spaceId, shareId}
+	varargs := []any{ctx, spaceId, shareToken}
 	for _, a := range reqEditors {
 		varargs = append(varargs, a)
 	}
@@ -1700,9 +1700,9 @@ func (m *MockClientWithResponsesInterface) RevokeShareWithResponse(ctx context.C
 }
 
 // RevokeShareWithResponse indicates an expected call of RevokeShareWithResponse.
-func (mr *MockClientWithResponsesInterfaceMockRecorder) RevokeShareWithResponse(ctx, spaceId, shareId any, reqEditors ...any) *gomock.Call {
+func (mr *MockClientWithResponsesInterfaceMockRecorder) RevokeShareWithResponse(ctx, spaceId, shareToken any, reqEditors ...any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, spaceId, shareId}, reqEditors...)
+	varargs := append([]any{ctx, spaceId, shareToken}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RevokeShareWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).RevokeShareWithResponse), varargs...)
 }
 

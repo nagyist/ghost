@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+const (
+	BearerAuthScopes = "BearerAuth.Scopes"
+)
+
 // Defines values for AuthInfoType.
 const (
 	AuthInfoTypeApiKey AuthInfoType = "api_key"
@@ -49,123 +53,205 @@ const (
 	InvoiceStatusPaid       InvoiceStatus = "paid"
 )
 
-// ApiKey defines model for ApiKey.
+// ApiKey An API key in a space.
 type ApiKey struct {
+	// CreatedAt Time the key was created.
 	CreatedAt time.Time `json:"created_at"`
-	Name      string    `json:"name"`
-	Prefix    string    `json:"prefix"`
+
+	// Name User-provided label for the key.
+	Name string `json:"name"`
+
+	// Prefix Stable prefix identifier for the key (starts with `gt_`). Used to identify the key for deletion.
+	Prefix string `json:"prefix"`
 }
 
-// ApiKeyCredentials defines model for ApiKeyCredentials.
+// ApiKeyCredentials Credentials for a newly created API key. The secret portion cannot be retrieved again later.
 type ApiKeyCredentials struct {
+	// AccessKey Use as the username in HTTP Basic auth.
 	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	AccessKey string `json:"access_key"`
-	ApiKey    string `json:"api_key"`
+
+	// ApiKey Bearer token for the key. Use as `Authorization: Bearer <api_key>`.
+	ApiKey string `json:"api_key"`
+
+	// SecretKey Use as the password in HTTP Basic auth.
 	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	SecretKey string `json:"secret_key"`
 }
 
-// ApiKeyInfo defines model for ApiKeyInfo.
+// ApiKeyInfo Information about the API key used for authentication.
 type ApiKeyInfo struct {
-	SpaceId   string `json:"space_id"`
+	// SpaceId Space the API key is scoped to.
+	SpaceId string `json:"space_id"`
+
+	// SpaceName Name of the space the API key is scoped to.
 	SpaceName string `json:"space_name"`
+
+	// UserEmail Email of the user who created the API key.
 	UserEmail string `json:"user_email"`
-	UserId    string `json:"user_id"`
-	UserName  string `json:"user_name"`
+
+	// UserId ID of the user who created the API key.
+	UserId string `json:"user_id"`
+
+	// UserName Name of the user who created the API key.
+	UserName string `json:"user_name"`
 }
 
-// AuthInfo defines model for AuthInfo.
+// AuthInfo Information about the authenticated caller.
 type AuthInfo struct {
-	ApiKey *ApiKeyInfo  `json:"api_key,omitempty"`
-	Type   AuthInfoType `json:"type"`
-	User   *UserInfo    `json:"user,omitempty"`
+	// ApiKey Information about the API key used for authentication.
+	ApiKey *ApiKeyInfo `json:"api_key,omitempty"`
+
+	// Type Type of authentication used.
+	Type AuthInfoType `json:"type"`
+
+	// User Authenticated user details.
+	User *UserInfo `json:"user,omitempty"`
 }
 
-// AuthInfoType defines model for AuthInfo.Type.
+// AuthInfoType Type of authentication used.
 type AuthInfoType string
 
 // CreateApiKeyRequest defines model for CreateApiKeyRequest.
 type CreateApiKeyRequest struct {
+	// Name User-provided label for the new API key.
 	Name string `json:"name"`
 }
 
 // CreateDatabaseRequest defines model for CreateDatabaseRequest.
 type CreateDatabaseRequest struct {
+	// Name Name for the new database. Auto-generated if omitted.
 	Name *string `json:"name,omitempty"`
 
-	// ShareToken Share token from a database share. When provided, creates a fork from the shared snapshot into this space.
-	ShareToken *string       `json:"share_token,omitempty"`
-	Size       *DatabaseSize `json:"size,omitempty"`
-	Type       *DatabaseType `json:"type,omitempty"`
+	// ShareToken Share token from a database share. When provided, creates the new database from the shared snapshot.
+	ShareToken *string `json:"share_token,omitempty"`
+
+	// Size Compute size for dedicated databases. Each step up allocates proportionally more vCPU and RAM.
+	Size *DatabaseSize `json:"size,omitempty"`
+
+	// Type Database deployment model.
+	// - `standard` — shared-resource databases subject to the space's compute and storage limits.
+	// - `dedicated` — per-instance paid databases with guaranteed resources, exempt from space-level auto-pause.
+	Type *DatabaseType `json:"type,omitempty"`
 }
 
 // CreateSpaceRequest defines model for CreateSpaceRequest.
 type CreateSpaceRequest struct {
+	// Name Name for the new space.
 	Name string `json:"name"`
 }
 
-// Database defines model for Database.
+// Database A Ghost database.
 type Database struct {
-	Host       string         `json:"host"`
-	Id         string         `json:"id"`
-	Name       string         `json:"name"`
-	Password   *string        `json:"password"`
-	Port       int            `json:"port"`
-	Size       *DatabaseSize  `json:"size,omitempty"`
-	Status     DatabaseStatus `json:"status"`
-	StorageMib *int           `json:"storage_mib"`
-	Type       DatabaseType   `json:"type"`
+	// Host PostgreSQL hostname for connections.
+	Host string `json:"host"`
+
+	// Id Database ID.
+	Id string `json:"id"`
+
+	// Name Database name. Unique within the space.
+	Name string `json:"name"`
+
+	// Password PostgreSQL password for the default user. Returned on every GET for authorized callers.
+	Password *string `json:"password"`
+
+	// Port PostgreSQL port for connections.
+	Port int `json:"port"`
+
+	// Size Compute size for dedicated databases. Each step up allocates proportionally more vCPU and RAM.
+	Size *DatabaseSize `json:"size,omitempty"`
+
+	// Status Current lifecycle status of the database.
+	Status DatabaseStatus `json:"status"`
+
+	// StorageMib Current disk usage in MiB. Null if not yet available.
+	StorageMib *int `json:"storage_mib"`
+
+	// Type Database deployment model.
+	// - `standard` — shared-resource databases subject to the space's compute and storage limits.
+	// - `dedicated` — per-instance paid databases with guaranteed resources, exempt from space-level auto-pause.
+	Type DatabaseType `json:"type"`
 }
 
-// DatabaseStatus defines model for Database.Status.
+// DatabaseStatus Current lifecycle status of the database.
 type DatabaseStatus string
 
-// DatabaseShare defines model for DatabaseShare.
+// DatabaseShare A shareable snapshot of a database. Can be used to create a new database from the snapshot in another space.
 type DatabaseShare struct {
-	CreatedAt    time.Time  `json:"created_at"`
-	DatabaseId   string     `json:"database_id"`
-	DatabaseName string     `json:"database_name"`
-	ExpiresAt    *time.Time `json:"expires_at,omitempty"`
-	Id           string     `json:"id"`
-	RevokedAt    *time.Time `json:"revoked_at,omitempty"`
-	ShareToken   string     `json:"share_token"`
+	// CreatedAt Time the share was created.
+	CreatedAt time.Time `json:"created_at"`
+
+	// DatabaseId ID of the source database.
+	DatabaseId string `json:"database_id"`
+
+	// DatabaseName Name of the source database.
+	DatabaseName string `json:"database_name"`
+
+	// ExpiresAt Time the share expires. Absent if the share does not expire.
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+
+	// RevokedAt Time the share was revoked. Absent if the share is still active.
+	RevokedAt *time.Time `json:"revoked_at,omitempty"`
+
+	// ShareToken Token passed to `createDatabase` (via `share_token`) to create a new database from the shared snapshot in another space. Also used to revoke the share via `revokeShare`.
+	ShareToken string `json:"share_token"`
 }
 
-// DatabaseSize defines model for DatabaseSize.
+// DatabaseSize Compute size for dedicated databases. Each step up allocates proportionally more vCPU and RAM.
 type DatabaseSize string
 
-// DatabaseType defines model for DatabaseType.
+// DatabaseType Database deployment model.
+// - `standard` — shared-resource databases subject to the space's compute and storage limits.
+// - `dedicated` — per-instance paid databases with guaranteed resources, exempt from space-level auto-pause.
 type DatabaseType string
 
-// Error defines model for Error.
+// Error Standard error response.
 type Error struct {
+	// Message Human-readable error message.
 	Message string `json:"message"`
 }
 
-// FeedbackRequest defines model for FeedbackRequest.
+// FeedbackRequest User-submitted feedback or bug report.
 type FeedbackRequest struct {
+	// Message Feedback message from the user.
 	Message string `json:"message"`
-	Os      string `json:"os"`
-	Source  string `json:"source"`
+
+	// Os Operating system of the client submitting the feedback.
+	Os string `json:"os"`
+
+	// Source Source of the feedback request (e.g. `cli`, `mcp`).
+	Source string `json:"source"`
+
+	// Version Version of the client submitting the feedback.
 	Version string `json:"version"`
 }
 
-// ForkDatabaseRequest defines model for ForkDatabaseRequest.
+// ForkDatabaseRequest Request body for forking a database. Fields default to the source database's values when omitted.
 type ForkDatabaseRequest struct {
-	Name *string       `json:"name,omitempty"`
+	// Name Name for the forked database. Auto-generated from the source name if omitted.
+	Name *string `json:"name,omitempty"`
+
+	// Size Compute size for dedicated databases. Each step up allocates proportionally more vCPU and RAM.
 	Size *DatabaseSize `json:"size,omitempty"`
+
+	// Type Database deployment model.
+	// - `standard` — shared-resource databases subject to the space's compute and storage limits.
+	// - `dedicated` — per-instance paid databases with guaranteed resources, exempt from space-level auto-pause.
 	Type *DatabaseType `json:"type,omitempty"`
 }
 
-// IdentifyRequest defines model for IdentifyRequest.
+// IdentifyRequest User properties to associate with the authenticated user in analytics.
 type IdentifyRequest struct {
+	// Properties Free-form user properties.
 	Properties map[string]interface{} `json:"properties"`
 }
 
-// Invoice defines model for Invoice.
+// Invoice Invoice summary.
 type Invoice struct {
 	// Id Opaque invoice ID used to look up invoice details.
-	Id          string    `json:"id"`
+	Id string `json:"id"`
+
+	// InvoiceDate Date the invoice was issued.
 	InvoiceDate time.Time `json:"invoice_date"`
 
 	// InvoiceNumber Human-readable invoice number (e.g. "INV-12345").
@@ -187,8 +273,9 @@ type Invoice struct {
 // - `delinquent` — payment has failed and the invoice needs to be resolved by the user.
 type InvoiceStatus string
 
-// InvoiceDetail defines model for InvoiceDetail.
+// InvoiceDetail Line-item breakdown of an invoice.
 type InvoiceDetail struct {
+	// LineItems Line items that make up the invoice.
 	LineItems []InvoiceLineItem `json:"line_items"`
 }
 
@@ -200,108 +287,155 @@ type InvoiceLineItem struct {
 	// DetailedSpec Additional spec details (e.g. tier, size).
 	DetailedSpec *string `json:"detailed_spec,omitempty"`
 
-	// LineTotal Line total.
+	// LineTotal Total charge for this line (`quantity` × `unit_price`).
 	LineTotal float64 `json:"line_total"`
 
 	// ProductType Product category (e.g. storage, compute).
-	ProductType string  `json:"product_type"`
-	Quantity    float64 `json:"quantity"`
+	ProductType string `json:"product_type"`
 
-	// UnitPrice Unit price.
+	// Quantity Quantity billed. Units depend on `product_type`.
+	Quantity float64 `json:"quantity"`
+
+	// UnitPrice Price per unit of `quantity`.
 	UnitPrice float64 `json:"unit_price"`
 }
 
 // InvoicesResponse defines model for InvoicesResponse.
 type InvoicesResponse struct {
+	// Invoices Recent invoices, most recent first.
 	Invoices []Invoice `json:"invoices"`
 }
 
 // LogoutRequest defines model for LogoutRequest.
 type LogoutRequest struct {
+	// RefreshToken Refresh token to revoke.
 	RefreshToken string `json:"refreshToken"`
 }
 
 // LogsResponse defines model for LogsResponse.
 type LogsResponse struct {
+	// Logs Log lines, most recent first.
 	Logs []string `json:"logs"`
 }
 
-// PaymentMethod defines model for PaymentMethod.
+// PaymentMethod A payment method on file for a space.
 type PaymentMethod struct {
-	Brand           string `json:"brand"`
-	ExpMonth        int    `json:"exp_month"`
-	ExpYear         int    `json:"exp_year"`
-	Id              string `json:"id"`
-	Last4           string `json:"last4"`
-	PendingDeletion bool   `json:"pending_deletion"`
-	Primary         bool   `json:"primary"`
+	// Brand Card brand (e.g. `visa`, `mastercard`).
+	Brand string `json:"brand"`
+
+	// ExpMonth Card expiration month (1-12).
+	ExpMonth int `json:"exp_month"`
+
+	// ExpYear Card expiration year (four digits).
+	ExpYear int `json:"exp_year"`
+
+	// Id Payment method ID.
+	Id string `json:"id"`
+
+	// Last4 Last four digits of the card number.
+	Last4 string `json:"last4"`
+
+	// PendingDeletion True if deletion has been scheduled for this payment method. The deletion can be cancelled until processed.
+	PendingDeletion bool `json:"pending_deletion"`
+
+	// Primary True if this is the primary payment method for the space.
+	Primary bool `json:"primary"`
 }
 
 // PaymentMethodsResponse defines model for PaymentMethodsResponse.
 type PaymentMethodsResponse struct {
+	// PaymentMethods Payment methods on file for the space.
 	PaymentMethods []PaymentMethod `json:"payment_methods"`
 }
 
-// PaymentSetupResponse defines model for PaymentSetupResponse.
+// PaymentSetupResponse Stripe Setup Intent details for collecting a new payment method.
 type PaymentSetupResponse struct {
+	// ClientSecret Stripe Setup Intent client secret.
 	ClientSecret string `json:"client_secret"`
-	PaymentUrl   string `json:"payment_url"`
+
+	// PaymentUrl URL of the hosted payment page for collecting card details.
+	PaymentUrl string `json:"payment_url"`
 }
 
 // RenameDatabaseRequest defines model for RenameDatabaseRequest.
 type RenameDatabaseRequest struct {
+	// Name New name for the database.
 	Name string `json:"name"`
 }
 
-// ShareDatabaseRequest defines model for ShareDatabaseRequest.
+// ShareDatabaseRequest Options for creating a database share.
 type ShareDatabaseRequest struct {
-	// ExpiresAt Timestamp after which the share expires. If omitted, the share does not expire.
+	// ExpiresAt Time after which the share expires. If omitted, the share does not expire.
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 }
 
-// Space defines model for Space.
+// Space A Ghost space.
 type Space struct {
-	Id   string `json:"id"`
+	// Id Space ID.
+	Id string `json:"id"`
+
+	// Name Space name.
 	Name string `json:"name"`
 }
 
-// SpaceStatus defines model for SpaceStatus.
+// SpaceStatus Space-level usage and cost for the current billing cycle.
 type SpaceStatus struct {
-	BillingPeriodEnd    *time.Time `json:"billing_period_end,omitempty"`
-	BillingPeriodStart  *time.Time `json:"billing_period_start,omitempty"`
-	ComputeLimitMinutes int64      `json:"compute_limit_minutes"`
-	ComputeMinutes      int64      `json:"compute_minutes"`
+	// BillingPeriodEnd End of the current billing cycle.
+	BillingPeriodEnd *time.Time `json:"billing_period_end,omitempty"`
+
+	// BillingPeriodStart Start of the current billing cycle.
+	BillingPeriodStart *time.Time `json:"billing_period_start,omitempty"`
+
+	// ComputeLimitMinutes Compute-minute quota for the space. When exceeded, all running databases in the space are automatically paused.
+	ComputeLimitMinutes int64 `json:"compute_limit_minutes"`
+
+	// ComputeMinutes Total compute minutes used across all databases in the space during the current billing cycle.
+	ComputeMinutes int64 `json:"compute_minutes"`
 
 	// CostToDate Gross cost accrued so far this billing cycle.
 	CostToDate *float64 `json:"cost_to_date,omitempty"`
 
 	// EstimatedTotalCost Projected gross total for the current billing cycle based on usage to date.
 	EstimatedTotalCost *float64 `json:"estimated_total_cost,omitempty"`
-	StorageLimitMib    int64    `json:"storage_limit_mib"`
-	StorageMib         int64    `json:"storage_mib"`
+
+	// StorageLimitMib Storage quota for the space, in MiB.
+	StorageLimitMib int64 `json:"storage_limit_mib"`
+
+	// StorageMib Total storage used across all databases in the space, in MiB.
+	StorageMib int64 `json:"storage_mib"`
 }
 
-// StatusResponse defines model for StatusResponse.
+// StatusResponse Generic success response.
 type StatusResponse struct {
+	// Status Status string (e.g. `success`).
 	Status string `json:"status"`
 }
 
-// TrackRequest defines model for TrackRequest.
+// TrackRequest An analytics event to record.
 type TrackRequest struct {
-	Event      string                  `json:"event"`
+	// Event Event name.
+	Event string `json:"event"`
+
+	// Properties Free-form event properties.
 	Properties *map[string]interface{} `json:"properties,omitempty"`
 }
 
 // UpdatePasswordRequest defines model for UpdatePasswordRequest.
 type UpdatePasswordRequest struct {
+	// Password New PostgreSQL password for the default user.
 	Password string `json:"password"`
 }
 
-// UserInfo defines model for UserInfo.
+// UserInfo Authenticated user details.
 type UserInfo struct {
+	// Email User email address.
 	Email string `json:"email"`
-	Id    string `json:"id"`
-	Name  string `json:"name"`
+
+	// Id User ID.
+	Id string `json:"id"`
+
+	// Name User's full name.
+	Name string `json:"name"`
 }
 
 // ApiKeyPrefix defines model for ApiKeyPrefix.
@@ -318,7 +452,10 @@ type SpaceId = string
 
 // DatabaseLogsParams defines parameters for DatabaseLogs.
 type DatabaseLogsParams struct {
-	Page  *int       `form:"page,omitempty" json:"page,omitempty"`
+	// Page Zero-indexed page number for backward pagination. Page 0 returns the most recent logs; each successive page fetches older entries.
+	Page *int `form:"page,omitempty" json:"page,omitempty"`
+
+	// Until Return logs at or before this timestamp. Defaults to now.
 	Until *time.Time `form:"until,omitempty" json:"until,omitempty"`
 }
 

@@ -8,6 +8,9 @@ servers:
   - url: https://api.ghost.build/v0
     description: Production
 
+security:
+  - BearerAuth: []
+
 paths:
   # --- System ---
 
@@ -16,6 +19,7 @@ paths:
       operationId: health
       summary: Health check
       description: Returns 200 OK if the service is healthy.
+      security: []
       responses:
         "200":
           description: Service is healthy
@@ -366,11 +370,13 @@ paths:
         - name: page
           in: query
           required: false
+          description: Zero-indexed page number for backward pagination. Page 0 returns the most recent logs; each successive page fetches older entries.
           schema:
             type: integer
         - name: until
           in: query
           required: false
+          description: Return logs at or before this timestamp. Defaults to now.
           schema:
             type: string
             format: date-time
@@ -388,7 +394,7 @@ paths:
     post:
       operationId: shareDatabase
       summary: Share a database
-      description: Creates a shareable snapshot of a database. Returns a share token that can be used to fork the database into another space.
+      description: Creates a shareable snapshot of a database. Returns a share token that can be used to create a new database from the snapshot in another space.
       parameters:
         - $ref: "#/components/parameters/SpaceId"
         - $ref: "#/components/parameters/DatabaseRef"
@@ -429,16 +435,17 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
-  /spaces/{space_id}/shares/{share_id}:
+  /spaces/{space_id}/shares/{share_token}:
     delete:
       operationId: revokeShare
       summary: Revoke a database share
-      description: Revokes a shared snapshot, deleting the underlying storage snapshot.
+      description: Revokes a shared snapshot, deleting the underlying storage snapshot. The share is identified by its share token.
       parameters:
         - $ref: "#/components/parameters/SpaceId"
-        - name: share_id
+        - name: share_token
           in: path
           required: true
+          description: Share token returned from `listShares` or `shareDatabase`.
           schema:
             type: string
       responses:
@@ -485,6 +492,7 @@ paths:
         - name: invoice_id
           in: path
           required: true
+          description: Invoice ID returned from `listInvoices`.
           schema:
             type: string
       responses:
@@ -655,30 +663,39 @@ paths:
           $ref: "#/components/responses/Error"
 
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: "User JWT or API key token (e.g. `gt_...`) sent as `Authorization: Bearer <token>`."
+
   parameters:
     SpaceId:
       name: space_id
       in: path
       required: true
+      description: Ghost space ID.
       schema:
         type: string
     DatabaseRef:
       name: database_ref
       in: path
       required: true
-      description: The database ID or name.
+      description: Database ID or name.
       schema:
         type: string
     PaymentId:
       name: payment_id
       in: path
       required: true
+      description: Payment method ID.
       schema:
         type: string
     ApiKeyPrefix:
       name: prefix
       in: path
       required: true
+      description: API key prefix (e.g. `gt_...`).
       schema:
         type: string
 
@@ -695,29 +712,35 @@ components:
 
     Error:
       type: object
+      description: Standard error response.
       required:
         - message
       properties:
         message:
           type: string
+          description: Human-readable error message.
 
     StatusResponse:
       type: object
+      description: Generic success response.
       required:
         - status
       properties:
         status:
           type: string
+          description: Status string (e.g. `success`).
 
     # --- Auth ---
 
     AuthInfo:
       type: object
+      description: Information about the authenticated caller.
       required:
         - type
       properties:
         type:
           type: string
+          description: Type of authentication used.
           enum:
             - api_key
             - user
@@ -728,6 +751,7 @@ components:
 
     UserInfo:
       type: object
+      description: Authenticated user details.
       required:
         - id
         - email
@@ -735,13 +759,17 @@ components:
       properties:
         id:
           type: string
+          description: User ID.
         email:
           type: string
+          description: User email address.
         name:
           type: string
+          description: User's full name.
 
     ApiKeyInfo:
       type: object
+      description: Information about the API key used for authentication.
       required:
         - space_id
         - space_name
@@ -751,14 +779,19 @@ components:
       properties:
         space_id:
           type: string
+          description: Space the API key is scoped to.
         space_name:
           type: string
+          description: Name of the space the API key is scoped to.
         user_id:
           type: string
+          description: ID of the user who created the API key.
         user_email:
           type: string
+          description: Email of the user who created the API key.
         user_name:
           type: string
+          description: Name of the user who created the API key.
 
     LogoutRequest:
       type: object
@@ -767,19 +800,23 @@ components:
       properties:
         refreshToken:
           type: string
+          description: Refresh token to revoke.
 
     # --- Spaces ---
 
     Space:
       type: object
+      description: A Ghost space.
       required:
         - id
         - name
       properties:
         id:
           type: string
+          description: Space ID.
         name:
           type: string
+          description: Space name.
 
     CreateSpaceRequest:
       type: object
@@ -788,9 +825,11 @@ components:
       properties:
         name:
           type: string
+          description: Name for the new space.
 
     SpaceStatus:
       type: object
+      description: Space-level usage and cost for the current billing cycle.
       required:
         - storage_mib
         - storage_limit_mib
@@ -800,15 +839,19 @@ components:
         storage_mib:
           type: integer
           format: int64
+          description: Total storage used across all databases in the space, in MiB.
         storage_limit_mib:
           type: integer
           format: int64
+          description: Storage quota for the space, in MiB.
         compute_minutes:
           type: integer
           format: int64
+          description: Total compute minutes used across all databases in the space during the current billing cycle.
         compute_limit_minutes:
           type: integer
           format: int64
+          description: Compute-minute quota for the space. When exceeded, all running databases in the space are automatically paused.
         cost_to_date:
           type: number
           format: double
@@ -820,14 +863,17 @@ components:
         billing_period_start:
           type: string
           format: date-time
+          description: Start of the current billing cycle.
         billing_period_end:
           type: string
           format: date-time
+          description: End of the current billing cycle.
 
     # --- API Keys ---
 
     ApiKey:
       type: object
+      description: An API key in a space.
       required:
         - prefix
         - name
@@ -835,14 +881,18 @@ components:
       properties:
         prefix:
           type: string
+          description: Stable prefix identifier for the key (starts with `gt_`). Used to identify the key for deletion.
         name:
           type: string
+          description: User-provided label for the key.
         created_at:
           type: string
           format: date-time
+          description: Time the key was created.
 
     ApiKeyCredentials:
       type: object
+      description: Credentials for a newly created API key. The secret portion cannot be retrieved again later.
       required:
         - api_key
         - access_key
@@ -850,12 +900,15 @@ components:
       properties:
         api_key:
           type: string
+          description: "Bearer token for the key. Use as `Authorization: Bearer <api_key>`."
         access_key:
           type: string
           deprecated: true
+          description: Use as the username in HTTP Basic auth.
         secret_key:
           type: string
           deprecated: true
+          description: Use as the password in HTTP Basic auth.
 
     CreateApiKeyRequest:
       type: object
@@ -864,11 +917,13 @@ components:
       properties:
         name:
           type: string
+          description: User-provided label for the new API key.
 
     # --- Databases ---
 
     Database:
       type: object
+      description: A Ghost database.
       required:
         - id
         - name
@@ -879,10 +934,13 @@ components:
       properties:
         id:
           type: string
+          description: Database ID.
         name:
           type: string
+          description: Database name. Unique within the space.
         status:
           type: string
+          description: Current lifecycle status of the database.
           enum:
             - queued
             - configuring
@@ -897,8 +955,10 @@ components:
             - unknown
         host:
           type: string
+          description: PostgreSQL hostname for connections.
         port:
           type: integer
+          description: PostgreSQL port for connections.
         type:
           $ref: "#/components/schemas/DatabaseType"
         size:
@@ -907,12 +967,18 @@ components:
         storage_mib:
           type: integer
           nullable: true
+          description: Current disk usage in MiB. Null if not yet available.
         password:
           type: string
           nullable: true
+          description: PostgreSQL password for the default user. Returned on every GET for authorized callers.
 
     DatabaseType:
       type: string
+      description: |
+        Database deployment model.
+        - `standard` — shared-resource databases subject to the space's compute and storage limits.
+        - `dedicated` — per-instance paid databases with guaranteed resources, exempt from space-level auto-pause.
       enum:
         - standard
         - dedicated
@@ -920,6 +986,7 @@ components:
 
     DatabaseSize:
       type: string
+      description: Compute size for dedicated databases. Each step up allocates proportionally more vCPU and RAM.
       enum:
         - 1x
         - 2x
@@ -931,19 +998,22 @@ components:
       properties:
         name:
           type: string
+          description: Name for the new database. Auto-generated if omitted.
         type:
           $ref: "#/components/schemas/DatabaseType"
         size:
           $ref: "#/components/schemas/DatabaseSize"
         share_token:
           type: string
-          description: Share token from a database share. When provided, creates a fork from the shared snapshot into this space.
+          description: Share token from a database share. When provided, creates the new database from the shared snapshot.
 
     ForkDatabaseRequest:
       type: object
+      description: Request body for forking a database. Fields default to the source database's values when omitted.
       properties:
         name:
           type: string
+          description: Name for the forked database. Auto-generated from the source name if omitted.
         type:
           $ref: "#/components/schemas/DatabaseType"
         size:
@@ -956,6 +1026,7 @@ components:
       properties:
         name:
           type: string
+          description: New name for the database.
 
     UpdatePasswordRequest:
       type: object
@@ -964,6 +1035,7 @@ components:
       properties:
         password:
           type: string
+          description: New PostgreSQL password for the default user.
 
     LogsResponse:
       type: object
@@ -972,6 +1044,7 @@ components:
       properties:
         logs:
           type: array
+          description: Log lines, most recent first.
           items:
             type: string
 
@@ -979,38 +1052,43 @@ components:
 
     DatabaseShare:
       type: object
+      description: A shareable snapshot of a database. Can be used to create a new database from the snapshot in another space.
       required:
-        - id
         - share_token
         - database_id
         - database_name
         - created_at
       properties:
-        id:
-          type: string
         share_token:
           type: string
+          description: Token passed to `createDatabase` (via `share_token`) to create a new database from the shared snapshot in another space. Also used to revoke the share via `revokeShare`.
         database_id:
           type: string
+          description: ID of the source database.
         database_name:
           type: string
+          description: Name of the source database.
         created_at:
           type: string
           format: date-time
+          description: Time the share was created.
         expires_at:
           type: string
           format: date-time
+          description: Time the share expires. Absent if the share does not expire.
         revoked_at:
           type: string
           format: date-time
+          description: Time the share was revoked. Absent if the share is still active.
 
     ShareDatabaseRequest:
       type: object
+      description: Options for creating a database share.
       properties:
         expires_at:
           type: string
           format: date-time
-          description: Timestamp after which the share expires. If omitted, the share does not expire.
+          description: Time after which the share expires. If omitted, the share does not expire.
 
     # --- Billing ---
 
@@ -1021,11 +1099,13 @@ components:
       properties:
         invoices:
           type: array
+          description: Recent invoices, most recent first.
           items:
             $ref: "#/components/schemas/Invoice"
 
     Invoice:
       type: object
+      description: Invoice summary.
       required:
         - id
         - invoice_number
@@ -1042,6 +1122,7 @@ components:
         invoice_date:
           type: string
           format: date-time
+          description: Date the invoice was issued.
         total:
           type: number
           format: double
@@ -1057,11 +1138,13 @@ components:
 
     InvoiceDetail:
       type: object
+      description: Line-item breakdown of an invoice.
       required:
         - line_items
       properties:
         line_items:
           type: array
+          description: Line items that make up the invoice.
           items:
             $ref: "#/components/schemas/InvoiceLineItem"
 
@@ -1085,17 +1168,19 @@ components:
         quantity:
           type: number
           format: double
+          description: Quantity billed. Units depend on `product_type`.
         unit_price:
           type: number
           format: double
-          description: Unit price.
+          description: Price per unit of `quantity`.
         line_total:
           type: number
           format: double
-          description: Line total.
+          description: Total charge for this line (`quantity` × `unit_price`).
 
     PaymentMethod:
       type: object
+      description: A payment method on file for a space.
       required:
         - id
         - primary
@@ -1107,18 +1192,25 @@ components:
       properties:
         id:
           type: string
+          description: Payment method ID.
         primary:
           type: boolean
+          description: True if this is the primary payment method for the space.
         pending_deletion:
           type: boolean
+          description: True if deletion has been scheduled for this payment method. The deletion can be cancelled until processed.
         brand:
           type: string
+          description: Card brand (e.g. `visa`, `mastercard`).
         last4:
           type: string
+          description: Last four digits of the card number.
         exp_month:
           type: integer
+          description: Card expiration month (1-12).
         exp_year:
           type: integer
+          description: Card expiration year (four digits).
 
     PaymentMethodsResponse:
       type: object
@@ -1127,46 +1219,56 @@ components:
       properties:
         payment_methods:
           type: array
+          description: Payment methods on file for the space.
           items:
             $ref: "#/components/schemas/PaymentMethod"
 
     PaymentSetupResponse:
       type: object
+      description: Stripe Setup Intent details for collecting a new payment method.
       required:
         - client_secret
         - payment_url
       properties:
         client_secret:
           type: string
+          description: Stripe Setup Intent client secret.
         payment_url:
           type: string
+          description: URL of the hosted payment page for collecting card details.
 
     # --- Analytics ---
 
     IdentifyRequest:
       type: object
+      description: User properties to associate with the authenticated user in analytics.
       required:
         - properties
       properties:
         properties:
           type: object
           additionalProperties: true
+          description: Free-form user properties.
 
     TrackRequest:
       type: object
+      description: An analytics event to record.
       required:
         - event
       properties:
         event:
           type: string
+          description: Event name.
         properties:
           type: object
           additionalProperties: true
+          description: Free-form event properties.
 
     # --- Feedback ---
 
     FeedbackRequest:
       type: object
+      description: User-submitted feedback or bug report.
       required:
         - message
         - source
@@ -1175,9 +1277,13 @@ components:
       properties:
         message:
           type: string
+          description: Feedback message from the user.
         source:
           type: string
+          description: Source of the feedback request (e.g. `cli`, `mcp`).
         version:
           type: string
+          description: Version of the client submitting the feedback.
         os:
           type: string
+          description: Operating system of the client submitting the feedback.
