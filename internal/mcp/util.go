@@ -31,6 +31,10 @@ func sizeInputProperties(schema *jsonschema.Schema) {
 	schema.Properties["size"].Default = json.RawMessage(`"1x"`)
 }
 
+func shareTokenInputProperties(schema *jsonschema.Schema) {
+	schema.Properties["share_token"].Description = "Share token from a database share. When provided, creates the new database from the shared snapshot."
+}
+
 // Output property helpers
 
 func databaseIDOutputProperties(schema *jsonschema.Schema) {
