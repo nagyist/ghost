@@ -122,9 +122,7 @@ func buildRootCmd() (*cobra.Command, *common.App, error) {
 	cmd.AddCommand(buildApiKeyCmd(app))
 	cmd.AddCommand(buildPaymentInteractiveCmd(app))
 	cmd.AddCommand(buildUpgradeCmd(app))
-	if app.Experimental {
-		cmd.AddCommand(buildInvoiceCmd(app))
-	}
+	cmd.AddCommand(buildInvoiceCmd(app))
 
 	wrapCommands(cmd, app)
 

@@ -66,6 +66,7 @@ ghost list        # List all databases
 | `feedback` | Submit feedback, a bug report, or a support request |
 | `fork` | Fork a database |
 | `help` | Help about any command |
+| `invoice` | View invoices |
 | `list` | List all databases |
 | `logs` | View logs for a database |
 | `login` | Authenticate with GitHub OAuth |
@@ -110,6 +111,8 @@ The `ghost mcp` command installs a [Model Context Protocol](https://modelcontext
 | `ghost_schema` | Display database schema information |
 | `ghost_password` | Reset the password for a database |
 | `ghost_logs` | View logs for a database |
+| `ghost_invoice_list` | List invoices |
+| `ghost_invoice` | Get invoice line-item detail |
 | `ghost_feedback` | Submit feedback, a bug report, or a support request |
 | `search_docs` | Search PostgreSQL, PostGIS, and TimescaleDB documentation |
 | `view_skill` | Retrieve skills for PostgreSQL and TimescaleDB best practices |
