@@ -337,5 +337,4 @@ Flags:
 - `-format` — Output format: `markdown`, `man`, `rest`, or `yaml` (default `markdown`).
 - `-frontmatter` — Prepend YAML frontmatter to Markdown files (default `true`).
 - `-clean` — Remove the output directory before generating (default `false`).
-
-To include experimental commands in the output, set `GHOST_EXPERIMENTAL=true`.
+- `-experimental` — Include experimental commands in the output (default `false`). This sets `GHOST_EXPERIMENTAL` for the run, overriding any inherited value, so released-only docs are produced by default.

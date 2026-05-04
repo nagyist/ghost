@@ -17,7 +17,16 @@ func main() {
 	format := flag.String("format", "markdown", "Output format (markdown|man|rest|yaml)")
 	front := flag.Bool("frontmatter", true, "Prepend YAML frontmatter")
 	clean := flag.Bool("clean", false, "Remove output directory before generating")
+	experimental := flag.Bool("experimental", false, "Include experimental commands (sets GHOST_EXPERIMENTAL)")
 	flag.Parse()
+
+	// Set GHOST_EXPERIMENTAL explicitly so an inherited value can't sneak
+	// experimental commands into the generated docs.
+	if *experimental {
+		os.Setenv("GHOST_EXPERIMENTAL", "true")
+	} else {
+		os.Setenv("GHOST_EXPERIMENTAL", "false")
+	}
 
 	if *clean {
 		if err := os.RemoveAll(*out); err != nil {
