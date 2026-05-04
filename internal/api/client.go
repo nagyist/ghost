@@ -2515,7 +2515,7 @@ func (r DeleteApiKeyResponse) StatusCode() int {
 type ListDatabasesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]Database
+	JSON200      *[]DatabaseWithUsage
 	JSONDefault  *Error
 }
 
@@ -3745,7 +3745,7 @@ func ParseListDatabasesResponse(rsp *http.Response) (*ListDatabasesResponse, err
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []Database
+		var dest []DatabaseWithUsage
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

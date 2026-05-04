@@ -21,9 +21,9 @@ func TestStatusCmd(t *testing.T) {
 					StorageLimitMib:     1048576,
 				},
 			}, nil)
-		databases := []api.Database{
-			sampleDatabase(),
-			sampleDatabase(func(db *api.Database) {
+		databases := []api.DatabaseWithUsage{
+			sampleDatabaseWithUsage(),
+			sampleDatabaseWithUsage(func(db *api.DatabaseWithUsage) {
 				db.Id = "def4567890"
 				db.Name = "otherdb"
 				db.Status = api.DatabaseStatusPaused
@@ -49,7 +49,7 @@ func TestStatusCmd(t *testing.T) {
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().SpaceStatusWithResponse(validCtx, "test-project").
 					Return(nil, errors.New("connection refused"))
-				databases := []api.Database{}
+				databases := []api.DatabaseWithUsage{}
 				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
@@ -67,7 +67,7 @@ func TestStatusCmd(t *testing.T) {
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal error"},
 					}, nil)
-				databases := []api.Database{}
+				databases := []api.DatabaseWithUsage{}
 				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
@@ -85,7 +85,7 @@ func TestStatusCmd(t *testing.T) {
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
 					}, nil)
-				databases := []api.Database{}
+				databases := []api.DatabaseWithUsage{}
 				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
@@ -181,7 +181,7 @@ Databases: 2 (1 running, 1 paused)
 							EstimatedTotalCost:  new(27.50),
 						},
 					}, nil)
-				databases := []api.Database{sampleDatabase()}
+				databases := []api.DatabaseWithUsage{sampleDatabaseWithUsage()}
 				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
@@ -211,7 +211,7 @@ Cost: $12.34 so far this cycle ($27.50 estimated total)
 							EstimatedTotalCost:  new(0.0),
 						},
 					}, nil)
-				databases := []api.Database{sampleDatabase()}
+				databases := []api.DatabaseWithUsage{sampleDatabaseWithUsage()}
 				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),

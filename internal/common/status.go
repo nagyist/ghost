@@ -43,7 +43,7 @@ type Status struct {
 // FetchStatus fetches space usage and database counts from the API.
 func FetchStatus(ctx context.Context, client api.ClientWithResponsesInterface, projectID string) (Status, error) {
 	var spaceStatus *api.SpaceStatus
-	var databases []api.Database
+	var databases []api.DatabaseWithUsage
 
 	g, ctx := errgroup.WithContext(ctx)
 

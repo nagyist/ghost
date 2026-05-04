@@ -18,12 +18,13 @@ import (
 
 // DatabaseListItem represents a database in the list command output
 type DatabaseListItem struct {
-	ID         string             `json:"id"`
-	Name       string             `json:"name"`
-	Type       api.DatabaseType   `json:"type"`
-	Size       *api.DatabaseSize  `json:"size,omitempty"`
-	Status     api.DatabaseStatus `json:"status"`
-	StorageMib *int               `json:"storage_mib"`
+	ID             string             `json:"id"`
+	Name           string             `json:"name"`
+	Type           api.DatabaseType   `json:"type"`
+	Size           *api.DatabaseSize  `json:"size,omitempty"`
+	Status         api.DatabaseStatus `json:"status"`
+	StorageMib     *int               `json:"storage_mib"`
+	ComputeMinutes *int64             `json:"compute_minutes,omitempty"`
 }
 
 func buildListCmd(app *common.App) *cobra.Command {
@@ -34,6 +35,7 @@ func buildListCmd(app *common.App) *cobra.Command {
 		Use:     "list",
 		Aliases: []string{"ls"},
 		Short:   "List all databases",
+		Long:    `List all databases, including each database's current status, storage usage, and compute hours used in the current billing cycle.`,
 		Example: `  # List all databases
   ghost list
 
@@ -70,12 +72,13 @@ func buildListCmd(app *common.App) *cobra.Command {
 			output := make([]DatabaseListItem, len(databases))
 			for i, database := range databases {
 				output[i] = DatabaseListItem{
-					ID:         database.Id,
-					Name:       database.Name,
-					Type:       database.Type,
-					Size:       database.Size,
-					Status:     database.Status,
-					StorageMib: database.StorageMib,
+					ID:             database.Id,
+					Name:           database.Name,
+					Type:           database.Type,
+					Size:           database.Size,
+					Status:         database.Status,
+					StorageMib:     database.StorageMib,
+					ComputeMinutes: database.ComputeMinutes,
 				}
 			}
 
@@ -132,9 +135,9 @@ func outputDatabaseList(w io.Writer, databases []DatabaseListItem) error {
 	}
 
 	standardTable := tablewriter.NewTable(w, tableOpts...)
-	standardTable.Header("ID", "NAME", "STATUS", "STORAGE")
+	standardTable.Header("ID", "NAME", "STATUS", "STORAGE", "COMPUTE")
 	for _, db := range standard {
-		standardTable.Append(db.ID, db.Name, db.Status, common.FormatStorageSize(db.StorageMib))
+		standardTable.Append(db.ID, db.Name, db.Status, common.FormatStorageSize(db.StorageMib), formatComputeHours(db.ComputeMinutes))
 	}
 	if err := standardTable.Render(); err != nil {
 		return err
@@ -158,4 +161,11 @@ func outputDatabaseList(w io.Writer, databases []DatabaseListItem) error {
 	}
 
 	return nil
+}
+
+func formatComputeHours(minutes *int64) string {
+	if minutes == nil {
+		return "-"
+	}
+	return fmt.Sprintf("%gh", float64(*minutes)/60)
 }

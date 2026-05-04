@@ -11,25 +11,32 @@ import (
 )
 
 func TestListCmd(t *testing.T) {
-	standardDbs := []api.Database{
-		sampleDatabase(),
-		sampleDatabase(func(db *api.Database) {
+	standardDbs := []api.DatabaseWithUsage{
+		sampleDatabaseWithUsage(),
+		sampleDatabaseWithUsage(func(db *api.DatabaseWithUsage) {
 			db.Id = "def4567890"
 			db.Name = "otherdb"
 			db.Status = api.DatabaseStatusPaused
+			db.ComputeMinutes = new(int64(0))
+		}),
+		sampleDatabaseWithUsage(func(db *api.DatabaseWithUsage) {
+			db.Id = "ghi7890123"
+			db.Name = "newdb"
+			db.ComputeMinutes = nil
 		}),
 	}
 
-	dedicatedDb := sampleDatabase(func(db *api.Database) {
+	dedicatedDb := sampleDatabaseWithUsage(func(db *api.DatabaseWithUsage) {
 		db.Id = "ded1234567"
 		db.Name = "dedicateddb"
 		db.Type = api.DatabaseTypeDedicated
 		db.Size = new(api.DatabaseSizeN2x)
+		db.ComputeMinutes = nil
 	})
 
-	mixedDbs := slices.Concat(standardDbs, []api.Database{dedicatedDb})
+	mixedDbs := slices.Concat(standardDbs, []api.DatabaseWithUsage{dedicatedDb})
 
-	setupList := func(dbs []api.Database) func(*mock.MockClientWithResponsesInterface) {
+	setupList := func(dbs []api.DatabaseWithUsage) func(*mock.MockClientWithResponsesInterface) {
 		return func(m *mock.MockClientWithResponsesInterface) {
 			m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
 				Return(&api.ListDatabasesResponse{
@@ -83,18 +90,20 @@ func TestListCmd(t *testing.T) {
 			name:  "text output",
 			args:  []string{"list"},
 			setup: setupList(standardDbs),
-			wantStdout: `ID          NAME     STATUS   STORAGE  
-abc1234567  mydb     running  1GiB     
-def4567890  otherdb  paused   1GiB     
+			wantStdout: `ID          NAME     STATUS   STORAGE  COMPUTE  
+abc1234567  mydb     running  1GiB     1.5h     
+def4567890  otherdb  paused   1GiB     0h       
+ghi7890123  newdb    running  1GiB     -        
 `,
 		},
 		{
 			name:  "text output mixed",
 			args:  []string{"list"},
 			setup: setupList(mixedDbs),
-			wantStdout: `ID          NAME     STATUS   STORAGE  
-abc1234567  mydb     running  1GiB     
-def4567890  otherdb  paused   1GiB     
+			wantStdout: `ID          NAME     STATUS   STORAGE  COMPUTE  
+abc1234567  mydb     running  1GiB     1.5h     
+def4567890  otherdb  paused   1GiB     0h       
+ghi7890123  newdb    running  1GiB     -        
 
 Dedicated Databases
 ID          NAME         SIZE  STATUS   STORAGE  
@@ -111,13 +120,22 @@ ded1234567  dedicateddb  2x    running  1GiB
     "name": "mydb",
     "type": "standard",
     "status": "running",
-    "storage_mib": 1024
+    "storage_mib": 1024,
+    "compute_minutes": 90
   },
   {
     "id": "def4567890",
     "name": "otherdb",
     "type": "standard",
     "status": "paused",
+    "storage_mib": 1024,
+    "compute_minutes": 0
+  },
+  {
+    "id": "ghi7890123",
+    "name": "newdb",
+    "type": "standard",
+    "status": "running",
     "storage_mib": 1024
   }
 ]
@@ -133,13 +151,22 @@ ded1234567  dedicateddb  2x    running  1GiB
     "name": "mydb",
     "type": "standard",
     "status": "running",
-    "storage_mib": 1024
+    "storage_mib": 1024,
+    "compute_minutes": 90
   },
   {
     "id": "def4567890",
     "name": "otherdb",
     "type": "standard",
     "status": "paused",
+    "storage_mib": 1024,
+    "compute_minutes": 0
+  },
+  {
+    "id": "ghi7890123",
+    "name": "newdb",
+    "type": "standard",
+    "status": "running",
     "storage_mib": 1024
   },
   {
@@ -157,14 +184,21 @@ ded1234567  dedicateddb  2x    running  1GiB
 			name:  "yaml output",
 			args:  []string{"list", "--yaml"},
 			setup: setupList(standardDbs),
-			wantStdout: `- id: abc1234567
+			wantStdout: `- compute_minutes: 90
+  id: abc1234567
   name: mydb
   status: running
   storage_mib: 1024
   type: standard
-- id: def4567890
+- compute_minutes: 0
+  id: def4567890
   name: otherdb
   status: paused
+  storage_mib: 1024
+  type: standard
+- id: ghi7890123
+  name: newdb
+  status: running
   storage_mib: 1024
   type: standard
 `,
@@ -173,14 +207,21 @@ ded1234567  dedicateddb  2x    running  1GiB
 			name:  "yaml output mixed",
 			args:  []string{"list", "--yaml"},
 			setup: setupList(mixedDbs),
-			wantStdout: `- id: abc1234567
+			wantStdout: `- compute_minutes: 90
+  id: abc1234567
   name: mydb
   status: running
   storage_mib: 1024
   type: standard
-- id: def4567890
+- compute_minutes: 0
+  id: def4567890
   name: otherdb
   status: paused
+  storage_mib: 1024
+  type: standard
+- id: ghi7890123
+  name: newdb
+  status: running
   storage_mib: 1024
   type: standard
 - id: ded1234567
@@ -194,22 +235,23 @@ ded1234567  dedicateddb  2x    running  1GiB
 		{
 			name:       "empty list",
 			args:       []string{"list"},
-			setup:      setupList([]api.Database{}),
-			wantStdout: "ID  NAME  STATUS  STORAGE  \n",
+			setup:      setupList([]api.DatabaseWithUsage{}),
+			wantStdout: "ID  NAME  STATUS  STORAGE  COMPUTE  \n",
 		},
 		{
 			name:       "empty list json",
 			args:       []string{"list", "--json"},
-			setup:      setupList([]api.Database{}),
+			setup:      setupList([]api.DatabaseWithUsage{}),
 			wantStdout: "[]\n",
 		},
 		{
 			name:  "ls alias",
 			args:  []string{"ls"},
 			setup: setupList(standardDbs),
-			wantStdout: `ID          NAME     STATUS   STORAGE  
-abc1234567  mydb     running  1GiB     
-def4567890  otherdb  paused   1GiB     
+			wantStdout: `ID          NAME     STATUS   STORAGE  COMPUTE  
+abc1234567  mydb     running  1GiB     1.5h     
+def4567890  otherdb  paused   1GiB     0h       
+ghi7890123  newdb    running  1GiB     -        
 `,
 		},
 	}

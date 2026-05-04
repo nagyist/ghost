@@ -224,6 +224,26 @@ func sampleDatabase(overrides ...func(*api.Database)) api.Database {
 	return db
 }
 
+// sampleDatabaseWithUsage returns an api.DatabaseWithUsage with reasonable defaults.
+// Use overrides to customize specific fields.
+func sampleDatabaseWithUsage(overrides ...func(*api.DatabaseWithUsage)) api.DatabaseWithUsage {
+	storageMib := 1024
+	db := api.DatabaseWithUsage{
+		Id:             "abc1234567",
+		Name:           "mydb",
+		Status:         api.DatabaseStatusRunning,
+		Type:           api.DatabaseTypeStandard,
+		Host:           "host.example.com",
+		Port:           5432,
+		StorageMib:     &storageMib,
+		ComputeMinutes: new(int64(90)),
+	}
+	for _, o := range overrides {
+		o(&db)
+	}
+	return db
+}
+
 // validCtx is a gomock matcher that verifies a context.Context parameter is
 // non-nil. Use this instead of gomock.Any() for context parameters. We only
 // check non-nil (not cancellation state) because some flows use errgroup which

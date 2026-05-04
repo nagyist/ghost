@@ -17,6 +17,14 @@ const (
 	AuthInfoTypeUser   AuthInfoType = "user"
 )
 
+// Defines values for DatabaseSize.
+const (
+	DatabaseSizeN1x DatabaseSize = "1x"
+	DatabaseSizeN2x DatabaseSize = "2x"
+	DatabaseSizeN4x DatabaseSize = "4x"
+	DatabaseSizeN8x DatabaseSize = "8x"
+)
+
 // Defines values for DatabaseStatus.
 const (
 	DatabaseStatusConfiguring DatabaseStatus = "configuring"
@@ -30,14 +38,6 @@ const (
 	DatabaseStatusUnknown     DatabaseStatus = "unknown"
 	DatabaseStatusUnstable    DatabaseStatus = "unstable"
 	DatabaseStatusUpgrading   DatabaseStatus = "upgrading"
-)
-
-// Defines values for DatabaseSize.
-const (
-	DatabaseSizeN1x DatabaseSize = "1x"
-	DatabaseSizeN2x DatabaseSize = "2x"
-	DatabaseSizeN4x DatabaseSize = "4x"
-	DatabaseSizeN8x DatabaseSize = "8x"
 )
 
 // Defines values for DatabaseType.
@@ -123,7 +123,7 @@ type CreateDatabaseRequest struct {
 	// Name Name for the new database. Auto-generated if omitted.
 	Name *string `json:"name,omitempty"`
 
-	// ShareToken Share token from a database share. When provided, creates the new database from the shared snapshot.
+	// ShareToken Share token from a database share (begins with `gs_`). When provided, creates the new database from the shared snapshot.
 	ShareToken *string `json:"share_token,omitempty"`
 
 	// Size Compute size for dedicated databases. Each step up allocates proportionally more vCPU and RAM.
@@ -173,9 +173,6 @@ type Database struct {
 	Type DatabaseType `json:"type"`
 }
 
-// DatabaseStatus Current lifecycle status of the database.
-type DatabaseStatus string
-
 // DatabaseShare A shareable snapshot of a database. Can be used to create a new database from the snapshot in another space.
 type DatabaseShare struct {
 	// CreatedAt Time the share was created.
@@ -193,17 +190,55 @@ type DatabaseShare struct {
 	// RevokedAt Time the share was revoked. Absent if the share is still active.
 	RevokedAt *time.Time `json:"revoked_at,omitempty"`
 
-	// ShareToken Token passed to `createDatabase` (via `share_token`) to create a new database from the shared snapshot in another space. Also used to revoke the share via `revokeShare`.
+	// ShareToken Token passed to `createDatabase` (via `share_token`) to create a new database from the shared snapshot in another space. Also used to revoke the share via `revokeShare`. Always begins with `gs_`.
 	ShareToken string `json:"share_token"`
 }
 
 // DatabaseSize Compute size for dedicated databases. Each step up allocates proportionally more vCPU and RAM.
 type DatabaseSize string
 
+// DatabaseStatus Current lifecycle status of the database.
+type DatabaseStatus string
+
 // DatabaseType Database deployment model.
 // - `standard` — shared-resource databases subject to the space's compute and storage limits.
 // - `dedicated` — per-instance paid databases with guaranteed resources, exempt from space-level auto-pause.
 type DatabaseType string
+
+// DatabaseWithUsage defines model for DatabaseWithUsage.
+type DatabaseWithUsage struct {
+	// ComputeMinutes Compute minutes used by this database during the current billing cycle. Only populated for `standard` databases.
+	ComputeMinutes *int64 `json:"compute_minutes"`
+
+	// Host PostgreSQL hostname for connections.
+	Host string `json:"host"`
+
+	// Id Database ID.
+	Id string `json:"id"`
+
+	// Name Database name. Unique within the space.
+	Name string `json:"name"`
+
+	// Password PostgreSQL password for the default user. Returned on every GET for authorized callers.
+	Password *string `json:"password"`
+
+	// Port PostgreSQL port for connections.
+	Port int `json:"port"`
+
+	// Size Compute size for dedicated databases. Each step up allocates proportionally more vCPU and RAM.
+	Size *DatabaseSize `json:"size,omitempty"`
+
+	// Status Current lifecycle status of the database.
+	Status DatabaseStatus `json:"status"`
+
+	// StorageMib Current disk usage in MiB. Null if not yet available.
+	StorageMib *int `json:"storage_mib"`
+
+	// Type Database deployment model.
+	// - `standard` — shared-resource databases subject to the space's compute and storage limits.
+	// - `dedicated` — per-instance paid databases with guaranteed resources, exempt from space-level auto-pause.
+	Type DatabaseType `json:"type"`
+}
 
 // Error Standard error response.
 type Error struct {

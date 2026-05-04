@@ -23,12 +23,13 @@ func (ListInput) Schema() *jsonschema.Schema {
 
 // DatabaseInfo represents information about a single database
 type DatabaseInfo struct {
-	ID      string             `json:"id"`
-	Name    string             `json:"name"`
-	Type    api.DatabaseType   `json:"type"`
-	Size    *api.DatabaseSize  `json:"size,omitempty"`
-	Status  api.DatabaseStatus `json:"status"`
-	Storage string             `json:"storage"`
+	ID             string             `json:"id"`
+	Name           string             `json:"name"`
+	Type           api.DatabaseType   `json:"type"`
+	Size           *api.DatabaseSize  `json:"size,omitempty"`
+	Status         api.DatabaseStatus `json:"status"`
+	Storage        string             `json:"storage"`
+	ComputeMinutes *int64             `json:"compute_minutes,omitempty"`
 }
 
 // ListOutput represents output for ghost_list
@@ -46,6 +47,7 @@ func (ListOutput) Schema() *jsonschema.Schema {
 	dbInfo.Properties["status"].Description = "Database status"
 	dbInfo.Properties["storage"].Description = "Current storage usage"
 	dbInfo.Properties["storage"].Examples = []any{"512MiB", "1GiB"}
+	dbInfo.Properties["compute_minutes"].Description = "Compute minutes used by this database during the current billing cycle. Only populated for standard databases."
 	return schema
 }
 
@@ -53,7 +55,7 @@ func newListTool() *mcp.Tool {
 	return &mcp.Tool{
 		Name:         "ghost_list",
 		Title:        "List Databases",
-		Description:  "List all databases.",
+		Description:  "List all databases, including each database's current status, storage usage, and compute minutes used in the current billing cycle.",
 		InputSchema:  ListInput{}.Schema(),
 		OutputSchema: ListOutput{}.Schema(),
 		Annotations: &mcp.ToolAnnotations{
@@ -90,12 +92,13 @@ func (s *Server) handleList(ctx context.Context, req *mcp.CallToolRequest, input
 	output := make([]DatabaseInfo, len(databases))
 	for i, database := range databases {
 		output[i] = DatabaseInfo{
-			ID:      database.Id,
-			Name:    database.Name,
-			Type:    database.Type,
-			Size:    database.Size,
-			Status:  database.Status,
-			Storage: common.FormatStorageSize(database.StorageMib),
+			ID:             database.Id,
+			Name:           database.Name,
+			Type:           database.Type,
+			Size:           database.Size,
+			Status:         database.Status,
+			Storage:        common.FormatStorageSize(database.StorageMib),
+			ComputeMinutes: database.ComputeMinutes,
 		}
 	}
 

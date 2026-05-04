@@ -200,7 +200,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Database"
+                  $ref: "#/components/schemas/DatabaseWithUsage"
         default:
           $ref: "#/components/responses/Error"
     post:
@@ -445,9 +445,10 @@ paths:
         - name: share_token
           in: path
           required: true
-          description: Share token returned from `listShares` or `shareDatabase`.
+          description: Share token returned from `listShares` or `shareDatabase` (begins with `gs_`).
           schema:
             type: string
+            pattern: "^gs_[A-Za-z0-9_-]+$"
       responses:
         "200":
           description: Share revoked
@@ -921,58 +922,6 @@ components:
 
     # --- Databases ---
 
-    Database:
-      type: object
-      description: A Ghost database.
-      required:
-        - id
-        - name
-        - type
-        - status
-        - host
-        - port
-      properties:
-        id:
-          type: string
-          description: Database ID.
-        name:
-          type: string
-          description: Database name. Unique within the space.
-        status:
-          type: string
-          description: Current lifecycle status of the database.
-          enum:
-            - queued
-            - configuring
-            - running
-            - pausing
-            - paused
-            - resuming
-            - deleting
-            - deleted
-            - upgrading
-            - unstable
-            - unknown
-        host:
-          type: string
-          description: PostgreSQL hostname for connections.
-        port:
-          type: integer
-          description: PostgreSQL port for connections.
-        type:
-          $ref: "#/components/schemas/DatabaseType"
-        size:
-          $ref: "#/components/schemas/DatabaseSize"
-          nullable: true
-        storage_mib:
-          type: integer
-          nullable: true
-          description: Current disk usage in MiB. Null if not yet available.
-        password:
-          type: string
-          nullable: true
-          description: PostgreSQL password for the default user. Returned on every GET for authorized callers.
-
     DatabaseType:
       type: string
       description: |
@@ -993,6 +942,73 @@ components:
         - 4x
         - 8x
 
+    DatabaseStatus:
+      type: string
+      description: Current lifecycle status of the database.
+      enum:
+        - queued
+        - configuring
+        - running
+        - pausing
+        - paused
+        - resuming
+        - deleting
+        - deleted
+        - upgrading
+        - unstable
+        - unknown
+
+    Database:
+      type: object
+      description: A Ghost database.
+      required:
+        - id
+        - name
+        - type
+        - status
+        - host
+        - port
+      properties:
+        id:
+          type: string
+          description: Database ID.
+        name:
+          type: string
+          description: Database name. Unique within the space.
+        type:
+          $ref: "#/components/schemas/DatabaseType"
+        size:
+          $ref: "#/components/schemas/DatabaseSize"
+          nullable: true
+        status:
+          $ref: "#/components/schemas/DatabaseStatus"
+        host:
+          type: string
+          description: PostgreSQL hostname for connections.
+        port:
+          type: integer
+          description: PostgreSQL port for connections.
+        password:
+          type: string
+          nullable: true
+          description: PostgreSQL password for the default user. Returned on every GET for authorized callers.
+        storage_mib:
+          type: integer
+          nullable: true
+          description: Current disk usage in MiB. Null if not yet available.
+
+    DatabaseWithUsage:
+      description: A Ghost database with current billing-cycle usage included.
+      allOf:
+        - $ref: "#/components/schemas/Database"
+        - type: object
+          properties:
+            compute_minutes:
+              type: integer
+              format: int64
+              nullable: true
+              description: Compute minutes used by this database during the current billing cycle. Only populated for `standard` databases.
+
     CreateDatabaseRequest:
       type: object
       properties:
@@ -1005,7 +1021,7 @@ components:
           $ref: "#/components/schemas/DatabaseSize"
         share_token:
           type: string
-          description: Share token from a database share. When provided, creates the new database from the shared snapshot.
+          description: Share token from a database share (begins with `gs_`). When provided, creates the new database from the shared snapshot.
 
     ForkDatabaseRequest:
       type: object
@@ -1061,7 +1077,7 @@ components:
       properties:
         share_token:
           type: string
-          description: Token passed to `createDatabase` (via `share_token`) to create a new database from the shared snapshot in another space. Also used to revoke the share via `revokeShare`.
+          description: Token passed to `createDatabase` (via `share_token`) to create a new database from the shared snapshot in another space. Also used to revoke the share via `revokeShare`. Always begins with `gs_`.
         database_id:
           type: string
           description: ID of the source database.

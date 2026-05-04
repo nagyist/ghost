@@ -10,10 +10,11 @@ func TestMCPGetCmd(t *testing.T) {
 Tool name: ghost_list
 
 Description:
-List all databases.
+List all databases, including each database's current status, storage usage, and compute minutes used in the current billing cycle.
 
 Output:
   • databases (required): []object, null
+    • compute_minutes: integer, null - Compute minutes used by this database during the current billing cycle. Only populated for standard databases.
     • id (required): string - Database identifier
     • name (required): string - Database name
     • size: string, null - Compute size for dedicated databases
@@ -29,7 +30,7 @@ Output:
     "readOnlyHint": true,
     "title": "List Databases"
   },
-  "description": "List all databases.",
+  "description": "List all databases, including each database's current status, storage usage, and compute minutes used in the current billing cycle.",
   "inputSchema": {
     "additionalProperties": false,
     "type": "object"
@@ -42,6 +43,13 @@ Output:
         "items": {
           "additionalProperties": false,
           "properties": {
+            "compute_minutes": {
+              "description": "Compute minutes used by this database during the current billing cycle. Only populated for standard databases.",
+              "type": [
+                "null",
+                "integer"
+              ]
+            },
             "id": {
               "description": "Database identifier",
               "type": "string"
@@ -102,7 +110,7 @@ Output:
   openWorldHint: true
   readOnlyHint: true
   title: List Databases
-description: List all databases.
+description: List all databases, including each database's current status, storage usage, and compute minutes used in the current billing cycle.
 inputSchema:
   additionalProperties: false
   type: object
@@ -114,6 +122,11 @@ outputSchema:
       items:
         additionalProperties: false
         properties:
+          compute_minutes:
+            description: Compute minutes used by this database during the current billing cycle. Only populated for standard databases.
+            type:
+              - "null"
+              - integer
           id:
             description: Database identifier
             type: string

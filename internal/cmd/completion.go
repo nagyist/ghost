@@ -38,7 +38,7 @@ func databaseCompletion(app *common.App) func(cmd *cobra.Command, args []string,
 	}
 }
 
-func listDatabases(cmd *cobra.Command, app *common.App) ([]api.Database, error) {
+func listDatabases(cmd *cobra.Command, app *common.App) ([]api.DatabaseWithUsage, error) {
 	client, projectID, err := app.GetClient()
 	if err != nil {
 		return nil, err

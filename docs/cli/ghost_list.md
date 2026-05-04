@@ -8,6 +8,10 @@ description: "CLI reference for ghost list"
 
 List all databases
 
+### Synopsis
+
+List all databases, including each database's current status, storage usage, and compute hours used in the current billing cycle.
+
 ```
 ghost list [flags]
 ```
