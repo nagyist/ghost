@@ -25,8 +25,6 @@ var ignore = []string{
 	"project_id",
 	"password",
 	"new_password",
-	"query",
-	"parameters",
 	"message",
 	"share_token",
 	"from_share",
