@@ -134,8 +134,12 @@ func wrapCommands(cmd *cobra.Command, app *common.App) {
 	if cmd.RunE != nil {
 		originalRunE := cmd.RunE
 		cmd.RunE = func(c *cobra.Command, args []string) (runErr error) {
-			// Perform version check
-			defer versionCheck(c, app)()
+			// Perform version check. Skip for `ghost upgrade`, which does
+			// its own version comparison and would otherwise print a
+			// redundant warning alongside the upgrade output.
+			if c.Name() != "upgrade" {
+				defer versionCheck(c, app)()
+			}
 
 			// Track analytics
 			start := time.Now()
