@@ -53,7 +53,7 @@ func CheckVersion(ctx context.Context, releasesURL string) (*VersionCheckResult,
 	}
 
 	installMethod := detectInstallMethod(ctx)
-	updateCommand := getUpdateCommand(ctx, installMethod, releasesURL)
+	updateCommand := getUpdateCommand(installMethod)
 
 	return &VersionCheckResult{
 		UpdateAvailable: updateAvailable,
@@ -193,7 +193,7 @@ func isUnderHomebrew(ctx context.Context, binaryPath string) bool {
 }
 
 // getUpdateCommand returns the command to update Ghost CLI based on the install method
-func getUpdateCommand(_ context.Context, method InstallMethod, releasesURL string) string {
+func getUpdateCommand(method InstallMethod) string {
 	switch method {
 	case InstallMethodHomebrew:
 		return "brew update && brew upgrade ghost"
@@ -205,10 +205,12 @@ func getUpdateCommand(_ context.Context, method InstallMethod, releasesURL strin
 			return "sudo dnf update ghost"
 		}
 		return "sudo yum update ghost"
-	case InstallMethodInstallSh:
-		return "curl -fsSL " + releasesURL + " | sh"
-	case InstallMethodInstallPS1:
-		return "irm " + releasesURL + "/install.ps1 | iex"
+	case InstallMethodInstallSh, InstallMethodInstallPS1, InstallMethodUnknown:
+		// `ghost upgrade` replaces the binary in place; if it can't (e.g.
+		// wrong permissions or an unrecognized package manager), it reports
+		// a clear error directing the user back to their original install
+		// method.
+		return "ghost upgrade"
 	default:
 		return ""
 	}
