@@ -32,7 +32,7 @@ The command will:
 - Merge with existing MCP server configurations (doesn't overwrite other servers)
 - Validate the configuration after installation
 
-If no client is specified, you'll be prompted to select one interactively.
+Pass "all" to configure every supported client. If no client is specified, you'll be prompted to select one interactively.
 
 ```
 ghost mcp install [client] [flags]
@@ -50,19 +50,20 @@ ghost mcp install [client] [flags]
   # Install for Cursor IDE
   ghost mcp install cursor
 
+  # Install for all supported clients
+  ghost mcp install all
+
   # Install without creating backup
   ghost mcp install claude-code --no-backup
-
-  # Use custom configuration file path
-  ghost mcp install claude-code --config-path ~/custom/config.json
 ```
 
 ### Options
 
 ```
-      --config-path string   Custom path to configuration file (overrides default locations)
   -h, --help                 help for install
+      --json                 Output in JSON format
       --no-backup            Skip creating backup of existing configuration (default: create backup)
+      --yaml                 Output in YAML format
 ```
 
 ### Options inherited from parent commands
@@ -77,4 +78,3 @@ ghost mcp install [client] [flags]
 ### SEE ALSO
 
 * [ghost mcp](ghost_mcp.md)	 - Ghost Model Context Protocol (MCP) server
-
