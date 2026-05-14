@@ -74,6 +74,7 @@ ghost list        # List all databases
 | `mcp` | Ghost Model Context Protocol (MCP) server |
 | `password` | Reset the password for a database |
 | `pause` | Pause a running database |
+| `pricing` | Show dedicated database pricing |
 | `psql` | Connect to a database using psql |
 | `rename` | Rename a database |
 | `resume` | Resume a paused database |
@@ -113,6 +114,7 @@ The `ghost mcp` command installs a [Model Context Protocol](https://modelcontext
 | `ghost_logs` | View logs for a database |
 | `ghost_invoice_list` | List invoices |
 | `ghost_invoice` | Get invoice line-item detail |
+| `ghost_pricing` | Get dedicated database pricing |
 | `ghost_feedback` | Submit feedback, a bug report, or a support request |
 | `search_docs` | Search PostgreSQL, PostGIS, and TimescaleDB documentation |
 | `view_skill` | Retrieve skills for PostgreSQL and TimescaleDB best practices |

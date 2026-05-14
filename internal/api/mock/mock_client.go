@@ -522,6 +522,26 @@ func (mr *MockClientInterfaceMockRecorder) GetPaymentMethod(ctx, spaceId, paymen
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPaymentMethod", reflect.TypeOf((*MockClientInterface)(nil).GetPaymentMethod), varargs...)
 }
 
+// GetPricing mocks base method.
+func (m *MockClientInterface) GetPricing(ctx context.Context, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetPricing", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPricing indicates an expected call of GetPricing.
+func (mr *MockClientInterfaceMockRecorder) GetPricing(ctx any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPricing", reflect.TypeOf((*MockClientInterface)(nil).GetPricing), varargs...)
+}
+
 // Health mocks base method.
 func (m *MockClientInterface) Health(ctx context.Context, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
 	m.ctrl.T.Helper()
@@ -1424,6 +1444,26 @@ func (mr *MockClientWithResponsesInterfaceMockRecorder) GetPaymentMethodWithResp
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, spaceId, paymentId}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPaymentMethodWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).GetPaymentMethodWithResponse), varargs...)
+}
+
+// GetPricingWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) GetPricingWithResponse(ctx context.Context, reqEditors ...api.RequestEditorFn) (*api.GetPricingResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetPricingWithResponse", varargs...)
+	ret0, _ := ret[0].(*api.GetPricingResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPricingWithResponse indicates an expected call of GetPricingWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) GetPricingWithResponse(ctx any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPricingWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).GetPricingWithResponse), varargs...)
 }
 
 // HealthWithResponse mocks base method.

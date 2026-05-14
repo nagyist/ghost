@@ -112,6 +112,24 @@ type AuthInfo struct {
 // AuthInfoType Type of authentication used.
 type AuthInfoType string
 
+// ComputePrice Compute price for one size.
+type ComputePrice struct {
+	// MemoryGib Memory allocation in GiB.
+	MemoryGib int `json:"memory_gib"`
+
+	// MilliCpu CPU allocation in millicores (1000 = 1 vCPU).
+	MilliCpu int `json:"milli_cpu"`
+
+	// PricePerHour Price per hour while the database is running.
+	PricePerHour float64 `json:"price_per_hour"`
+
+	// PricePerMonth Price per month while the database is running.
+	PricePerMonth float64 `json:"price_per_month"`
+
+	// Size Compute size for dedicated databases. Each step up allocates proportionally more vCPU and RAM.
+	Size DatabaseSize `json:"size"`
+}
+
 // CreateApiKeyRequest defines model for CreateApiKeyRequest.
 type CreateApiKeyRequest struct {
 	// Name User-provided label for the new API key.
@@ -238,6 +256,15 @@ type DatabaseWithUsage struct {
 	// - `standard` — shared-resource databases subject to the space's compute and storage limits.
 	// - `dedicated` — per-instance paid databases with guaranteed resources, exempt from space-level auto-pause.
 	Type DatabaseType `json:"type"`
+}
+
+// DedicatedPricing Pricing for dedicated databases.
+type DedicatedPricing struct {
+	// Compute Per-size compute pricing, ordered smallest to largest.
+	Compute []ComputePrice `json:"compute"`
+
+	// Storage Storage pricing.
+	Storage StoragePrice `json:"storage"`
 }
 
 // Error Standard error response.
@@ -392,6 +419,12 @@ type PaymentSetupResponse struct {
 	PaymentUrl string `json:"payment_url"`
 }
 
+// Pricing Pricing data grouped by category.
+type Pricing struct {
+	// Dedicated Pricing for dedicated databases.
+	Dedicated DedicatedPricing `json:"dedicated"`
+}
+
 // RenameDatabaseRequest defines model for RenameDatabaseRequest.
 type RenameDatabaseRequest struct {
 	// Name New name for the database.
@@ -444,6 +477,19 @@ type SpaceStatus struct {
 type StatusResponse struct {
 	// Status Status string (e.g. `success`).
 	Status string `json:"status"`
+}
+
+// StoragePrice Storage pricing.
+type StoragePrice struct {
+	// IncludedGibPerDatabase GiB of storage included per database at no additional charge. Only
+	// storage above this amount is billed at `price_per_gib_hour`.
+	IncludedGibPerDatabase int `json:"included_gib_per_database"`
+
+	// PricePerGibHour Price per GiB per hour of provisioned storage above the included amount.
+	PricePerGibHour float64 `json:"price_per_gib_hour"`
+
+	// PricePerGibMonth Price per GiB per month of provisioned storage above the included amount.
+	PricePerGibMonth float64 `json:"price_per_gib_month"`
 }
 
 // TrackRequest An analytics event to record.

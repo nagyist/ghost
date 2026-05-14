@@ -115,6 +115,9 @@ type ClientInterface interface {
 	// Health request
 	Health(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetPricing request
+	GetPricing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListSpaces request
 	ListSpaces(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -321,6 +324,18 @@ func (c *Client) SubmitFeedback(ctx context.Context, body SubmitFeedbackJSONRequ
 
 func (c *Client) Health(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewHealthRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetPricing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPricingRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -936,6 +951,33 @@ func NewHealthRequest(server string) (*http.Request, error) {
 	}
 
 	operationPath := fmt.Sprintf("/health")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetPricingRequest generates requests for GetPricing
+func NewGetPricingRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/pricing")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2167,6 +2209,9 @@ type ClientWithResponsesInterface interface {
 	// HealthWithResponse request
 	HealthWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*HealthResponse, error)
 
+	// GetPricingWithResponse request
+	GetPricingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPricingResponse, error)
+
 	// ListSpacesWithResponse request
 	ListSpacesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListSpacesResponse, error)
 
@@ -2392,6 +2437,29 @@ func (r HealthResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r HealthResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetPricingResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Pricing
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPricingResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPricingResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -3099,6 +3167,15 @@ func (c *ClientWithResponses) HealthWithResponse(ctx context.Context, reqEditors
 	return ParseHealthResponse(rsp)
 }
 
+// GetPricingWithResponse request returning *GetPricingResponse
+func (c *ClientWithResponses) GetPricingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPricingResponse, error) {
+	rsp, err := c.GetPricing(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPricingResponse(rsp)
+}
+
 // ListSpacesWithResponse request returning *ListSpacesResponse
 func (c *ClientWithResponses) ListSpacesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListSpacesResponse, error) {
 	rsp, err := c.ListSpaces(ctx, reqEditors...)
@@ -3567,6 +3644,39 @@ func ParseHealthResponse(rsp *http.Response) (*HealthResponse, error) {
 	response := &HealthResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetPricingResponse parses an HTTP response from a GetPricingWithResponse call
+func ParseGetPricingResponse(rsp *http.Response) (*GetPricingResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPricingResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Pricing
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
 	}
 
 	return response, nil

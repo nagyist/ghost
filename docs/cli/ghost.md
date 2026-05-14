@@ -40,6 +40,7 @@ Ghost is a command-line interface for managing PostgreSQL databases.
 * [ghost password](ghost_password.md)	 - Reset the password for a database
 * [ghost pause](ghost_pause.md)	 - Pause a running database
 * [ghost payment](ghost_payment.md)	 - Manage payment methods
+* [ghost pricing](ghost_pricing.md)	 - Show dedicated database pricing
 * [ghost psql](ghost_psql.md)	 - Connect to a database using psql
 * [ghost rename](ghost_rename.md)	 - Rename a database
 * [ghost resume](ghost_resume.md)	 - Resume a paused database

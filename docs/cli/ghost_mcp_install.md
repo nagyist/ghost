@@ -60,10 +60,10 @@ ghost mcp install [client] [flags]
 ### Options
 
 ```
-  -h, --help                 help for install
-      --json                 Output in JSON format
-      --no-backup            Skip creating backup of existing configuration (default: create backup)
-      --yaml                 Output in YAML format
+  -h, --help        help for install
+      --json        Output in JSON format
+      --no-backup   Skip creating backup of existing configuration (default: create backup)
+      --yaml        Output in YAML format
 ```
 
 ### Options inherited from parent commands
@@ -78,3 +78,4 @@ ghost mcp install [client] [flags]
 ### SEE ALSO
 
 * [ghost mcp](ghost_mcp.md)	 - Ghost Model Context Protocol (MCP) server
+

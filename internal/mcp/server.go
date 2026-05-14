@@ -132,6 +132,7 @@ func (s *Server) registerTools(ctx context.Context) {
 	mcp.AddTool(s.mcpServer, newShareRevokeTool(), s.handleShareRevoke)
 	mcp.AddTool(s.mcpServer, newInvoiceListTool(), s.handleInvoiceList)
 	mcp.AddTool(s.mcpServer, newInvoiceTool(), s.handleInvoice)
+	mcp.AddTool(s.mcpServer, newPricingTool(), s.handlePricing)
 }
 
 // analyticsMiddleware tracks analytics for all MCP requests

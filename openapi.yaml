@@ -24,6 +24,27 @@ paths:
         "200":
           description: Service is healthy
 
+  # --- Pricing ---
+
+  /pricing:
+    get:
+      operationId: getPricing
+      summary: Get pricing
+      description: |
+        Returns current pricing.
+
+        This endpoint is unauthenticated.
+      security: []
+      responses:
+        "200":
+          description: Pricing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pricing"
+        default:
+          $ref: "#/components/responses/Error"
+
   # --- Auth ---
 
   /auth/info:
@@ -730,6 +751,83 @@ components:
         status:
           type: string
           description: Status string (e.g. `success`).
+
+    # --- Pricing ---
+
+    Pricing:
+      type: object
+      description: |
+        Pricing data grouped by category.
+      required:
+        - dedicated
+      properties:
+        dedicated:
+          $ref: "#/components/schemas/DedicatedPricing"
+
+    DedicatedPricing:
+      type: object
+      description: Pricing for dedicated databases.
+      required:
+        - compute
+        - storage
+      properties:
+        compute:
+          type: array
+          description: Per-size compute pricing, ordered smallest to largest.
+          items:
+            $ref: "#/components/schemas/ComputePrice"
+        storage:
+          $ref: "#/components/schemas/StoragePrice"
+
+    ComputePrice:
+      type: object
+      description: Compute price for one size.
+      required:
+        - size
+        - milli_cpu
+        - memory_gib
+        - price_per_hour
+        - price_per_month
+      properties:
+        size:
+          $ref: "#/components/schemas/DatabaseSize"
+        milli_cpu:
+          type: integer
+          description: |
+            CPU allocation in millicores (1000 = 1 vCPU).
+        memory_gib:
+          type: integer
+          description: Memory allocation in GiB.
+        price_per_hour:
+          type: number
+          format: double
+          description: Price per hour while the database is running.
+        price_per_month:
+          type: number
+          format: double
+          description: Price per month while the database is running.
+
+    StoragePrice:
+      type: object
+      description: Storage pricing.
+      required:
+        - price_per_gib_hour
+        - price_per_gib_month
+        - included_gib_per_database
+      properties:
+        price_per_gib_hour:
+          type: number
+          format: double
+          description: Price per GiB per hour of provisioned storage above the included amount.
+        price_per_gib_month:
+          type: number
+          format: double
+          description: Price per GiB per month of provisioned storage above the included amount.
+        included_gib_per_database:
+          type: integer
+          description: |
+            GiB of storage included per database at no additional charge. Only
+            storage above this amount is billed at `price_per_gib_hour`.
 
     # --- Auth ---
 
