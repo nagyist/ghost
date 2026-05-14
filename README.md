@@ -62,9 +62,11 @@ ghost list        # List all databases
 | `config` | List current configuration |
 | `connect` | Get connection string for a database |
 | `create` | Create a new Postgres database |
+| `create dedicated` | Create a dedicated database |
 | `delete` | Delete a database |
 | `feedback` | Submit feedback, a bug report, or a support request |
 | `fork` | Fork a database |
+| `fork dedicated` | Fork a database as dedicated |
 | `help` | Help about any command |
 | `invoice` | View invoices |
 | `list` | List all databases |
@@ -74,6 +76,7 @@ ghost list        # List all databases
 | `mcp` | Ghost Model Context Protocol (MCP) server |
 | `password` | Reset the password for a database |
 | `pause` | Pause a running database |
+| `payment` | Manage payment methods |
 | `pricing` | Show dedicated database pricing |
 | `psql` | Connect to a database using psql |
 | `rename` | Rename a database |
@@ -93,29 +96,29 @@ The `ghost mcp` command installs a [Model Context Protocol](https://modelcontext
 
 | Tool | Description |
 |------|-------------|
-| `ghost_login` | Authenticate with GitHub OAuth |
-| `ghost_list` | List all databases |
-| `ghost_status` | Show space usage |
+| `ghost_connect` | Get a connection string for a database |
 | `ghost_create` | Create a new database |
 | `ghost_create_dedicated` | Create a new dedicated database |
 | `ghost_delete` | Delete a database permanently |
+| `ghost_feedback` | Submit feedback, a bug report, or a support request |
 | `ghost_fork` | Fork a database |
 | `ghost_fork_dedicated` | Fork a database as a new dedicated instance |
+| `ghost_invoice` | Get invoice line-item detail |
+| `ghost_invoice_list` | List invoices |
+| `ghost_list` | List all databases |
+| `ghost_login` | Authenticate with GitHub OAuth |
+| `ghost_logs` | View logs for a database |
+| `ghost_password` | Reset the password for a database |
 | `ghost_pause` | Pause a running database |
-| `ghost_resume` | Resume a paused database |
+| `ghost_pricing` | Get dedicated database pricing |
 | `ghost_rename` | Rename a database |
+| `ghost_resume` | Resume a paused database |
+| `ghost_schema` | Display database schema information |
 | `ghost_share` | Share a database |
 | `ghost_share_list` | List database shares |
 | `ghost_share_revoke` | Revoke a database share |
-| `ghost_connect` | Get a connection string for a database |
 | `ghost_sql` | Execute a SQL query against a database |
-| `ghost_schema` | Display database schema information |
-| `ghost_password` | Reset the password for a database |
-| `ghost_logs` | View logs for a database |
-| `ghost_invoice_list` | List invoices |
-| `ghost_invoice` | Get invoice line-item detail |
-| `ghost_pricing` | Get dedicated database pricing |
-| `ghost_feedback` | Submit feedback, a bug report, or a support request |
+| `ghost_status` | Show space usage |
 | `search_docs` | Search PostgreSQL, PostGIS, and TimescaleDB documentation |
 | `view_skill` | Retrieve skills for PostgreSQL and TimescaleDB best practices |
 
