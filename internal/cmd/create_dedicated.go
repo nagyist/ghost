@@ -21,7 +21,9 @@ func buildCreateDedicatedCmd(app *common.App) *cobra.Command {
 		Short: "Create a dedicated database",
 		Long: `Create a new dedicated database. Dedicated databases are always-on,
 billed instances that are not subject to space compute or storage limits.
-A payment method must be on file.`,
+A payment method must be on file.
+
+Run 'ghost pricing' to see compute and storage pricing.`,
 		Example: `  # Create a dedicated database (default size: 1x)
   ghost create dedicated
 

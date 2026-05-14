@@ -54,6 +54,8 @@ func newCreateDedicatedTool() *mcp.Tool {
 billed instances that are not subject to space compute or storage limits.
 A payment method must be on file.
 
+Use ghost_pricing to see compute and storage pricing.
+
 Note: new databases may take a few minutes to start up. Use ghost_list to check the current status.`,
 		InputSchema:  CreateDedicatedInput{}.Schema(),
 		OutputSchema: CreateDedicatedOutput{}.Schema(),

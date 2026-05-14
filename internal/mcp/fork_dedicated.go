@@ -54,6 +54,8 @@ func newForkDedicatedTool() *mcp.Tool {
 the source database's data but runs as an always-on, billed instance.
 A payment method must be on file.
 
+Use ghost_pricing to see compute and storage pricing.
+
 Note: forked databases may take a few minutes to start up. Use ghost_list to check the current status.`,
 		InputSchema:  ForkDedicatedInput{}.Schema(),
 		OutputSchema: ForkDedicatedOutput{}.Schema(),

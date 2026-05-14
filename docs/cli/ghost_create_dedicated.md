@@ -14,6 +14,8 @@ Create a new dedicated database. Dedicated databases are always-on,
 billed instances that are not subject to space compute or storage limits.
 A payment method must be on file.
 
+Run 'ghost pricing' to see compute and storage pricing.
+
 ```
 ghost create dedicated [flags]
 ```

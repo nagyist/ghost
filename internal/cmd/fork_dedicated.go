@@ -20,7 +20,9 @@ func buildForkDedicatedCmd(app *common.App) *cobra.Command {
 		Short: "Fork a database as dedicated",
 		Long: `Fork an existing database as a new dedicated instance. The fork inherits
 the source database's data but runs as an always-on, billed instance.
-A payment method must be on file.`,
+A payment method must be on file.
+
+Run 'ghost pricing' to see compute and storage pricing.`,
 		Example: `  # Fork as dedicated with default size (1x)
   ghost fork dedicated my-database
 
