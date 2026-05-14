@@ -1,6 +1,6 @@
 module github.com/timescale/ghost
 
-go 1.26.2
+go 1.26.3
 
 tool (
 	github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen
