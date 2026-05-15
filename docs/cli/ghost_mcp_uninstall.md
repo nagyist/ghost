@@ -12,7 +12,7 @@ Uninstall Ghost MCP server configuration from a client
 
 Uninstall the Ghost MCP server configuration from a supported MCP client.
 
-Pass "all" to uninstall from all supported clients. If no client is specified, you'll be prompted to select one interactively.
+Pass "all" to uninstall from all supported clients. If no client is specified, you'll be prompted to select one or more interactively.
 Only the Ghost MCP server entry named "ghost" is removed; other MCP server entries are left untouched.
 
 ```
@@ -22,7 +22,7 @@ ghost mcp uninstall [client] [flags]
 ### Examples
 
 ```
-  # Interactive client selection
+  # Interactive client selection (multi-select)
   ghost mcp uninstall
 
   # Uninstall from Cursor
@@ -56,4 +56,3 @@ ghost mcp uninstall [client] [flags]
 ### SEE ALSO
 
 * [ghost mcp](ghost_mcp.md)	 - Ghost Model Context Protocol (MCP) server
-

@@ -10,12 +10,10 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"sort"
-	"strconv"
+	"slices"
 	"strings"
 	"time"
 
-	tea "charm.land/bubbletea/v2"
 	"github.com/olekukonko/tablewriter"
 	"github.com/olekukonko/tablewriter/tw"
 	"github.com/spf13/cobra"
@@ -55,7 +53,7 @@ const (
 )
 
 // buildMCPInstallCmd creates the install subcommand for configuring editors
-func buildMCPInstallCmd(app *common.App) *cobra.Command {
+func buildMCPInstallCmd(_ *common.App) *cobra.Command {
 	var noBackup bool
 	var jsonOutput bool
 	var yamlOutput bool
@@ -77,8 +75,8 @@ The command will:
 - Merge with existing MCP server configurations (doesn't overwrite other servers)
 - Validate the configuration after installation
 
-Pass "all" to configure every supported client. If no client is specified, you'll be prompted to select one interactively.`, generateSupportedEditorsHelp()),
-		Example: `  # Interactive client selection
+Pass "all" to configure every supported client. If no client is specified, you'll be prompted to pick one or more clients interactively.`, generateSupportedEditorsHelp()),
+		Example: `  # Interactive client selection (multi-select)
   ghost mcp install
 
   # Install for Claude Code (User scope - available in all projects)
@@ -96,28 +94,21 @@ Pass "all" to configure every supported client. If no client is specified, you'l
 		ValidArgs:    getValidMCPClientTargetNames(),
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			var clientName string
-			if len(args) == 0 {
-				if !util.IsTerminal(cmd.InOrStdin()) {
-					return errors.New("no client specified and stdin is not a terminal; pass the client name or 'all' as an argument")
+			clients, err := resolveMCPClients(cmd, args, mcpInstallSelectionOptions())
+			if err != nil {
+				if errors.Is(err, common.ErrMultiSelectCanceled) || errors.Is(err, common.ErrMultiSelectAborted) {
+					cmd.PrintErrln("Canceled.")
+					return nil
 				}
-				// No client specified, prompt user to select one
-				var err error
-				clientName, err = selectClientInteractively(cmd)
-				if err != nil {
-					return fmt.Errorf("failed to select client: %w", err)
-				}
-				if clientName == "" {
-					return errors.New("no client selected")
-				}
-			} else {
-				clientName = args[0]
+				return err
 			}
-
-			if strings.EqualFold(clientName, mcpAllTarget) {
-				return installGhostMCPForAllClients(cmd, !noBackup, jsonOutput, yamlOutput)
+			if err := installGhostMCPForClients(cmd, clients, !noBackup, jsonOutput, yamlOutput); err != nil {
+				// The per-row errors are already shown in the table, so suppress
+				// cobra's "Error: ..." line.
+				cmd.SilenceErrors = true
+				return err
 			}
-			return installGhostMCPForClient(cmd, clientName, !noBackup, jsonOutput, yamlOutput)
+			return nil
 		},
 	}
 
@@ -128,6 +119,20 @@ Pass "all" to configure every supported client. If no client is specified, you'l
 	cmd.MarkFlagsMutuallyExclusive("json", "yaml")
 
 	return cmd
+}
+
+func resolveMCPClients(cmd *cobra.Command, args []string, opts mcpClientSelectionOptions) ([]clientConfig, error) {
+	if len(args) > 0 {
+		return mcpClientConfigsForTargetName(args[0])
+	}
+	clients, err := selectMCPClientsInteractively(cmd, opts)
+	if err != nil {
+		return nil, err
+	}
+	if len(clients) == 0 {
+		return nil, errors.New("no clients selected")
+	}
+	return clients, nil
 }
 
 // MCPClient represents our internal client types
@@ -161,9 +166,13 @@ type clientConfig struct {
 	// Parameters: serverName (name to register), command (binary path), args (arguments to binary)
 	buildInstallCommand   func(serverName, command string, args []string) ([]string, error)
 	buildUninstallCommand func(serverName string) ([]string, error)
-	// Optionally provide the check function for status detection (via CLI or other means)
-	// If not provided, will default to JSON config detection
+	// Optionally provide the check function for status detection (via CLI or other means).
+	// If not provided, will default to JSON config detection.
 	detectInstallStatus func(ctx context.Context) (MCPClientStatus, string)
+	// Optionally provide best-effort client install detection. This is used only
+	// to decide whether interactive install menus should preselect the client;
+	// users can still manually select any supported client.
+	detectClientInstalled func(ctx context.Context) bool
 }
 
 // supportedClients defines the clients we support for Ghost MCP installation
@@ -181,25 +190,8 @@ var supportedClients = []clientConfig{
 		buildUninstallCommand: func(serverName string) ([]string, error) {
 			return []string{"claude", "mcp", "remove", "-s", "user", serverName}, nil
 		},
-		detectInstallStatus: detectClaudeCodeMCPConfiguration,
-	},
-	{
-		ClientType:           Cursor,
-		Name:                 "Cursor",
-		EditorNames:          []string{"cursor"},
-		MCPServersPathPrefix: "/mcpServers",
-		ConfigPaths: []string{
-			"~/.cursor/mcp.json",
-		},
-	},
-	{
-		ClientType:           Windsurf,
-		Name:                 "Windsurf",
-		EditorNames:          []string{"windsurf"},
-		MCPServersPathPrefix: "/mcpServers",
-		ConfigPaths: []string{
-			"~/.codeium/windsurf/mcp_config.json",
-		},
+		detectInstallStatus:   detectClaudeCodeMCPConfiguration,
+		detectClientInstalled: detectClientExecutable("claude"),
 	},
 	{
 		ClientType:  Codex,
@@ -215,7 +207,25 @@ var supportedClients = []clientConfig{
 		buildUninstallCommand: func(serverName string) ([]string, error) {
 			return []string{"codex", "mcp", "remove", serverName}, nil
 		},
-		detectInstallStatus: detectCodexMCPConfiguration,
+		detectInstallStatus:   detectCodexMCPConfiguration,
+		detectClientInstalled: detectClientExecutable("codex"),
+	},
+	{
+		ClientType:           Cursor,
+		Name:                 "Cursor",
+		EditorNames:          []string{"cursor"},
+		MCPServersPathPrefix: "/mcpServers",
+		ConfigPaths: []string{
+			"~/.cursor/mcp.json",
+		},
+		detectClientInstalled: detectClientExecutableOrPath([]string{"cursor"}, []string{
+			"/Applications/Cursor.app",
+			"~/Applications/Cursor.app",
+			"/usr/share/applications/cursor.desktop",
+			"~/.local/share/applications/cursor.desktop",
+			"/opt/Cursor",
+			"/opt/cursor",
+		}),
 	},
 	{
 		ClientType:  Gemini,
@@ -230,7 +240,41 @@ var supportedClients = []clientConfig{
 		buildUninstallCommand: func(serverName string) ([]string, error) {
 			return []string{"gemini", "mcp", "remove", "-s", "user", serverName}, nil
 		},
-		detectInstallStatus: detectGeminiMCPConfiguration,
+		detectInstallStatus:   detectGeminiMCPConfiguration,
+		detectClientInstalled: detectClientExecutable("gemini"),
+	},
+	{
+		ClientType:           Antigravity,
+		Name:                 "Google Antigravity",
+		EditorNames:          []string{"antigravity", "agy"},
+		MCPServersPathPrefix: "/mcpServers",
+		ConfigPaths: []string{
+			"~/.gemini/antigravity/mcp_config.json",
+		},
+		detectClientInstalled: detectClientExecutableOrPath([]string{"antigravity", "agy"}, []string{
+			"/Applications/Antigravity.app",
+			"/Applications/Google Antigravity.app",
+			"~/Applications/Antigravity.app",
+			"~/Applications/Google Antigravity.app",
+			"/usr/share/applications/antigravity.desktop",
+			"~/.local/share/applications/antigravity.desktop",
+		}),
+	},
+	{
+		ClientType:           KiroCLI,
+		Name:                 "Kiro CLI",
+		EditorNames:          []string{"kiro-cli"},
+		MCPServersPathPrefix: "/mcpServers",
+		ConfigPaths: []string{
+			"~/.kiro/settings/mcp.json",
+		},
+		buildInstallCommand: func(serverName, command string, args []string) ([]string, error) {
+			return []string{"kiro-cli", "mcp", "add", "--name", serverName, "--scope", "global", "--force", "--command", command, "--args", strings.Join(args, ",")}, nil
+		},
+		buildUninstallCommand: func(serverName string) ([]string, error) {
+			return []string{"kiro-cli", "mcp", "remove", "--name", serverName, "--scope", "global"}, nil
+		},
+		detectClientInstalled: detectClientExecutable("kiro-cli"),
 	},
 	{
 		ClientType:  VSCode,
@@ -253,31 +297,55 @@ var supportedClients = []clientConfig{
 			}
 			return []string{"code", "--add-mcp", string(j)}, nil
 		},
+		detectClientInstalled: detectClientExecutable("code"),
 	},
 	{
-		ClientType:           Antigravity,
-		Name:                 "Google Antigravity",
-		EditorNames:          []string{"antigravity", "agy"},
+		ClientType:           Windsurf,
+		Name:                 "Windsurf",
+		EditorNames:          []string{"windsurf"},
 		MCPServersPathPrefix: "/mcpServers",
 		ConfigPaths: []string{
-			"~/.gemini/antigravity/mcp_config.json",
+			"~/.codeium/windsurf/mcp_config.json",
 		},
+		detectClientInstalled: detectClientExecutableOrPath([]string{"windsurf"}, []string{
+			"/Applications/Windsurf.app",
+			"~/Applications/Windsurf.app",
+			"/usr/share/applications/windsurf.desktop",
+			"~/.local/share/applications/windsurf.desktop",
+			"/opt/Windsurf",
+			"/opt/windsurf",
+		}),
 	},
-	{
-		ClientType:           KiroCLI,
-		Name:                 "Kiro CLI",
-		EditorNames:          []string{"kiro-cli"},
-		MCPServersPathPrefix: "/mcpServers",
-		ConfigPaths: []string{
-			"~/.kiro/settings/mcp.json",
-		},
-		buildInstallCommand: func(serverName, command string, args []string) ([]string, error) {
-			return []string{"kiro-cli", "mcp", "add", "--name", serverName, "--scope", "global", "--force", "--command", command, "--args", strings.Join(args, ",")}, nil
-		},
-		buildUninstallCommand: func(serverName string) ([]string, error) {
-			return []string{"kiro-cli", "mcp", "remove", "--name", serverName, "--scope", "global"}, nil
-		},
-	},
+}
+
+func detectClientExecutable(executableNames ...string) func(context.Context) bool {
+	return detectClientExecutableOrPath(executableNames, nil)
+}
+
+func detectClientExecutableOrPath(executableNames []string, paths []string) func(context.Context) bool {
+	return func(ctx context.Context) bool {
+		if ctx.Err() != nil {
+			return false
+		}
+		for _, executableName := range executableNames {
+			if _, err := exec.LookPath(executableName); err == nil {
+				return true
+			}
+		}
+		for _, path := range paths {
+			if _, err := os.Stat(util.ExpandPath(path)); err == nil {
+				return true
+			}
+		}
+		return false
+	}
+}
+
+func detectMCPClientInstalled(ctx context.Context, clientCfg clientConfig) bool {
+	if clientCfg.detectClientInstalled == nil {
+		return true
+	}
+	return clientCfg.detectClientInstalled(ctx)
 }
 
 var supportedClientsMap = func() map[MCPClient]clientConfig {
@@ -314,48 +382,14 @@ func mcpClientConfigsForTargetName(targetName string) ([]clientConfig, error) {
 	return []clientConfig{*clientCfg}, nil
 }
 
-// installGhostMCPForClient installs the Ghost MCP server configuration for the specified client.
-// This is the Ghost-specific wrapper used by the CLI that handles defaults and success messages.
-func installGhostMCPForClient(cmd *cobra.Command, clientName string, createBackup bool, jsonOutput, yamlOutput bool) error {
-	clientCfg, err := findClientConfig(clientName)
-	if err != nil {
-		return err
-	}
-
-	statusOutput, err := installGhostMCPForClientWithoutOutput(cmd.Context(), *clientCfg, createBackup)
-	if jsonOutput || yamlOutput {
-		if outputErr := writeMCPInstallOutput(cmd, []MCPClientStatusOutput{statusOutput}, jsonOutput, yamlOutput); outputErr != nil {
-			return outputErr
-		}
-		if err != nil {
-			return err
-		}
-		return nil
-	}
-	if err != nil {
-		return err
-	}
-
-	if statusOutput.Status == mcpStatusAlreadyConfigured {
-		cmd.Printf("Ghost MCP server configuration for %s is already present\n", clientName)
-		return nil
-	}
-
-	cmd.Printf("Successfully installed Ghost MCP server configuration for %s\n", clientName)
-	cmd.Printf("Configuration file: %s\n", statusOutput.Detail)
-
-	cmd.Printf("\nNext steps:\n")
-	cmd.Printf("   1. Restart %s to load the new configuration\n", clientName)
-	cmd.Printf("   2. The Ghost MCP server will be available as '%s'\n", mcp.ServerName)
-
-	return nil
-}
-
-func installGhostMCPForAllClients(cmd *cobra.Command, createBackup bool, jsonOutput, yamlOutput bool) error {
-	rows := make([]MCPClientStatusOutput, len(supportedClients))
+// installGhostMCPForClients installs Ghost MCP for the given client configs and
+// renders the standard summary in the requested output format. A non-nil error
+// is returned (after the table is written) when any single install fails.
+func installGhostMCPForClients(cmd *cobra.Command, clients []clientConfig, createBackup bool, jsonOutput, yamlOutput bool) error {
+	rows := make([]MCPClientStatusOutput, len(clients))
 	anyError := false
-	for i, clientCfg := range supportedClients {
-		row, err := installGhostMCPForClientWithoutOutput(cmd.Context(), clientCfg, createBackup)
+	for i, clientCfg := range clients {
+		row, err := installGhostMCPForClient(cmd.Context(), clientCfg, createBackup)
 		rows[i] = row
 		if err != nil {
 			anyError = true
@@ -366,8 +400,7 @@ func installGhostMCPForAllClients(cmd *cobra.Command, createBackup bool, jsonOut
 		return err
 	}
 	if anyError {
-		cmd.SilenceErrors = true
-		return common.ExitWithCode(common.ExitGeneralError, errors.New("failed to install Ghost MCP server for one or more clients"))
+		return common.ExitWithCode(common.ExitGeneralError, nil)
 	}
 	return nil
 }
@@ -379,7 +412,19 @@ func writeMCPInstallOutput(cmd *cobra.Command, rows []MCPClientStatusOutput, jso
 	case yamlOutput:
 		return util.SerializeToYAML(cmd.OutOrStdout(), rows)
 	default:
-		return outputMCPClientResultTable(cmd.OutOrStdout(), rows)
+		if err := outputMCPClientResultTable(cmd.OutOrStdout(), rows); err != nil {
+			return err
+		}
+		if slices.ContainsFunc(rows, func(row MCPClientStatusOutput) bool { return row.Status == mcpStatusInstalled }) {
+			cmd.Printf("\nNext steps:\n")
+			what := "the client(s)"
+			if len(rows) == 1 {
+				what = supportedClientsMap[rows[0].Client].Name
+			}
+			cmd.Printf("   1. Restart %s to load the new configuration\n", what)
+			cmd.Printf("   2. The Ghost MCP server will be available as '%s'\n", mcp.ServerName)
+		}
+		return nil
 	}
 }
 
@@ -428,7 +473,7 @@ func outputMCPClientResultTable(w io.Writer, rows []MCPClientStatusOutput) error
 	return table.Render()
 }
 
-func installGhostMCPForClientWithoutOutput(ctx context.Context, clientCfg clientConfig, createBackup bool) (MCPClientStatusOutput, error) {
+func installGhostMCPForClient(ctx context.Context, clientCfg clientConfig, createBackup bool) (MCPClientStatusOutput, error) {
 
 	makeErrorResult := func(err error) (MCPClientStatusOutput, error) {
 		return MCPClientStatusOutput{
@@ -526,7 +571,7 @@ func generateSupportedEditorsHelp() string {
 	for _, cfg := range supportedClients {
 		// Show only the primary editor name in help text
 		primaryName := cfg.EditorNames[0]
-		result.WriteString(fmt.Sprintf("  %-24s Configure for %s\n", primaryName, cfg.Name))
+		fmt.Fprintf(&result, "  %-24s Configure for %s\n", primaryName, cfg.Name)
 	}
 	return result.String()
 }
@@ -551,16 +596,8 @@ func findClientConfigFile(clientCfg clientConfig) (string, error) {
 	return util.ExpandPath(clientCfg.ConfigPaths[0]), nil
 }
 
-// ghostExecutablePathFunc can be overridden in tests to return a fixed path
-var ghostExecutablePathFunc = defaultGetGhostExecutablePath
-
-// getGhostExecutablePath returns the full path to the currently executing Ghost binary
-func getGhostExecutablePath() (string, error) {
-	return ghostExecutablePathFunc()
-}
-
-// defaultGetGhostExecutablePath is the default implementation
-func defaultGetGhostExecutablePath() (string, error) {
+// path to the binary, but if we're running via 'go run' return "ghost" to allow detection in development without requiring a build
+var getGhostExecutablePath = func() (string, error) {
 	ghostPath, err := os.Executable()
 	if err != nil {
 		return "", fmt.Errorf("failed to get executable path: %w", err)
@@ -568,146 +605,87 @@ func defaultGetGhostExecutablePath() (string, error) {
 
 	// If running via 'go run', os.Executable() returns a temp path like /tmp/go-build*/exe/ghost
 	// In this case, return "ghost" assuming it's in PATH for development
-	if strings.Contains(ghostPath, "go-build") && strings.Contains(ghostPath, "/exe/") {
+	if (strings.Contains(ghostPath, "/go-build") && strings.Contains(ghostPath, "/exe/")) || strings.Contains(ghostPath, "/Caches/go-build") {
 		return "ghost", nil
 	}
 
 	return ghostPath, nil
 }
 
-// ClientOption represents a client choice for interactive selection
-type ClientOption struct {
-	Name       string // Display name
-	ClientName string // Client name to pass to installMCPForClient
+type mcpClientSelectionOptions struct {
+	title             string
+	statusText        func(MCPClientStatus, bool) string
+	selectedByDefault func(MCPClientStatus, bool) bool
+	dimmedByDefault   func(MCPClientStatus, bool) bool
+	checkInstalled    bool
 }
 
-// selectClientInteractively prompts the user to select a client using Bubble Tea
-func selectClientInteractively(cmd *cobra.Command) (string, error) {
-	// Build client options from supportedClients
-	clientOptions := make([]ClientOption, 0, len(supportedClients))
-	for _, cfg := range supportedClients {
-		// Use the first client name as the primary identifier
-		primaryName := cfg.EditorNames[0]
-		clientOptions = append(clientOptions, ClientOption{
-			Name:       cfg.Name,
-			ClientName: primaryName,
-		})
-	}
-
-	// Sort options alphabetically by name, with "all" pinned at the top.
-	sort.Slice(clientOptions, func(i, j int) bool {
-		return clientOptions[i].Name < clientOptions[j].Name
-	})
-	options := append([]ClientOption{{Name: "All supported clients", ClientName: mcpAllTarget}}, clientOptions...)
-
-	model := clientSelectModel{
-		options: options,
-		cursor:  0,
-	}
-
-	program := tea.NewProgram(model, tea.WithInput(cmd.InOrStdin()), tea.WithOutput(cmd.OutOrStdout()))
-	finalModel, err := program.Run()
-	if err != nil {
-		return "", fmt.Errorf("failed to run editor selection: %w", err)
-	}
-
-	result := finalModel.(clientSelectModel)
-	if result.selected == "" {
-		return "", errors.New("no editor selected")
-	}
-
-	return result.selected, nil
-}
-
-// clientSelectModel represents the Bubble Tea model for client selection
-type clientSelectModel struct {
-	options      []ClientOption
-	cursor       int
-	selected     string
-	numberBuffer string
-}
-
-func (m clientSelectModel) Init() tea.Cmd {
-	return nil
-}
-
-func (m clientSelectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
-		switch msg.String() {
-		case "ctrl+c", "q", "esc":
-			return m, tea.Quit
-		case "up", "k":
-			// Clear buffer when using arrows
-			m.numberBuffer = ""
-			if m.cursor > 0 {
-				m.cursor--
+// mcpInstallSelectionOptions returns the multi-select options for picking
+// MCP clients to install Ghost into. Shared by `ghost mcp install` and the
+// MCP step of `ghost init`.
+func mcpInstallSelectionOptions() mcpClientSelectionOptions {
+	return mcpClientSelectionOptions{
+		title:          "Select MCP clients to install:",
+		checkInstalled: true,
+		statusText: func(status MCPClientStatus, clientInstalled bool) string {
+			switch status {
+			case mcpStatusConfigured:
+				return "already configured"
+			case mcpStatusNotConfigured:
+				if !clientInstalled {
+					return "not configured (client not detected)"
+				}
+				return "not configured"
+			case mcpStatusError:
+				return "could not detect"
+			default:
+				return string(status)
 			}
-		case "down", "j":
-			// Clear buffer when using arrows
-			m.numberBuffer = ""
-			if m.cursor < len(m.options)-1 {
-				m.cursor++
-			}
-		case "enter", "space":
-			m.selected = m.options[m.cursor].ClientName
-			return m, tea.Quit
-		case "backspace":
-			// Handle backspace to remove last character from buffer
-			if len(m.numberBuffer) > 0 {
-				m.updateNumberBuffer(m.numberBuffer[:len(m.numberBuffer)-1])
-			}
-		case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9":
-			// Add digit to buffer and update cursor position
-			m.updateNumberBuffer(m.numberBuffer + msg.String())
-		case "ctrl+w":
-			// Clear buffer
-			m.numberBuffer = ""
+		},
+		selectedByDefault: func(status MCPClientStatus, clientInstalled bool) bool {
+			return status == mcpStatusNotConfigured && clientInstalled
+		},
+		dimmedByDefault: func(status MCPClientStatus, _ bool) bool {
+			return status == mcpStatusConfigured
+		},
+	}
+}
+
+var selectMCPClientsInteractively = func(cmd *cobra.Command, options mcpClientSelectionOptions) ([]clientConfig, error) {
+	if !util.IsTerminal(cmd.InOrStdin()) {
+		return nil, errors.New("no client specified and stdin is not a terminal; pass the client name or 'all' as an argument")
+	}
+
+	items := make([]common.MultiSelectItem, len(supportedClients))
+	for i, cfg := range supportedClients {
+		status := detectMCPClientStatus(cmd.Context(), cfg)
+		clientInstalled := true
+		if options.checkInstalled {
+			clientInstalled = detectMCPClientInstalled(cmd.Context(), cfg)
+		}
+		items[i] = common.MultiSelectItem{
+			Label:    cfg.Name,
+			Status:   options.statusText(status.Status, clientInstalled),
+			Selected: options.selectedByDefault(status.Status, clientInstalled),
+			Dimmed:   options.dimmedByDefault(status.Status, clientInstalled),
 		}
 	}
-	return m, nil
-}
 
-// updateNumberBuffer moves the cursor to the editor matching the number buffer
-func (m *clientSelectModel) updateNumberBuffer(newBuffer string) {
-	if newBuffer == "" {
-		m.numberBuffer = newBuffer
-		return
-	}
-
-	// Parse the buffer as a number
-	num, err := strconv.Atoi(newBuffer)
+	result, err := common.RunMultiSelect(cmd.Context(), cmd.InOrStdin(), cmd.ErrOrStderr(), options.title, items)
 	if err != nil {
-		return
+		return nil, fmt.Errorf("failed to run client selection: %w", err)
 	}
-
-	// Convert from 1-based to 0-based index and validate bounds
-	index := num - 1
-	if index >= 0 && index < len(m.options) {
-		m.numberBuffer = newBuffer
-		m.cursor = index
+	switch result.Reason {
+	case common.MultiSelectAborted:
+		return nil, common.ErrMultiSelectAborted
+	case common.MultiSelectCanceled:
+		return nil, common.ErrMultiSelectCanceled
 	}
-}
-
-func (m clientSelectModel) View() tea.View {
-	var s strings.Builder
-	s.WriteString("Select an MCP client to configure:\n\n")
-
-	for i, option := range m.options {
-		cursor := " "
-		if m.cursor == i {
-			cursor = ">"
-		}
-		s.WriteString(fmt.Sprintf("%s %d. %s\n", cursor, i+1, option.Name))
+	selected := make([]clientConfig, len(result.Indices))
+	for i, idx := range result.Indices {
+		selected[i] = supportedClients[idx]
 	}
-
-	// Show the current number buffer if user is typing
-	if m.numberBuffer != "" {
-		s.WriteString(fmt.Sprintf("\nTyping: %s", m.numberBuffer))
-	}
-
-	s.WriteString("\nUse up/down arrows or number keys to navigate, enter to select, q to quit")
-	return tea.NewView(s.String())
+	return selected, nil
 }
 
 // addMCPServerViaCLI adds an MCP server using a CLI command configured in clientConfig.

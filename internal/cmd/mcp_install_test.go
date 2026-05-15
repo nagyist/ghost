@@ -75,12 +75,16 @@ func TestMCPInstallCmd(t *testing.T) {
 			name:      "single client text output",
 			args:      []string{"mcp", "install", "cursor", "--no-backup"},
 			ghostPath: "/opt/bin/ghost",
-			wantStdout: "Successfully installed Ghost MCP server configuration for cursor\n" +
-				"Configuration file: {{HOME}}/.cursor/mcp.json\n" +
-				"\n" +
-				"Next steps:\n" +
-				"   1. Restart cursor to load the new configuration\n" +
-				"   2. The Ghost MCP server will be available as 'ghost'\n",
+			wantStdoutFunc: func(homeDir string) string {
+				configPath := homeDir + "/.cursor/mcp.json"
+				detailPad := strings.Repeat(" ", len(configPath)-len("DETAIL"))
+				return "CLIENT  STATUS     DETAIL" + detailPad + "  \n" +
+					"Cursor  installed  " + configPath + "  \n" +
+					"\n" +
+					"Next steps:\n" +
+					"   1. Restart Cursor to load the new configuration\n" +
+					"   2. The Ghost MCP server will be available as 'ghost'\n"
+			},
 			after: assertCursorHasGhost,
 		},
 		{
@@ -130,25 +134,16 @@ func TestMCPInstallCmd(t *testing.T) {
 				`    "status": "already configured"` + "\n" +
 				"  },\n" +
 				"  {\n" +
+				`    "client": "codex",` + "\n" +
+				`    "status": "already configured"` + "\n" +
+				"  },\n" +
+				"  {\n" +
 				`    "client": "cursor",` + "\n" +
 				`    "status": "installed",` + "\n" +
 				`    "detail": "{{HOME}}/.cursor/mcp.json"` + "\n" +
 				"  },\n" +
 				"  {\n" +
-				`    "client": "windsurf",` + "\n" +
-				`    "status": "installed",` + "\n" +
-				`    "detail": "{{HOME}}/.codeium/windsurf/mcp_config.json"` + "\n" +
-				"  },\n" +
-				"  {\n" +
-				`    "client": "codex",` + "\n" +
-				`    "status": "already configured"` + "\n" +
-				"  },\n" +
-				"  {\n" +
 				`    "client": "gemini",` + "\n" +
-				`    "status": "already configured"` + "\n" +
-				"  },\n" +
-				"  {\n" +
-				`    "client": "vscode",` + "\n" +
 				`    "status": "already configured"` + "\n" +
 				"  },\n" +
 				"  {\n" +
@@ -159,6 +154,15 @@ func TestMCPInstallCmd(t *testing.T) {
 				"  {\n" +
 				`    "client": "kiro-cli",` + "\n" +
 				`    "status": "already configured"` + "\n" +
+				"  },\n" +
+				"  {\n" +
+				`    "client": "vscode",` + "\n" +
+				`    "status": "already configured"` + "\n" +
+				"  },\n" +
+				"  {\n" +
+				`    "client": "windsurf",` + "\n" +
+				`    "status": "installed",` + "\n" +
+				`    "detail": "{{HOME}}/.codeium/windsurf/mcp_config.json"` + "\n" +
 				"  }\n" +
 				"]\n",
 			after: assertCursorHasGhost,
@@ -166,4 +170,20 @@ func TestMCPInstallCmd(t *testing.T) {
 	}
 
 	runMCPCmdTests(t, tests)
+}
+
+func TestMCPInstallSelectionOptions_DefaultSelection(t *testing.T) {
+	opts := mcpInstallSelectionOptions()
+	if !opts.selectedByDefault(mcpStatusNotConfigured, true) {
+		t.Fatal("not-configured installed clients should be selected by default")
+	}
+	if opts.selectedByDefault(mcpStatusNotConfigured, false) {
+		t.Fatal("not-configured clients that are not detected should not be selected by default")
+	}
+	if opts.selectedByDefault(mcpStatusConfigured, true) {
+		t.Fatal("already-configured clients should not be selected by default")
+	}
+	if opts.selectedByDefault(mcpStatusError, true) {
+		t.Fatal("clients with detection errors should not be selected by default")
+	}
 }
