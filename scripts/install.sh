@@ -532,6 +532,11 @@ install_cleanup_on_exit() {
     fi
     # Restore the terminal cursor (the animation hides it during play).
     printf '\033[?25h' >&2
+    # If we were interrupted mid-detection with the terminal in raw mode,
+    # put it back. The variable is empty in the normal flow.
+    if [ -n "${_saved_terminal_stty:-}" ] && [ -w /dev/tty ]; then
+        stty "${_saved_terminal_stty}" < /dev/tty 2>/dev/null
+    fi
 }
 
 main() {
@@ -578,6 +583,12 @@ main() {
     local STATUS_FILE=""
     local stop_file=""
     if supports_ansi_escapes; then
+        # Pick legible ghost colors for the user's terminal before the
+        # animation hides the cursor and starts writing escape sequences.
+        # Doing this here (not in play_ghost_intro_animation) keeps the
+        # OSC 11 query and its reply from interleaving with animation
+        # frames, which would corrupt both.
+        detect_and_apply_ghost_theme
         STATUS_FILE="${tmp_dir}/status"
         stop_file="${tmp_dir}/animation_done"
         play_ghost_intro_animation "${platform}" "${version_file}" "${archive_name_file}" "${tmp_dir}" "${stop_file}" &
@@ -673,6 +684,121 @@ main() {
 # resolve at call time, so main() can call play_ghost_intro_animation even
 # though it's defined below.
 # ============================================================================
+
+# RGB triplets (as `R;G;B` substrings of a 24-bit SGR escape) used to color
+# the intro-animation ghost. Defaults are tuned for dark terminals;
+# detect_and_apply_ghost_theme may swap them at runtime if it detects a
+# light background. Declared at file scope so `set -u` is satisfied even
+# when detection is skipped (non-TTY, dumb terminal, static-fallback path).
+GHOST_BODY_RGB='232;242;255'
+GHOST_EYE_RGB='102;247;65'
+
+# Holds the stty mode string while detect_and_apply_ghost_theme has the
+# terminal in raw mode. install_cleanup_on_exit restores it if the script
+# is interrupted between `stty raw` and the matching restore so a Ctrl+C
+# during detection doesn't leave the user's terminal unusable.
+_saved_terminal_stty=''
+
+# Pick body+eye colors for the given theme. "light" swaps in darker,
+# higher-contrast colors that read well on white/cream backgrounds;
+# anything else (including the empty string) leaves the dark-theme
+# defaults declared above in place.
+apply_ghost_theme() {
+    case "${1:-}" in
+        light)
+            GHOST_BODY_RGB='90;105;130'
+            GHOST_EYE_RGB='30;130;40'
+            ;;
+    esac
+}
+
+# Take a 1-4 char hex component from an OSC 11 `rgb:RRRR/GGGG/BBBB`
+# response and return the top byte (0-255) on stdout. Per the xterm spec
+# shorter forms are zero-padded on the right, so e.g. `f` means 0xf000
+# (top byte 0xf0 = 240), not 0x000f.
+_osc_hex_high_byte() {
+    local h="$1"
+    case "${#h}" in
+        0) return 1 ;;
+        1) h="${h}000" ;;
+        2) h="${h}00" ;;
+        3) h="${h}0" ;;
+    esac
+    printf '%d' "0x$(printf '%s' "${h}" | cut -c1-2)" 2>/dev/null
+}
+
+# Probe the terminal background and call apply_ghost_theme with the
+# detected theme name ("light" or unset). Two strategies in order:
+#
+#   1. COLORFGBG env var (set by iTerm2, rxvt, Konsole, et al.). Format is
+#      `fg;bg` or `fg;default;bg`; the last semicolon-separated field is
+#      an ANSI color index. Indices 0-6 and 8 are dark; 7 and 9-15 are
+#      light. Free, no terminal interaction needed.
+#
+#   2. OSC 11 background-color query (`ESC ] 11 ; ? ST`). Supported by
+#      modern xterm, iTerm2, kitty, alacritty, wezterm, foot, ghostty,
+#      etc. Notably *not* supported by macOS Terminal.app, which silently
+#      ignores the query — the read times out after ~200ms and we leave
+#      the theme at its default. Cost on non-supporting terminals is one
+#      200ms delay during install.
+#
+# Any failure path (no /dev/tty, stty refuses, unparseable reply, etc.)
+# leaves the defaults in place. Runs in the parent shell (not a `$()`
+# subshell) so apply_ghost_theme can mutate the globals directly.
+detect_and_apply_ghost_theme() {
+    [ -r /dev/tty ] && [ -w /dev/tty ] || return 0
+    [ -t 2 ] || return 0
+    [ "${TERM:-}" != "dumb" ] || return 0
+
+    if [ -n "${COLORFGBG:-}" ]; then
+        local bg_index="${COLORFGBG##*;}"
+        case "${bg_index}" in
+            7|9|10|11|12|13|14|15) apply_ghost_theme light; return 0 ;;
+            0|1|2|3|4|5|6|8) return 0 ;;
+        esac
+    fi
+
+    local saved_stty
+    saved_stty=$(stty -g < /dev/tty 2>/dev/null) || return 0
+    # min 0 time 2 = return after up to ~200ms with whatever's buffered.
+    # raw -echo suppresses local echo of both our query and the reply so
+    # neither leaks onto the user's terminal if parsing later fails.
+    if ! stty raw -echo min 0 time 2 < /dev/tty 2>/dev/null; then
+        return 0
+    fi
+    _saved_terminal_stty="${saved_stty}"
+
+    # shellcheck disable=SC1003  # \\ is two literal chars (printf -> \), the ST terminator
+    printf '\033]11;?\033\\' > /dev/tty 2>/dev/null || true
+    local reply
+    reply=$(dd bs=64 count=1 < /dev/tty 2>/dev/null | tr -d '\033\007')
+
+    stty "${saved_stty}" < /dev/tty 2>/dev/null
+    _saved_terminal_stty=''
+
+    # Parse rgb:RRRR/GGGG/BBBB (each component 1-4 hex digits).
+    local parsed
+    parsed=$(printf '%s' "${reply}" | sed -n 's|.*rgb:\([0-9a-fA-F]\{1,4\}\)/\([0-9a-fA-F]\{1,4\}\)/\([0-9a-fA-F]\{1,4\}\).*|\1 \2 \3|p')
+    [ -n "${parsed}" ] || return 0
+
+    local r_hex g_hex b_hex rest
+    r_hex="${parsed%% *}"
+    rest="${parsed#* }"
+    g_hex="${rest%% *}"
+    b_hex="${rest#* }"
+
+    local r g b
+    r=$(_osc_hex_high_byte "${r_hex}") || return 0
+    g=$(_osc_hex_high_byte "${g_hex}") || return 0
+    b=$(_osc_hex_high_byte "${b_hex}") || return 0
+
+    # W3C-style perceived luminance (0..255). 128 is the natural midpoint;
+    # values at or above it are "light" backgrounds for our purposes.
+    local lum=$(( (r * 299 + g * 587 + b * 114) / 1000 ))
+    if [ "${lum}" -ge 128 ]; then
+        apply_ghost_theme light
+    fi
+}
 
 # Format the install header line "Ghost vX.Y.Z - platform" with color
 # codes. Used for both the in-place animation header and the static
@@ -841,8 +967,8 @@ draw_ghost_intro_frame() {
     if [ -n "${esc}" ]; then
         reset="${esc}0m"
         clear_line="${esc}2K"
-        body="${esc}38;2;232;242;255m"
-        eyes="${esc}38;2;102;247;65m"
+        body="${esc}38;2;${GHOST_BODY_RGB}m"
+        eyes="${esc}38;2;${GHOST_EYE_RGB}m"
     fi
 
     # Body rows are offset by `tilt` to suggest momentum at speed/direction
