@@ -730,6 +730,7 @@ ghost_intro_render_row() {
         local trim=$((-indent))
         local trimmed="${row}"
         while [ "${trim}" -gt 0 ]; do
+            # shellcheck disable=SC2295  # pattern semantics are intentional
             trimmed="${trimmed#${braille_cell_pattern}}"
             trim=$((trim - 1))
         done
@@ -778,6 +779,7 @@ ghost_intro_render_eye_row() {
         segment_trim="${trim}"
         trimmed="${pre_eye}"
         while [ "${segment_trim}" -gt 0 ]; do
+            # shellcheck disable=SC2295  # pattern semantics are intentional
             trimmed="${trimmed#${braille_cell_pattern}}"
             segment_trim=$((segment_trim - 1))
         done
@@ -789,6 +791,7 @@ ghost_intro_render_eye_row() {
         if [ "${segment_trim}" -lt 0 ]; then segment_trim=0; fi
         trimmed="${eye_chars}"
         while [ "${segment_trim}" -gt 0 ]; do
+            # shellcheck disable=SC2295  # pattern semantics are intentional
             trimmed="${trimmed#${braille_cell_pattern}}"
             segment_trim=$((segment_trim - 1))
         done
@@ -799,7 +802,8 @@ ghost_intro_render_eye_row() {
     if [ "${segment_trim}" -lt 0 ]; then segment_trim=0; fi
     trimmed="${post_eye}"
     while [ "${segment_trim}" -gt 0 ]; do
-        trimmed="${trimmed#?}"
+        # shellcheck disable=SC2295  # pattern semantics are intentional
+        trimmed="${trimmed#${braille_cell_pattern}}"
         segment_trim=$((segment_trim - 1))
     done
     post_visible="${trimmed}"
