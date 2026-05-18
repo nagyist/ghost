@@ -707,11 +707,15 @@ render_progress_bar() {
 
 # Render a single Braille-char ghost row at the given indent. The indent may
 # be negative, in which case the row is partially clipped at the left edge.
-# Leading characters are trimmed via parameter expansion. `?` in a glob
-# matches one character regardless of its UTF-8 byte width, so each `#?`
-# strips exactly one Braille cell. `row_width` is the number of visible
-# cells in the row (16 for the original ghost rows, 17 for the half-shifted
-# bottom rows used during the sub-character slide).
+# Leading characters are trimmed via parameter expansion against
+# ${braille_cell_pattern}, which the caller (play_ghost_intro_animation)
+# sets to `?` or `???` depending on whether the running shell matches glob
+# wildcards per-character or per-byte — Braille cells are 3-byte UTF-8
+# sequences, and dash matches per-byte, so a literal `#?` there would leave
+# partial multi-byte fragments that render as replacement glyphs. Read via
+# dynamic scoping. `row_width` is the number of visible cells in the row
+# (16 for the original ghost rows, 17 for the half-shifted bottom rows
+# used during the sub-character slide).
 ghost_intro_render_row() {
     local indent="$1"
     local color="$2"
@@ -726,7 +730,7 @@ ghost_intro_render_row() {
         local trim=$((-indent))
         local trimmed="${row}"
         while [ "${trim}" -gt 0 ]; do
-            trimmed="${trimmed#?}"
+            trimmed="${trimmed#${braille_cell_pattern}}"
             trim=$((trim - 1))
         done
         printf "%s%s%s%s\n" "${clear_line}" "${color}" "${trimmed}" "${reset}" >&2
@@ -774,7 +778,7 @@ ghost_intro_render_eye_row() {
         segment_trim="${trim}"
         trimmed="${pre_eye}"
         while [ "${segment_trim}" -gt 0 ]; do
-            trimmed="${trimmed#?}"
+            trimmed="${trimmed#${braille_cell_pattern}}"
             segment_trim=$((segment_trim - 1))
         done
         pre_visible="${trimmed}"
@@ -785,7 +789,7 @@ ghost_intro_render_eye_row() {
         if [ "${segment_trim}" -lt 0 ]; then segment_trim=0; fi
         trimmed="${eye_chars}"
         while [ "${segment_trim}" -gt 0 ]; do
-            trimmed="${trimmed#?}"
+            trimmed="${trimmed#${braille_cell_pattern}}"
             segment_trim=$((segment_trim - 1))
         done
         eyes_visible="${trimmed}"
@@ -990,9 +994,24 @@ play_ghost_intro_animation() {
     if ! supports_ansi_escapes; then
         # Static fallback: render the upright ghost with no escape codes.
         # The caller (main) handles the version header and progress lines
-        # for the non-animated path.
+        # for the non-animated path. No slide-in here, so we don't need
+        # the per-cell strip pattern that the animated path computes below.
         draw_ghost_intro_frame 2 0 open 0 ""
         return
+    fi
+
+    # Detect how the running shell matches `?` in glob patterns: bash with
+    # a UTF-8 locale (macOS /bin/sh) strips one whole character via
+    # `${var#?}`, but dash (Ubuntu /bin/sh) strips one byte. Braille cells
+    # are 3-byte UTF-8 sequences, so on byte-wise shells we need three
+    # `?`s to strip a whole cell — otherwise the slide-in leaves partial
+    # multi-byte fragments along the ghost's left edge that render as
+    # replacement glyphs (`?`). The row/eye-row renderers read this via
+    # dynamic scoping.
+    local braille_cell_pattern="?"
+    local braille_probe="⠀"
+    if [ -n "${braille_probe#?}" ]; then
+        braille_cell_pattern="???"
     fi
 
     local esc
