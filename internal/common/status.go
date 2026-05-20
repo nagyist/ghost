@@ -38,6 +38,7 @@ type Status struct {
 	EstimatedTotalCost  *float64       `json:"estimated_total_cost,omitempty"`
 	BillingPeriodStart  *time.Time     `json:"billing_period_start,omitempty"`
 	BillingPeriodEnd    *time.Time     `json:"billing_period_end,omitempty"`
+	SpaceID             string         `json:"space_id"`
 }
 
 // FetchStatus fetches space usage and database counts from the API.
@@ -120,5 +121,6 @@ func FetchStatus(ctx context.Context, client api.ClientWithResponsesInterface, p
 		EstimatedTotalCost:  spaceStatus.EstimatedTotalCost,
 		BillingPeriodStart:  spaceStatus.BillingPeriodStart,
 		BillingPeriodEnd:    spaceStatus.BillingPeriodEnd,
+		SpaceID:             projectID,
 	}, nil
 }
