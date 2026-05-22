@@ -2,6 +2,9 @@ package mcp
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"os"
 
 	"github.com/google/jsonschema-go/jsonschema"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -13,14 +16,16 @@ import (
 // SQLInput represents input for ghost_sql
 type SQLInput struct {
 	Ref        string   `json:"name_or_id"`
-	Query      string   `json:"query"`
+	Query      string   `json:"query,omitempty"`
+	File       string   `json:"file,omitempty"`
 	Parameters []string `json:"parameters,omitempty"`
 }
 
 func (SQLInput) Schema() *jsonschema.Schema {
 	schema := util.Must(jsonschema.For[SQLInput](nil))
 	databaseRefInputProperties(schema)
-	schema.Properties["query"].Description = "SQL query to execute. Multi-statement queries are supported when no parameters are provided"
+	schema.Properties["query"].Description = "SQL query to execute. Multi-statement queries are supported when no parameters are provided. Exactly one of 'query' or 'file' must be provided."
+	schema.Properties["file"].Description = "Path to a SQL file on disk to execute. Multi-statement files are supported when no parameters are provided. Exactly one of 'query' or 'file' must be provided."
 	schema.Properties["parameters"].Description = "Query parameters. Values are substituted for $1, $2, etc. placeholders in the query. Only supported for single-statement queries"
 	return schema
 }
@@ -60,12 +65,25 @@ func (s *Server) handleSQL(ctx context.Context, req *mcp.CallToolRequest, input 
 		return nil, SQLOutput{}, err
 	}
 
+	if (input.Query == "") == (input.File == "") {
+		return nil, SQLOutput{}, errors.New("exactly one of 'query' or 'file' must be provided")
+	}
+
+	query := input.Query
+	if input.File != "" {
+		data, err := os.ReadFile(util.ExpandPath(input.File))
+		if err != nil {
+			return nil, SQLOutput{}, fmt.Errorf("failed to read SQL file: %w", err)
+		}
+		query = string(data)
+	}
+
 	// Execute the query
 	result, err := common.ExecuteQuery(ctx, common.ExecuteQueryArgs{
 		Client:      client,
 		ProjectID:   projectID,
 		DatabaseRef: input.Ref,
-		Query:       input.Query,
+		Query:       query,
 		Role:        "tsdbadmin",
 		Parameters:  input.Parameters,
 		ReadOnly:    cfg.ReadOnly,
