@@ -60,7 +60,13 @@ func buildPaymentInteractiveCmd(app *common.App) *cobra.Command {
 				resp.JSON200.PaymentMethods,
 			)
 
-			program := tea.NewProgram(model, tea.WithInput(cmd.InOrStdin()), tea.WithOutput(cmd.OutOrStdout()))
+			program := tea.NewProgram(
+				model,
+				tea.WithInput(cmd.InOrStdin()),
+				tea.WithOutput(cmd.OutOrStdout()),
+				tea.WithContext(cmd.Context()),
+				tea.WithoutSignalHandler(),
+			)
 			finalModel, err := program.Run()
 			if err != nil {
 				return fmt.Errorf("failed to run interactive payment menu: %w", err)
