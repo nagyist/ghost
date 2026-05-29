@@ -40,7 +40,7 @@ func buildShareCmd(app *common.App) *cobra.Command {
 
 The share URL can be handed to anyone — they don't need access to this space.
 Whoever opens the URL gets instructions to run 'ghost create --from-share <token>'
-(or 'ghost create dedicated --from-share <token>'), which spins up a new database
+(or 'ghost create-dedicated --from-share <token>'), which spins up a new database
 in their own space from the shared snapshot.`,
 		Example: `  # Share a database (no expiry)
   ghost share my-database

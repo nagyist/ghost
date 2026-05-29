@@ -125,7 +125,7 @@ func buildLearnTheBasicsSteps(originalDatabaseName, forkDatabaseName string) []S
 			Title: "Create a database",
 			Blocks: []Block{
 				{
-					Args:            []string{"create", "--name", originalDatabaseName, "--wait"},
+					Args:            []string{"create", originalDatabaseName, "--wait"},
 					CreatesDatabase: originalDatabaseName,
 					ExpectedOutput: "Created database '" + originalDatabaseName + "'\n" +
 						"ID: " + docsOriginalDatabaseID + "\n" +
@@ -157,7 +157,7 @@ func buildLearnTheBasicsSteps(originalDatabaseName, forkDatabaseName string) []S
 			Blocks: []Block{
 				{
 					Prose:           "Forking creates an independent copy you can safely experiment with.",
-					Args:            []string{"fork", originalDatabaseName, "--name", forkDatabaseName, "--wait"},
+					Args:            []string{"fork", originalDatabaseName, forkDatabaseName, "--wait"},
 					CreatesDatabase: forkDatabaseName,
 					ExpectedOutput: "Forked '" + originalDatabaseName + "' → '" + forkDatabaseName + "'\n" +
 						"ID: " + docsForkDatabaseID + "\n" +

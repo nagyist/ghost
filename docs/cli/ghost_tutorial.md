@@ -12,10 +12,10 @@ Run an interactive Ghost tutorial
 
 Run an interactive tutorial that demonstrates the core Ghost workflow.
 
-The tutorial creates a temporary database, inserts
-sample data, forks the database, mutates the fork, compares the original and
-fork, and then asks whether to delete or keep the tutorial databases. Each step
-explains and echoes the equivalent Ghost CLI command before running it.
+The tutorial creates a temporary database, inserts sample data, forks the database,
+mutates the fork, compares the original and fork, and then asks whether to delete
+or keep the tutorial databases. Each step explains and echoes the equivalent Ghost
+CLI command before running it.
 
 ```
 ghost tutorial [flags]

@@ -12,8 +12,11 @@ Fork a database
 
 Fork an existing database to create a new independent copy.
 
+To fork into an always-on dedicated database (not subject to space compute or
+storage limits), use 'ghost fork-dedicated' instead.
+
 ```
-ghost fork <name-or-id> [flags]
+ghost fork <name-or-id> [new-name] [flags]
 ```
 
 ### Examples
@@ -23,7 +26,7 @@ ghost fork <name-or-id> [flags]
   ghost fork my-database
 
   # Fork a database with a custom name
-  ghost fork my-database --name myapp-experiment
+  ghost fork my-database myapp-experiment
 
   # Fork and output as JSON
   ghost fork my-database --json
@@ -38,11 +41,10 @@ ghost fork <name-or-id> [flags]
 ### Options
 
 ```
-  -h, --help          help for fork
-      --json          Output in JSON format
-      --name string   Name for the forked database (auto-generated if not provided)
-      --wait          Wait for the database to be ready before returning
-      --yaml          Output in YAML format
+  -h, --help   help for fork
+      --json   Output in JSON format
+      --wait   Wait for the database to be ready before returning
+      --yaml   Output in YAML format
 ```
 
 ### Options inherited from parent commands
@@ -57,4 +59,3 @@ ghost fork <name-or-id> [flags]
 ### SEE ALSO
 
 * [ghost](ghost.md)	 - CLI for managing Postgres databases
-* [ghost fork dedicated](ghost_fork_dedicated.md)	 - Fork a database as dedicated

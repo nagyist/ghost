@@ -19,14 +19,17 @@ func buildForkCmd(app *common.App) *cobra.Command {
 	var wait bool
 
 	cmd := &cobra.Command{
-		Use:   "fork <name-or-id>",
+		Use:   "fork <name-or-id> [new-name]",
 		Short: "Fork a database",
-		Long:  `Fork an existing database to create a new independent copy.`,
+		Long: `Fork an existing database to create a new independent copy.
+
+To fork into an always-on dedicated database (not subject to space compute or
+storage limits), use 'ghost fork-dedicated' instead.`,
 		Example: `  # Fork a database with auto-generated name
   ghost fork my-database
 
   # Fork a database with a custom name
-  ghost fork my-database --name myapp-experiment
+  ghost fork my-database myapp-experiment
 
   # Fork and output as JSON
   ghost fork my-database --json
@@ -36,10 +39,14 @@ func buildForkCmd(app *common.App) *cobra.Command {
 
   # Fork and wait for the database to be ready
   ghost fork my-database --wait`,
-		Args:              cobra.ExactArgs(1),
+		Args:              cobra.RangeArgs(1, 2),
 		ValidArgsFunction: databaseCompletion(app),
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			name, err := resolveDatabaseName(args, 1, name)
+			if err != nil {
+				return err
+			}
 			return forkDatabase(cmd, app, forkDatabaseArgs{
 				sourceDatabaseRef: args[0],
 				req: api.ForkDatabaseRequest{
@@ -54,13 +61,13 @@ func buildForkCmd(app *common.App) *cobra.Command {
 
 	// Add flags
 	cmd.Flags().StringVar(&name, "name", "", "Name for the forked database (auto-generated if not provided)")
+	if err := cmd.Flags().MarkHidden("name"); err != nil {
+		panic(err)
+	}
 	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output in JSON format")
 	cmd.Flags().BoolVar(&yamlOutput, "yaml", false, "Output in YAML format")
 	cmd.Flags().BoolVar(&wait, "wait", false, "Wait for the database to be ready before returning")
 	cmd.MarkFlagsMutuallyExclusive("json", "yaml")
-
-	// Add subcommands
-	cmd.AddCommand(buildForkDedicatedCmd(app))
 
 	return cmd
 }

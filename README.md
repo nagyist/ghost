@@ -67,11 +67,11 @@ ghost tutorial
 | `config` | List current configuration |
 | `connect` | Get connection string for a database |
 | `create` | Create a new Postgres database |
-| `create dedicated` | Create a dedicated database |
+| `create-dedicated` | Create a dedicated database |
 | `delete` | Delete a database |
 | `feedback` | Submit feedback, a bug report, or a support request |
 | `fork` | Fork a database |
-| `fork dedicated` | Fork a database as dedicated |
+| `fork-dedicated` | Fork a database as dedicated |
 | `help` | Help about any command |
 | `init` | Interactively configure Ghost |
 | `invoice` | View invoices |

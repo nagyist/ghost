@@ -51,7 +51,9 @@ func buildConfigCmd(app *common.App) *cobra.Command {
 	cmd.MarkFlagsMutuallyExclusive("json", "yaml")
 	cmd.Flags().BoolVar(&envFlag, "env", false, "Apply environment variable overrides")
 	cmd.Flags().BoolVar(&allFlag, "all", false, "Include internal config values")
-	cmd.Flags().MarkHidden("all")
+	if err := cmd.Flags().MarkHidden("all"); err != nil {
+		panic(err)
+	}
 
 	cmd.AddCommand(buildConfigSetCmd(app))
 	cmd.AddCommand(buildConfigUnsetCmd(app))

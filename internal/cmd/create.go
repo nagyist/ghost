@@ -20,16 +20,20 @@ func buildCreateCmd(app *common.App) *cobra.Command {
 	var wait bool
 
 	cmd := &cobra.Command{
-		Use:   "create",
-		Short: "Create a new Postgres database",
+		Use:   "create [name]",
+		Short: "Create a new database",
+		Long: `Create a new Postgres database.
+
+To create an always-on dedicated database (not subject to space compute or
+storage limits), use 'ghost create-dedicated' instead.`,
 		Example: `  # Create a database with auto-generated name
   ghost create
 
   # Create a database with a custom name
-  ghost create --name myapp
+  ghost create myapp
 
   # Create a database from a share token
-  ghost create --from-share <token> --name myapp
+  ghost create myapp --from-share <token>
 
   # Create and output as JSON
   ghost create --json
@@ -39,10 +43,14 @@ func buildCreateCmd(app *common.App) *cobra.Command {
 
   # Create and wait for the database to be ready
   ghost create --wait`,
-		Args:              cobra.NoArgs,
+		Args:              cobra.MaximumNArgs(1),
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			name, err := resolveDatabaseName(args, 0, name)
+			if err != nil {
+				return err
+			}
 			return createDatabase(cmd, app, createDatabaseArgs{
 				req: api.CreateDatabaseRequest{
 					Name:       util.PtrIfNonZero(name),
@@ -57,16 +65,34 @@ func buildCreateCmd(app *common.App) *cobra.Command {
 
 	// Add flags
 	cmd.Flags().StringVar(&name, "name", "", "Database name (auto-generated if not provided)")
+	if err := cmd.Flags().MarkHidden("name"); err != nil {
+		panic(err)
+	}
 	cmd.Flags().StringVar(&shareToken, "from-share", "", "Create the database from a share token")
 	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output in JSON format")
 	cmd.Flags().BoolVar(&yamlOutput, "yaml", false, "Output in YAML format")
 	cmd.Flags().BoolVar(&wait, "wait", false, "Wait for the database to be ready before returning")
 	cmd.MarkFlagsMutuallyExclusive("json", "yaml")
 
-	// Add subcommands
-	cmd.AddCommand(buildCreateDedicatedCmd(app))
-
 	return cmd
+}
+
+// resolveDatabaseName determines the database name from an optional positional
+// argument (at posIndex) and the deprecated --name flag (whose value is passed
+// as nameFlag). The positional argument takes precedence; it is an error to
+// specify both.
+func resolveDatabaseName(args []string, posIndex int, nameFlag string) (string, error) {
+	var posName string
+	if len(args) > posIndex {
+		posName = args[posIndex]
+	}
+	if posName != "" && nameFlag != "" {
+		return "", errors.New("cannot specify both a name argument and the --name flag")
+	}
+	if posName != "" {
+		return posName, nil
+	}
+	return nameFlag, nil
 }
 
 type createDatabaseArgs struct {

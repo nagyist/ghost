@@ -17,14 +17,19 @@ func TestCreateCmd(t *testing.T) {
 
 	tests := []cmdTest{
 		{
+			name:    "name arg and --name flag conflict",
+			args:    []string{"create", "mydb", "--name", "otherdb"},
+			wantErr: "cannot specify both a name argument and the --name flag",
+		},
+		{
 			name:    "not logged in",
-			args:    []string{"create", "--name", "mydb"},
+			args:    []string{"create", "mydb"},
 			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error",
-			args: []string{"create", "--name", "mydb"},
+			args: []string{"create", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
 					Return(nil, errors.New("connection refused"))
@@ -33,7 +38,7 @@ func TestCreateCmd(t *testing.T) {
 		},
 		{
 			name: "API error",
-			args: []string{"create", "--name", "mydb"},
+			args: []string{"create", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
 					Return(&api.CreateDatabaseResponse{
@@ -45,7 +50,7 @@ func TestCreateCmd(t *testing.T) {
 		},
 		{
 			name: "nil response body",
-			args: []string{"create", "--name", "mydb"},
+			args: []string{"create", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
 					Return(&api.CreateDatabaseResponse{
@@ -72,7 +77,22 @@ func TestCreateCmd(t *testing.T) {
 			wantStdout: "Created database 'ghost-12345'\nID: abc1234567\nConnection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmode=require\n",
 		},
 		{
-			name: "text output",
+			name: "name as positional arg",
+			args: []string{"create", "mydb"},
+			setup: func(m *mock.MockClientWithResponsesInterface) {
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
+					Return(&api.CreateDatabaseResponse{
+						HTTPResponse: httpResponse(http.StatusAccepted),
+						JSON202:      &db,
+					}, nil)
+			},
+			wantStdout: `Created database 'mydb'
+ID: abc1234567
+Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmode=require
+`,
+		},
+		{
+			name: "name via deprecated --name flag",
 			args: []string{"create", "--name", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
@@ -88,7 +108,7 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmod
 		},
 		{
 			name: "json output",
-			args: []string{"create", "--name", "mydb", "--json"},
+			args: []string{"create", "mydb", "--json"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
 					Return(&api.CreateDatabaseResponse{
@@ -105,7 +125,7 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmod
 		},
 		{
 			name: "yaml output",
-			args: []string{"create", "--name", "mydb", "--yaml"},
+			args: []string{"create", "mydb", "--yaml"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
 					Return(&api.CreateDatabaseResponse{

@@ -1,10 +1,10 @@
 ---
-title: "ghost create dedicated"
-slug: "ghost_create_dedicated"
-description: "CLI reference for ghost create dedicated"
+title: "ghost create-dedicated"
+slug: "ghost_create-dedicated"
+description: "CLI reference for ghost create-dedicated"
 ---
 
-## ghost create dedicated
+## ghost create-dedicated
 
 Create a dedicated database
 
@@ -17,38 +17,37 @@ A payment method must be on file.
 Run 'ghost pricing' to see compute and storage pricing.
 
 ```
-ghost create dedicated [flags]
+ghost create-dedicated [name] [flags]
 ```
 
 ### Examples
 
 ```
   # Create a dedicated database (default size: 1x)
-  ghost create dedicated
-
-  # Create with a specific size
-  ghost create dedicated --size 2x
+  ghost create-dedicated
 
   # Create with a custom name
-  ghost create dedicated --name myapp --size 4x
+  ghost create-dedicated myapp
+
+  # Create with a specific size
+  ghost create-dedicated --size 2x
 
   # Create a dedicated database from a share token
-  ghost create dedicated --from-share <token>
+  ghost create-dedicated --from-share <token>
 
   # Create and output as JSON
-  ghost create dedicated --json
+  ghost create-dedicated --json
 
   # Create and wait for the database to be ready
-  ghost create dedicated --size 2x --wait
+  ghost create-dedicated --size 2x --wait
 ```
 
 ### Options
 
 ```
       --from-share string   Create the database from a share token
-  -h, --help                help for dedicated
+  -h, --help                help for create-dedicated
       --json                Output in JSON format
-      --name string         Database name (auto-generated if not provided)
       --size string         Database size (1x, 2x, 4x, 8x) (default "1x")
       --wait                Wait for the database to be ready before returning
       --yaml                Output in YAML format
@@ -65,4 +64,4 @@ ghost create dedicated [flags]
 
 ### SEE ALSO
 
-* [ghost create](ghost_create.md)	 - Create a new Postgres database
+* [ghost](ghost.md)	 - CLI for managing Postgres databases

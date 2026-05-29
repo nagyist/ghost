@@ -29,14 +29,14 @@ func TestTutorialCmd(t *testing.T) {
 			db.Password = &password
 		})
 
-		// Step 1: ghost create --name tutorial-test --wait
+		// Step 1: ghost create tutorial-test --wait
 		m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("tutorial-test")}).
 			Return(&api.CreateDatabaseResponse{
 				HTTPResponse: httpResponse(http.StatusAccepted),
 				JSON202:      &originalDatabase,
 			}, nil)
 
-		// Step 4: ghost fork tutorial-test --name tutorial-test-fork --wait
+		// Step 4: ghost fork tutorial-test tutorial-test-fork --wait
 		m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "tutorial-test").
 			Return(&api.GetDatabaseResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
@@ -263,7 +263,7 @@ Temporary database names
 
 Step 1 / Create a database
 --------------------------
-$ ghost create --name tutorial-test --wait
+$ ghost create tutorial-test --wait
 Created database 'tutorial-test'
 ID: orig1234567
 Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmode=require
@@ -291,7 +291,7 @@ $ ghost sql tutorial-test "SELECT id, name, location FROM ghost_tutorial_items O
 Step 4 / Fork the database
 --------------------------
 Forking creates an independent copy you can safely experiment with.
-$ ghost fork tutorial-test --name tutorial-test-fork --wait
+$ ghost fork tutorial-test tutorial-test-fork --wait
 Forked 'tutorial-test' → 'tutorial-test-fork'
 ID: fork1234567
 Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmode=require
@@ -359,7 +359,7 @@ Temporary database names
 
 Step 1 / Create a database
 --------------------------
-$ ghost create --name tutorial-test --wait
+$ ghost create tutorial-test --wait
 Created database 'tutorial-test'
 ID: orig1234567
 Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmode=require

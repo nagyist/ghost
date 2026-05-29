@@ -27,10 +27,12 @@ Ghost is a command-line interface for managing PostgreSQL databases.
 * [ghost api-key](ghost_api-key.md)	 - Manage API keys
 * [ghost config](ghost_config.md)	 - List current configuration
 * [ghost connect](ghost_connect.md)	 - Get connection string for a database
-* [ghost create](ghost_create.md)	 - Create a new Postgres database
+* [ghost create](ghost_create.md)	 - Create a new database
+* [ghost create-dedicated](ghost_create-dedicated.md)	 - Create a dedicated database
 * [ghost delete](ghost_delete.md)	 - Delete a database
 * [ghost feedback](ghost_feedback.md)	 - Submit feedback, a bug report, or a support request
 * [ghost fork](ghost_fork.md)	 - Fork a database
+* [ghost fork-dedicated](ghost_fork-dedicated.md)	 - Fork a database as dedicated
 * [ghost init](ghost_init.md)	 - Interactively configure Ghost
 * [ghost invoice](ghost_invoice.md)	 - View invoices
 * [ghost list](ghost_list.md)	 - List all databases

@@ -54,14 +54,19 @@ func TestForkDedicatedCmd(t *testing.T) {
 
 	tests := []cmdTest{
 		{
+			name:    "name arg and --name flag conflict",
+			args:    []string{"fork-dedicated", "abc1234567", "custom-fork", "--name", "other-fork"},
+			wantErr: "cannot specify both a name argument and the --name flag",
+		},
+		{
 			name:    "not logged in",
-			args:    []string{"fork", "dedicated", "abc1234567"},
+			args:    []string{"fork-dedicated", "abc1234567"},
 			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error on get source",
-			args: []string{"fork", "dedicated", "abc1234567"},
+			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
 					Return(nil, errors.New("connection refused"))
@@ -70,7 +75,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 		},
 		{
 			name: "API error on get source",
-			args: []string{"fork", "dedicated", "abc1234567"},
+			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
 					Return(&api.GetDatabaseResponse{
@@ -82,7 +87,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 		},
 		{
 			name: "nil response body on get source",
-			args: []string{"fork", "dedicated", "abc1234567"},
+			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
 					Return(&api.GetDatabaseResponse{
@@ -94,7 +99,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 		},
 		{
 			name: "source database paused",
-			args: []string{"fork", "dedicated", "abc1234567"},
+			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				db := sampleDatabase(func(db *api.Database) {
 					db.Status = api.DatabaseStatusPaused
@@ -109,7 +114,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 		},
 		{
 			name: "source database not ready",
-			args: []string{"fork", "dedicated", "abc1234567"},
+			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				db := sampleDatabase(func(db *api.Database) {
 					db.Status = api.DatabaseStatusConfiguring
@@ -124,7 +129,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 		},
 		{
 			name: "network error on fork",
-			args: []string{"fork", "dedicated", "abc1234567"},
+			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
 				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-project", "abc1234567", defaultReq).
@@ -134,7 +139,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 		},
 		{
 			name: "API error on fork",
-			args: []string{"fork", "dedicated", "abc1234567"},
+			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
 				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-project", "abc1234567", defaultReq).
@@ -147,7 +152,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 		},
 		{
 			name: "nil response body on fork",
-			args: []string{"fork", "dedicated", "abc1234567"},
+			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
 				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-project", "abc1234567", defaultReq).
@@ -159,8 +164,8 @@ func TestForkDedicatedCmd(t *testing.T) {
 			wantErr: "empty response from API",
 		},
 		{
-			name: "text output with default size",
-			args: []string{"fork", "dedicated", "abc1234567"},
+			name: "auto-generated name",
+			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
 				setupForkSuccess(nil)(m)
@@ -168,8 +173,8 @@ func TestForkDedicatedCmd(t *testing.T) {
 			wantStdout: "Forked 'mydb' → dedicated 'mydb-fork' (size: 1x)\nID: forked1234\nConnection: postgresql://tsdbadmin:forkpass@fork.example.com:5432/tsdb?sslmode=require\n",
 		},
 		{
-			name: "text output with custom name",
-			args: []string{"fork", "dedicated", "abc1234567", "--name", "custom-fork"},
+			name: "custom name as positional arg",
+			args: []string{"fork-dedicated", "abc1234567", "custom-fork"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
 				setupForkSuccess(new("custom-fork"))(m)
@@ -177,8 +182,17 @@ func TestForkDedicatedCmd(t *testing.T) {
 			wantStdout: "Forked 'mydb' → dedicated 'mydb-fork' (size: 1x)\nID: forked1234\nConnection: postgresql://tsdbadmin:forkpass@fork.example.com:5432/tsdb?sslmode=require\n",
 		},
 		{
-			name: "text output with custom size",
-			args: []string{"fork", "dedicated", "abc1234567", "--size", "4x"},
+			name: "custom name via deprecated --name flag",
+			args: []string{"fork-dedicated", "abc1234567", "--name", "custom-fork"},
+			setup: func(m *mock.MockClientWithResponsesInterface) {
+				setupGetSource(m)
+				setupForkSuccess(new("custom-fork"))(m)
+			},
+			wantStdout: "Forked 'mydb' → dedicated 'mydb-fork' (size: 1x)\nID: forked1234\nConnection: postgresql://tsdbadmin:forkpass@fork.example.com:5432/tsdb?sslmode=require\n",
+		},
+		{
+			name: "custom size",
+			args: []string{"fork-dedicated", "abc1234567", "--size", "4x"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
 				db := forkedDb
@@ -194,7 +208,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 		},
 		{
 			name: "json output",
-			args: []string{"fork", "dedicated", "abc1234567", "--json"},
+			args: []string{"fork-dedicated", "abc1234567", "--json"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
 				setupForkSuccess(nil)(m)
@@ -210,7 +224,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 		},
 		{
 			name: "yaml output",
-			args: []string{"fork", "dedicated", "abc1234567", "--yaml"},
+			args: []string{"fork-dedicated", "abc1234567", "--yaml"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
 				setupForkSuccess(nil)(m)

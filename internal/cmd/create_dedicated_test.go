@@ -38,14 +38,19 @@ func TestCreateDedicatedCmd(t *testing.T) {
 
 	tests := []cmdTest{
 		{
+			name:    "name arg and --name flag conflict",
+			args:    []string{"create-dedicated", "mydb", "--name", "otherdb"},
+			wantErr: "cannot specify both a name argument and the --name flag",
+		},
+		{
 			name:    "not logged in",
-			args:    []string{"create", "dedicated", "--name", "mydb"},
+			args:    []string{"create-dedicated", "mydb"},
 			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error",
-			args: []string{"create", "dedicated", "--name", "mydb"},
+			args: []string{"create-dedicated", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
 					Return(nil, errors.New("connection refused"))
@@ -54,7 +59,7 @@ func TestCreateDedicatedCmd(t *testing.T) {
 		},
 		{
 			name: "API error",
-			args: []string{"create", "dedicated", "--name", "mydb"},
+			args: []string{"create-dedicated", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
@@ -66,7 +71,7 @@ func TestCreateDedicatedCmd(t *testing.T) {
 		},
 		{
 			name: "nil response body",
-			args: []string{"create", "dedicated", "--name", "mydb"},
+			args: []string{"create-dedicated", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
@@ -78,7 +83,7 @@ func TestCreateDedicatedCmd(t *testing.T) {
 		},
 		{
 			name: "auto-generated name",
-			args: []string{"create", "dedicated"},
+			args: []string{"create-dedicated"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				autoDb := sampleDatabase(func(db *api.Database) {
 					db.Name = "ghost-12345"
@@ -94,8 +99,8 @@ func TestCreateDedicatedCmd(t *testing.T) {
 			wantStdout: "Created dedicated database 'ghost-12345' (size: 1x)\nID: abc1234567\nConnection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmode=require\n",
 		},
 		{
-			name: "text output with default size",
-			args: []string{"create", "dedicated", "--name", "mydb"},
+			name: "name as positional arg",
+			args: []string{"create-dedicated", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
@@ -109,8 +114,23 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmod
 `,
 		},
 		{
-			name: "text output with custom size",
-			args: []string{"create", "dedicated", "--size", "4x"},
+			name: "name via deprecated --name flag",
+			args: []string{"create-dedicated", "--name", "mydb"},
+			setup: func(m *mock.MockClientWithResponsesInterface) {
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
+					Return(&api.CreateDatabaseResponse{
+						HTTPResponse: httpResponse(http.StatusAccepted),
+						JSON202:      &db,
+					}, nil)
+			},
+			wantStdout: `Created dedicated database 'mydb' (size: 1x)
+ID: abc1234567
+Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmode=require
+`,
+		},
+		{
+			name: "custom size",
+			args: []string{"create-dedicated", "--size", "4x"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", sizedReq("4x")).
 					Return(&api.CreateDatabaseResponse{
@@ -125,7 +145,7 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmod
 		},
 		{
 			name: "json output",
-			args: []string{"create", "dedicated", "--name", "mydb", "--json"},
+			args: []string{"create-dedicated", "mydb", "--json"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
@@ -143,7 +163,7 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmod
 		},
 		{
 			name: "yaml output",
-			args: []string{"create", "dedicated", "--name", "mydb", "--yaml"},
+			args: []string{"create-dedicated", "mydb", "--yaml"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
@@ -159,7 +179,7 @@ size: 1x
 		},
 		{
 			name: "with share token",
-			args: []string{"create", "dedicated", "--from-share", "tok_xyz"},
+			args: []string{"create-dedicated", "--from-share", "tok_xyz"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				req := api.CreateDatabaseRequest{
 					Type:       new(api.DatabaseTypeDedicated),

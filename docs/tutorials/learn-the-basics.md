@@ -9,7 +9,7 @@ Throughout this guide, the temporary databases are named `tutorial-example` and 
 ## Step 1 — Create a database
 
 ```bash
-ghost create --name tutorial-example --wait
+ghost create tutorial-example --wait
 ```
 
 ```
@@ -53,7 +53,7 @@ ghost sql tutorial-example "SELECT id, name, location FROM ghost_tutorial_items 
 Forking creates an independent copy you can safely experiment with.
 
 ```bash
-ghost fork tutorial-example --name tutorial-example-fork --wait
+ghost fork tutorial-example tutorial-example-fork --wait
 ```
 
 ```

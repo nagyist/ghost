@@ -16,7 +16,7 @@ func buildForkDedicatedCmd(app *common.App) *cobra.Command {
 	var wait bool
 
 	cmd := &cobra.Command{
-		Use:   "dedicated <name-or-id>",
+		Use:   "fork-dedicated <name-or-id> [new-name]",
 		Short: "Fork a database as dedicated",
 		Long: `Fork an existing database as a new dedicated instance. The fork inherits
 the source database's data but runs as an always-on, billed instance.
@@ -24,23 +24,27 @@ A payment method must be on file.
 
 Run 'ghost pricing' to see compute and storage pricing.`,
 		Example: `  # Fork as dedicated with default size (1x)
-  ghost fork dedicated my-database
-
-  # Fork with a specific size
-  ghost fork dedicated my-database --size 4x
+  ghost fork-dedicated my-database
 
   # Fork with a custom name
-  ghost fork dedicated my-database --name myapp-dedicated
+  ghost fork-dedicated my-database myapp-dedicated
+
+  # Fork with a specific size
+  ghost fork-dedicated my-database --size 4x
 
   # Fork and output as JSON
-  ghost fork dedicated my-database --json
+  ghost fork-dedicated my-database --json
 
   # Fork and wait for the database to be ready
-  ghost fork dedicated my-database --size 2x --wait`,
-		Args:              cobra.ExactArgs(1),
+  ghost fork-dedicated my-database --size 2x --wait`,
+		Args:              cobra.RangeArgs(1, 2),
 		ValidArgsFunction: databaseCompletion(app),
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			name, err := resolveDatabaseName(args, 1, name)
+			if err != nil {
+				return err
+			}
 			return forkDatabase(cmd, app, forkDatabaseArgs{
 				sourceDatabaseRef: args[0],
 				req: api.ForkDatabaseRequest{
@@ -56,6 +60,9 @@ Run 'ghost pricing' to see compute and storage pricing.`,
 	}
 
 	cmd.Flags().StringVar(&name, "name", "", "Name for the forked database (auto-generated if not provided)")
+	if err := cmd.Flags().MarkHidden("name"); err != nil {
+		panic(err)
+	}
 	cmd.Flags().StringVar(&size, "size", "1x", "Database size (1x, 2x, 4x, 8x)")
 	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output in JSON format")
 	cmd.Flags().BoolVar(&yamlOutput, "yaml", false, "Output in YAML format")

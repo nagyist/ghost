@@ -17,7 +17,7 @@ func buildCreateDedicatedCmd(app *common.App) *cobra.Command {
 	var wait bool
 
 	cmd := &cobra.Command{
-		Use:   "dedicated",
+		Use:   "create-dedicated [name]",
 		Short: "Create a dedicated database",
 		Long: `Create a new dedicated database. Dedicated databases are always-on,
 billed instances that are not subject to space compute or storage limits.
@@ -25,26 +25,30 @@ A payment method must be on file.
 
 Run 'ghost pricing' to see compute and storage pricing.`,
 		Example: `  # Create a dedicated database (default size: 1x)
-  ghost create dedicated
-
-  # Create with a specific size
-  ghost create dedicated --size 2x
+  ghost create-dedicated
 
   # Create with a custom name
-  ghost create dedicated --name myapp --size 4x
+  ghost create-dedicated myapp
+
+  # Create with a specific size
+  ghost create-dedicated --size 2x
 
   # Create a dedicated database from a share token
-  ghost create dedicated --from-share <token>
+  ghost create-dedicated --from-share <token>
 
   # Create and output as JSON
-  ghost create dedicated --json
+  ghost create-dedicated --json
 
   # Create and wait for the database to be ready
-  ghost create dedicated --size 2x --wait`,
-		Args:              cobra.NoArgs,
+  ghost create-dedicated --size 2x --wait`,
+		Args:              cobra.MaximumNArgs(1),
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			name, err := resolveDatabaseName(args, 0, name)
+			if err != nil {
+				return err
+			}
 			return createDatabase(cmd, app, createDatabaseArgs{
 				req: api.CreateDatabaseRequest{
 					Name:       util.PtrIfNonZero(name),
@@ -60,6 +64,9 @@ Run 'ghost pricing' to see compute and storage pricing.`,
 	}
 
 	cmd.Flags().StringVar(&name, "name", "", "Database name (auto-generated if not provided)")
+	if err := cmd.Flags().MarkHidden("name"); err != nil {
+		panic(err)
+	}
 	cmd.Flags().StringVar(&size, "size", "1x", "Database size (1x, 2x, 4x, 8x)")
 	cmd.Flags().StringVar(&shareToken, "from-share", "", "Create the database from a share token")
 	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output in JSON format")

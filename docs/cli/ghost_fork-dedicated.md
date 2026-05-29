@@ -1,10 +1,10 @@
 ---
-title: "ghost fork dedicated"
-slug: "ghost_fork_dedicated"
-description: "CLI reference for ghost fork dedicated"
+title: "ghost fork-dedicated"
+slug: "ghost_fork-dedicated"
+description: "CLI reference for ghost fork-dedicated"
 ---
 
-## ghost fork dedicated
+## ghost fork-dedicated
 
 Fork a database as dedicated
 
@@ -17,34 +17,33 @@ A payment method must be on file.
 Run 'ghost pricing' to see compute and storage pricing.
 
 ```
-ghost fork dedicated <name-or-id> [flags]
+ghost fork-dedicated <name-or-id> [new-name] [flags]
 ```
 
 ### Examples
 
 ```
   # Fork as dedicated with default size (1x)
-  ghost fork dedicated my-database
-
-  # Fork with a specific size
-  ghost fork dedicated my-database --size 4x
+  ghost fork-dedicated my-database
 
   # Fork with a custom name
-  ghost fork dedicated my-database --name myapp-dedicated
+  ghost fork-dedicated my-database myapp-dedicated
+
+  # Fork with a specific size
+  ghost fork-dedicated my-database --size 4x
 
   # Fork and output as JSON
-  ghost fork dedicated my-database --json
+  ghost fork-dedicated my-database --json
 
   # Fork and wait for the database to be ready
-  ghost fork dedicated my-database --size 2x --wait
+  ghost fork-dedicated my-database --size 2x --wait
 ```
 
 ### Options
 
 ```
-  -h, --help          help for dedicated
+  -h, --help          help for fork-dedicated
       --json          Output in JSON format
-      --name string   Name for the forked database (auto-generated if not provided)
       --size string   Database size (1x, 2x, 4x, 8x) (default "1x")
       --wait          Wait for the database to be ready before returning
       --yaml          Output in YAML format
@@ -61,4 +60,4 @@ ghost fork dedicated <name-or-id> [flags]
 
 ### SEE ALSO
 
-* [ghost fork](ghost_fork.md)	 - Fork a database
+* [ghost](ghost.md)	 - CLI for managing Postgres databases

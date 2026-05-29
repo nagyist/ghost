@@ -43,6 +43,11 @@ func TestForkCmd(t *testing.T) {
 
 	tests := []cmdTest{
 		{
+			name:    "name arg and --name flag conflict",
+			args:    []string{"fork", "abc1234567", "custom-fork", "--name", "other-fork"},
+			wantErr: "cannot specify both a name argument and the --name flag",
+		},
+		{
 			name:    "not logged in",
 			args:    []string{"fork", "abc1234567"},
 			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
@@ -148,7 +153,7 @@ func TestForkCmd(t *testing.T) {
 			wantErr: "empty response from API",
 		},
 		{
-			name: "text output",
+			name: "auto-generated name",
 			args: []string{"fork", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
@@ -157,7 +162,16 @@ func TestForkCmd(t *testing.T) {
 			wantStdout: "Forked 'mydb' → 'mydb-fork'\nID: forked1234\nConnection: postgresql://tsdbadmin:forkpass@fork.example.com:5432/tsdb?sslmode=require\n",
 		},
 		{
-			name: "text output with custom name",
+			name: "custom name as positional arg",
+			args: []string{"fork", "abc1234567", "custom-fork"},
+			setup: func(m *mock.MockClientWithResponsesInterface) {
+				setupGetSource(m)
+				setupForkSuccess(new("custom-fork"))(m)
+			},
+			wantStdout: "Forked 'mydb' → 'mydb-fork'\nID: forked1234\nConnection: postgresql://tsdbadmin:forkpass@fork.example.com:5432/tsdb?sslmode=require\n",
+		},
+		{
+			name: "custom name via deprecated --name flag",
 			args: []string{"fork", "abc1234567", "--name", "custom-fork"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
