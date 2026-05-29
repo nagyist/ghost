@@ -19,8 +19,8 @@ func buildPricingCmd(app *common.App) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "pricing",
 		Aliases:           []string{"price", "prices"},
-		Short:             "Show dedicated database pricing",
-		Long:              `Show pricing for dedicated databases, including compute pricing for each available size and the storage rate.`,
+		Short:             "Show pricing",
+		Long:              `Show pricing for compute overages and dedicated databases.`,
 		Args:              cobra.NoArgs,
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
@@ -56,6 +56,12 @@ func buildPricingCmd(app *common.App) *cobra.Command {
 }
 
 func renderPricingText(w io.Writer, p common.PricingOutput) error {
+	overage := p.Standard.Compute
+	fmt.Fprintln(w, lipgloss.NewStyle().Bold(true).Render("Standard"))
+	fmt.Fprintf(w, "First %d compute-hours per month included; $%.4f/hour above that.\n",
+		overage.IncludedComputeHoursPerMonth, overage.PricePerHour)
+
+	fmt.Fprintln(w)
 	fmt.Fprintln(w, lipgloss.NewStyle().Bold(true).Render("Dedicated"))
 	table := tablewriter.NewTable(w,
 		tablewriter.WithHeaderAlignment(tw.AlignLeft),

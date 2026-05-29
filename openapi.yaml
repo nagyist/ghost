@@ -635,6 +635,28 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
+  /spaces/{space_id}/overages:
+    put:
+      operationId: updateOverages
+      summary: Update compute overage settings
+      description: |
+        Enables or disables compute overage billing for the space, optionally
+        setting a monthly compute-minute cap above which standard databases
+        auto-pause. Requires a user JWT and a payment method on file.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOverageSettingsRequest"
+      responses:
+        "204":
+          description: Overage settings updated
+        default:
+          $ref: "#/components/responses/Error"
+
   # --- Analytics ---
 
   /analytics/identify:
@@ -778,9 +800,12 @@ components:
         Pricing data grouped by category.
       required:
         - dedicated
+        - standard
       properties:
         dedicated:
           $ref: "#/components/schemas/DedicatedPricing"
+        standard:
+          $ref: "#/components/schemas/StandardPricing"
 
     DedicatedPricing:
       type: object
@@ -846,6 +871,39 @@ components:
           description: |
             GiB of storage included per database at no additional charge. Only
             storage above this amount is billed at `price_per_gib_hour`.
+
+    StandardPricing:
+      type: object
+      description: |
+        Pricing for standard (non-dedicated) databases, which share a
+        space-wide compute allowance.
+      required:
+        - compute
+      properties:
+        compute:
+          $ref: "#/components/schemas/StandardComputePrice"
+
+    StandardComputePrice:
+      type: object
+      description: |
+        Pricing for standard (shared) compute used beyond the free monthly
+        allowance.
+      required:
+        - price_per_hour
+        - included_compute_hours_per_month
+      properties:
+        price_per_hour:
+          type: number
+          format: double
+          description: |
+            Price per compute-hour used beyond the included monthly allowance,
+            metered in 15-minute increments.
+        included_compute_hours_per_month:
+          type: integer
+          description: |
+            Compute-hours included per month at no additional charge, shared
+            across all standard databases in the space. Only usage above this
+            amount is billed at `price_per_hour`.
 
     # --- Auth ---
 
@@ -951,7 +1009,8 @@ components:
         - storage_mib
         - storage_limit_mib
         - compute_minutes
-        - compute_limit_minutes
+        - free_compute_minutes
+        - overages_enabled
       properties:
         storage_mib:
           type: integer
@@ -965,10 +1024,24 @@ components:
           type: integer
           format: int64
           description: Total compute minutes used across all databases in the space during the current billing cycle.
+        free_compute_minutes:
+          type: integer
+          format: int64
+          description: |
+            Compute minutes included per billing cycle at no additional charge,
+            shared across all standard databases in the space. Usage beyond this
+            is billed only when `overages_enabled` is true.
         compute_limit_minutes:
           type: integer
           format: int64
-          description: Compute-minute quota for the space. When exceeded, all running databases in the space are automatically paused.
+          nullable: true
+          description: |
+            Compute-minute quota for the space. When exceeded, all standard
+            databases in the space are automatically paused. `null` means no
+            limit — only possible when `overages_enabled` is true.
+        overages_enabled:
+          type: boolean
+          description: Whether the space has compute overages enabled.
         cost_to_date:
           type: number
           format: double
@@ -1368,6 +1441,28 @@ components:
         payment_url:
           type: string
           description: URL of the hosted payment page for collecting card details.
+
+    UpdateOverageSettingsRequest:
+      type: object
+      description: Request body for updating compute overage settings on a space.
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+          description: Set to true to enable overages, false to disable.
+        compute_limit_minutes:
+          type: integer
+          format: int64
+          nullable: true
+          minimum: 6001
+          description: |
+            Optional when `enabled` is true: the monthly compute-minute limit
+            above which standard databases auto-pause. Must be greater than
+            the free-tier limit (6000 minutes). Omit or set to `null` for no
+            limit — the user is billed for all overage usage with no upper
+            bound. Must be omitted (or `null`) when `enabled` is false; on
+            disable the server resets the limit to the free-tier default.
 
     # --- Analytics ---
 

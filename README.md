@@ -83,7 +83,7 @@ ghost tutorial
 | `password` | Reset the password for a database |
 | `pause` | Pause a running database |
 | `payment` | Manage payment methods |
-| `pricing` | Show dedicated database pricing |
+| `pricing` | Show compute overage and dedicated database pricing |
 | `psql` | Connect to a database using psql |
 | `rename` | Rename a database |
 | `resume` | Resume a paused database |
@@ -117,7 +117,7 @@ The `ghost mcp` command installs a [Model Context Protocol](https://modelcontext
 | `ghost_logs` | View logs for a database |
 | `ghost_password` | Reset the password for a database |
 | `ghost_pause` | Pause a running database |
-| `ghost_pricing` | Get dedicated database pricing |
+| `ghost_pricing` | Get dedicated database and compute overage pricing |
 | `ghost_rename` | Rename a database |
 | `ghost_resume` | Resume a paused database |
 | `ghost_schema` | Display database schema information |

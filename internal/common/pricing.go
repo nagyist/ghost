@@ -14,6 +14,13 @@ import (
 // derived per-month figures.
 type PricingOutput struct {
 	Dedicated DedicatedPricingOutput `json:"dedicated"`
+	Standard  StandardPricingOutput  `json:"standard"`
+}
+
+// StandardPricingOutput holds pricing for standard (non-dedicated) databases,
+// which share a space-wide compute allowance.
+type StandardPricingOutput struct {
+	Compute StandardComputePriceOutput `json:"compute"`
 }
 
 // DedicatedPricingOutput holds pricing for dedicated databases.
@@ -37,6 +44,13 @@ type StoragePriceOutput struct {
 	PricePerGiBHour        float64 `json:"price_per_gib_hour"`
 	PricePerGiBMonth       float64 `json:"price_per_gib_month"`
 	IncludedGiBPerDatabase int     `json:"included_gib_per_database"`
+}
+
+// StandardComputePriceOutput holds the rate for standard (shared) compute used
+// beyond the free monthly allowance.
+type StandardComputePriceOutput struct {
+	PricePerHour                 float64 `json:"price_per_hour"`
+	IncludedComputeHoursPerMonth int     `json:"included_compute_hours_per_month"`
 }
 
 // FetchPricing fetches dedicated pricing from the API.
@@ -70,6 +84,12 @@ func FetchPricing(ctx context.Context, client api.ClientWithResponsesInterface) 
 				PricePerGiBHour:        p.Dedicated.Storage.PricePerGibHour,
 				PricePerGiBMonth:       p.Dedicated.Storage.PricePerGibMonth,
 				IncludedGiBPerDatabase: p.Dedicated.Storage.IncludedGibPerDatabase,
+			},
+		},
+		Standard: StandardPricingOutput{
+			Compute: StandardComputePriceOutput{
+				PricePerHour:                 p.Standard.Compute.PricePerHour,
+				IncludedComputeHoursPerMonth: p.Standard.Compute.IncludedComputeHoursPerMonth,
 			},
 		},
 	}, nil

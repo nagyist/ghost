@@ -129,6 +129,9 @@ func buildRootCmd() (*cobra.Command, *common.App, error) {
 	cmd.AddCommand(buildPaymentInteractiveCmd(app))
 	cmd.AddCommand(buildUpgradeCmd(app))
 	cmd.AddCommand(buildInvoiceCmd(app))
+	if app.Experimental {
+		cmd.AddCommand(buildOveragesCmd(app))
+	}
 
 	wrapCommands(cmd, app)
 

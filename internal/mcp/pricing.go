@@ -42,20 +42,27 @@ func (PricingOutput) Schema() *jsonschema.Schema {
 	st.Properties["price_per_gib_hour"].Description = "Price per GiB per hour of provisioned storage above the included amount"
 	st.Properties["price_per_gib_month"].Description = "Price per GiB per month of provisioned storage above the included amount"
 	st.Properties["included_gib_per_database"].Description = "GiB of storage included per database at no additional charge. Only storage above this amount is billed at price_per_gib_hour"
+
+	std := schema.Properties["standard"]
+	std.Description = "Pricing for standard (non-dedicated) databases, which share a space-wide compute allowance"
+	sc := std.Properties["compute"]
+	sc.Description = "Pricing for standard (shared) compute used beyond the free monthly allowance"
+	sc.Properties["price_per_hour"].Description = "Price per compute-hour used beyond the included monthly allowance, metered in 15-minute increments"
+	sc.Properties["included_compute_hours_per_month"].Description = "Compute-hours included per month at no additional charge, shared across all standard databases in the space. Only usage above this amount is billed at price_per_hour"
 	return schema
 }
 
 func newPricingTool() *mcp.Tool {
 	return &mcp.Tool{
 		Name:         "ghost_pricing",
-		Title:        "Get Dedicated Pricing",
-		Description:  "Get pricing for dedicated databases, including compute pricing for each available size and the storage rate.",
+		Title:        "Get Pricing",
+		Description:  "Get pricing for compute overages and dedicated databases.",
 		InputSchema:  PricingInput{}.Schema(),
 		OutputSchema: PricingOutput{}.Schema(),
 		Annotations: &mcp.ToolAnnotations{
 			ReadOnlyHint:  true,
 			OpenWorldHint: new(true),
-			Title:         "Get Dedicated Pricing",
+			Title:         "Get Pricing",
 		},
 	}
 }

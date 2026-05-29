@@ -21,7 +21,9 @@ func (UsageInput) Schema() *jsonschema.Schema {
 // UsageOutput represents output for ghost_usage
 type UsageOutput struct {
 	ComputeMinutes      int64                 `json:"compute_minutes"`
-	ComputeLimitMinutes int64                 `json:"compute_limit_minutes"`
+	FreeComputeMinutes  int64                 `json:"free_compute_minutes"`
+	ComputeLimitMinutes *int64                `json:"compute_limit_minutes"`
+	OveragesEnabled     bool                  `json:"overages_enabled"`
 	Storage             string                `json:"storage"`
 	StorageLimit        string                `json:"storage_limit"`
 	Databases           common.DatabaseCounts `json:"databases"`
@@ -34,7 +36,9 @@ type UsageOutput struct {
 func (UsageOutput) Schema() *jsonschema.Schema {
 	schema := util.Must(jsonschema.For[UsageOutput](nil))
 	schema.Properties["compute_minutes"].Description = "Current compute usage in minutes"
-	schema.Properties["compute_limit_minutes"].Description = "Compute limit in minutes"
+	schema.Properties["free_compute_minutes"].Description = "Compute minutes included per billing cycle at no additional charge, shared across all standard databases in the space. Usage beyond this is billed only when overages are enabled."
+	schema.Properties["compute_limit_minutes"].Description = "Compute limit in minutes. Null means no limit (only possible when overages are enabled)."
+	schema.Properties["overages_enabled"].Description = "Whether compute overage billing is enabled for the space."
 	schema.Properties["storage"].Description = "Current storage usage"
 	schema.Properties["storage"].Examples = []any{"512MiB", "1GiB"}
 	schema.Properties["storage_limit"].Description = "Storage limit"
@@ -75,7 +79,9 @@ func (s *Server) handleUsage(ctx context.Context, req *mcp.CallToolRequest, inpu
 
 	return nil, UsageOutput{
 		ComputeMinutes:      usage.ComputeMinutes,
+		FreeComputeMinutes:  usage.FreeComputeMinutes,
 		ComputeLimitMinutes: usage.ComputeLimitMinutes,
+		OveragesEnabled:     usage.OveragesEnabled,
 		Storage:             common.FormatStorageSize(new(int(usage.StorageMib))),
 		StorageLimit:        common.FormatStorageSize(new(int(usage.StorageLimitMib))),
 		Databases:           usage.Databases,

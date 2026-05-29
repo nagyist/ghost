@@ -6,11 +6,11 @@ description: "CLI reference for ghost pricing"
 
 ## ghost pricing
 
-Show dedicated database pricing
+Show pricing
 
 ### Synopsis
 
-Show pricing for dedicated databases, including compute pricing for each available size and the storage rate.
+Show pricing for compute overages and dedicated databases.
 
 ```
 ghost pricing [flags]

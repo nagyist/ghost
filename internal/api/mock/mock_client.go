@@ -962,6 +962,46 @@ func (mr *MockClientInterfaceMockRecorder) SubmitFeedbackWithBody(ctx, contentTy
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubmitFeedbackWithBody", reflect.TypeOf((*MockClientInterface)(nil).SubmitFeedbackWithBody), varargs...)
 }
 
+// UpdateOverages mocks base method.
+func (m *MockClientInterface) UpdateOverages(ctx context.Context, spaceId api.SpaceId, body api.UpdateOveragesJSONRequestBody, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateOverages", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateOverages indicates an expected call of UpdateOverages.
+func (mr *MockClientInterfaceMockRecorder) UpdateOverages(ctx, spaceId, body any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOverages", reflect.TypeOf((*MockClientInterface)(nil).UpdateOverages), varargs...)
+}
+
+// UpdateOveragesWithBody mocks base method.
+func (m *MockClientInterface) UpdateOveragesWithBody(ctx context.Context, spaceId api.SpaceId, contentType string, body io.Reader, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId, contentType, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateOveragesWithBody", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateOveragesWithBody indicates an expected call of UpdateOveragesWithBody.
+func (mr *MockClientInterfaceMockRecorder) UpdateOveragesWithBody(ctx, spaceId, contentType, body any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId, contentType, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOveragesWithBody", reflect.TypeOf((*MockClientInterface)(nil).UpdateOveragesWithBody), varargs...)
+}
+
 // UpdatePassword mocks base method.
 func (m *MockClientInterface) UpdatePassword(ctx context.Context, spaceId api.SpaceId, databaseRef api.DatabaseRef, body api.UpdatePasswordJSONRequestBody, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
 	m.ctrl.T.Helper()
@@ -1904,6 +1944,46 @@ func (mr *MockClientWithResponsesInterfaceMockRecorder) SubmitFeedbackWithRespon
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, body}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubmitFeedbackWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).SubmitFeedbackWithResponse), varargs...)
+}
+
+// UpdateOveragesWithBodyWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) UpdateOveragesWithBodyWithResponse(ctx context.Context, spaceId api.SpaceId, contentType string, body io.Reader, reqEditors ...api.RequestEditorFn) (*api.UpdateOveragesResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId, contentType, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateOveragesWithBodyWithResponse", varargs...)
+	ret0, _ := ret[0].(*api.UpdateOveragesResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateOveragesWithBodyWithResponse indicates an expected call of UpdateOveragesWithBodyWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) UpdateOveragesWithBodyWithResponse(ctx, spaceId, contentType, body any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId, contentType, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOveragesWithBodyWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).UpdateOveragesWithBodyWithResponse), varargs...)
+}
+
+// UpdateOveragesWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) UpdateOveragesWithResponse(ctx context.Context, spaceId api.SpaceId, body api.UpdateOveragesJSONRequestBody, reqEditors ...api.RequestEditorFn) (*api.UpdateOveragesResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateOveragesWithResponse", varargs...)
+	ret0, _ := ret[0].(*api.UpdateOveragesResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateOveragesWithResponse indicates an expected call of UpdateOveragesWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) UpdateOveragesWithResponse(ctx, spaceId, body any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOveragesWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).UpdateOveragesWithResponse), varargs...)
 }
 
 // UpdatePasswordWithBodyWithResponse mocks base method.

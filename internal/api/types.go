@@ -423,6 +423,10 @@ type PaymentSetupResponse struct {
 type Pricing struct {
 	// Dedicated Pricing for dedicated databases.
 	Dedicated DedicatedPricing `json:"dedicated"`
+
+	// Standard Pricing for standard (non-dedicated) databases, which share a
+	// space-wide compute allowance.
+	Standard StandardPricing `json:"standard"`
 }
 
 // RenameDatabaseRequest defines model for RenameDatabaseRequest.
@@ -454,8 +458,10 @@ type SpaceUsage struct {
 	// BillingPeriodStart Start of the current billing cycle.
 	BillingPeriodStart *time.Time `json:"billing_period_start,omitempty"`
 
-	// ComputeLimitMinutes Compute-minute quota for the space. When exceeded, all running databases in the space are automatically paused.
-	ComputeLimitMinutes int64 `json:"compute_limit_minutes"`
+	// ComputeLimitMinutes Compute-minute quota for the space. When exceeded, all standard
+	// databases in the space are automatically paused. `null` means no
+	// limit — only possible when `overages_enabled` is true.
+	ComputeLimitMinutes *int64 `json:"compute_limit_minutes"`
 
 	// ComputeMinutes Total compute minutes used across all databases in the space during the current billing cycle.
 	ComputeMinutes int64 `json:"compute_minutes"`
@@ -466,11 +472,40 @@ type SpaceUsage struct {
 	// EstimatedTotalCost Projected gross total for the current billing cycle based on usage to date.
 	EstimatedTotalCost *float64 `json:"estimated_total_cost,omitempty"`
 
+	// FreeComputeMinutes Compute minutes included per billing cycle at no additional charge,
+	// shared across all standard databases in the space. Usage beyond this
+	// is billed only when `overages_enabled` is true.
+	FreeComputeMinutes int64 `json:"free_compute_minutes"`
+
+	// OveragesEnabled Whether the space has compute overages enabled.
+	OveragesEnabled bool `json:"overages_enabled"`
+
 	// StorageLimitMib Storage quota for the space, in MiB.
 	StorageLimitMib int64 `json:"storage_limit_mib"`
 
 	// StorageMib Total storage used across all databases in the space, in MiB.
 	StorageMib int64 `json:"storage_mib"`
+}
+
+// StandardComputePrice Pricing for standard (shared) compute used beyond the free monthly
+// allowance.
+type StandardComputePrice struct {
+	// IncludedComputeHoursPerMonth Compute-hours included per month at no additional charge, shared
+	// across all standard databases in the space. Only usage above this
+	// amount is billed at `price_per_hour`.
+	IncludedComputeHoursPerMonth int `json:"included_compute_hours_per_month"`
+
+	// PricePerHour Price per compute-hour used beyond the included monthly allowance,
+	// metered in 15-minute increments.
+	PricePerHour float64 `json:"price_per_hour"`
+}
+
+// StandardPricing Pricing for standard (non-dedicated) databases, which share a
+// space-wide compute allowance.
+type StandardPricing struct {
+	// Compute Pricing for standard (shared) compute used beyond the free monthly
+	// allowance.
+	Compute StandardComputePrice `json:"compute"`
 }
 
 // StatusResponse Generic success response.
@@ -499,6 +534,20 @@ type TrackRequest struct {
 
 	// Properties Free-form event properties.
 	Properties *map[string]interface{} `json:"properties,omitempty"`
+}
+
+// UpdateOverageSettingsRequest Request body for updating compute overage settings on a space.
+type UpdateOverageSettingsRequest struct {
+	// ComputeLimitMinutes Optional when `enabled` is true: the monthly compute-minute limit
+	// above which standard databases auto-pause. Must be greater than
+	// the free-tier limit (6000 minutes). Omit or set to `null` for no
+	// limit — the user is billed for all overage usage with no upper
+	// bound. Must be omitted (or `null`) when `enabled` is false; on
+	// disable the server resets the limit to the free-tier default.
+	ComputeLimitMinutes *int64 `json:"compute_limit_minutes"`
+
+	// Enabled Set to true to enable overages, false to disable.
+	Enabled bool `json:"enabled"`
 }
 
 // UpdatePasswordRequest defines model for UpdatePasswordRequest.
@@ -572,3 +621,6 @@ type RenameDatabaseJSONRequestBody = RenameDatabaseRequest
 
 // ShareDatabaseJSONRequestBody defines body for ShareDatabase for application/json ContentType.
 type ShareDatabaseJSONRequestBody = ShareDatabaseRequest
+
+// UpdateOveragesJSONRequestBody defines body for UpdateOverages for application/json ContentType.
+type UpdateOveragesJSONRequestBody = UpdateOverageSettingsRequest

@@ -186,6 +186,11 @@ type ClientInterface interface {
 	// GetInvoice request
 	GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// UpdateOveragesWithBody request with any body
+	UpdateOveragesWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateOverages(ctx context.Context, spaceId SpaceId, body UpdateOveragesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListPaymentMethods request
 	ListPaymentMethods(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -639,6 +644,30 @@ func (c *Client) ListInvoices(ctx context.Context, spaceId SpaceId, reqEditors .
 
 func (c *Client) GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetInvoiceRequest(c.Server, spaceId, invoiceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateOveragesWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateOveragesRequestWithBody(c.Server, spaceId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateOverages(ctx context.Context, spaceId SpaceId, body UpdateOveragesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateOveragesRequest(c.Server, spaceId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1814,6 +1843,53 @@ func NewGetInvoiceRequest(server string, spaceId SpaceId, invoiceId string) (*ht
 	return req, nil
 }
 
+// NewUpdateOveragesRequest calls the generic UpdateOverages builder with application/json body
+func NewUpdateOveragesRequest(server string, spaceId SpaceId, body UpdateOveragesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateOveragesRequestWithBody(server, spaceId, "application/json", bodyReader)
+}
+
+// NewUpdateOveragesRequestWithBody generates requests for UpdateOverages with any type of body
+func NewUpdateOveragesRequestWithBody(server string, spaceId SpaceId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s/overages", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListPaymentMethodsRequest generates requests for ListPaymentMethods
 func NewListPaymentMethodsRequest(server string, spaceId SpaceId) (*http.Request, error) {
 	var err error
@@ -2328,6 +2404,11 @@ type ClientWithResponsesInterface interface {
 
 	// GetInvoiceWithResponse request
 	GetInvoiceWithResponse(ctx context.Context, spaceId SpaceId, invoiceId string, reqEditors ...RequestEditorFn) (*GetInvoiceResponse, error)
+
+	// UpdateOveragesWithBodyWithResponse request with any body
+	UpdateOveragesWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOveragesResponse, error)
+
+	UpdateOveragesWithResponse(ctx context.Context, spaceId SpaceId, body UpdateOveragesJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateOveragesResponse, error)
 
 	// ListPaymentMethodsWithResponse request
 	ListPaymentMethodsWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListPaymentMethodsResponse, error)
@@ -2929,6 +3010,28 @@ func (r GetInvoiceResponse) StatusCode() int {
 	return 0
 }
 
+type UpdateOveragesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateOveragesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateOveragesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListPaymentMethodsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -3467,6 +3570,23 @@ func (c *ClientWithResponses) GetInvoiceWithResponse(ctx context.Context, spaceI
 		return nil, err
 	}
 	return ParseGetInvoiceResponse(rsp)
+}
+
+// UpdateOveragesWithBodyWithResponse request with arbitrary body returning *UpdateOveragesResponse
+func (c *ClientWithResponses) UpdateOveragesWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOveragesResponse, error) {
+	rsp, err := c.UpdateOveragesWithBody(ctx, spaceId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateOveragesResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateOveragesWithResponse(ctx context.Context, spaceId SpaceId, body UpdateOveragesJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateOveragesResponse, error) {
+	rsp, err := c.UpdateOverages(ctx, spaceId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateOveragesResponse(rsp)
 }
 
 // ListPaymentMethodsWithResponse request returning *ListPaymentMethodsResponse
@@ -4327,6 +4447,32 @@ func ParseGetInvoiceResponse(rsp *http.Response) (*GetInvoiceResponse, error) {
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateOveragesResponse parses an HTTP response from a UpdateOveragesWithResponse call
+func ParseUpdateOveragesResponse(rsp *http.Response) (*UpdateOveragesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateOveragesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

@@ -24,7 +24,25 @@ func TestPricingCmd(t *testing.T) {
 				IncludedGibPerDatabase: 10,
 			},
 		},
+		Standard: api.StandardPricing{
+			Compute: api.StandardComputePrice{
+				PricePerHour:                 0.075,
+				IncludedComputeHoursPerMonth: 100,
+			},
+		},
 	}
+
+	wantText := "Standard\n" +
+		"First 100 compute-hours per month included; $0.0750/hour above that.\n" +
+		"\n" +
+		"Dedicated\n" +
+		"SIZE  VCPU  MEMORY  $/HOUR   $/MONTH  \n" +
+		"1x    0.5   2 GiB   $0.0137  $10.00   \n" +
+		"2x    1.0   4 GiB   $0.0274  $20.00   \n" +
+		"4x    2.0   8 GiB   $0.0548  $40.00   \n" +
+		"8x    4.0   16 GiB  $0.1096  $80.00   \n" +
+		"\n" +
+		"Storage: first 10 GiB per database included; $0.000342/GiB/hour ($0.25/GiB/month) above that.\n"
 
 	tests := []cmdTest{
 		{
@@ -76,14 +94,7 @@ func TestPricingCmd(t *testing.T) {
 						JSON200:      &pricing,
 					}, nil)
 			},
-			wantStdout: "Dedicated\n" +
-				"SIZE  VCPU  MEMORY  $/HOUR   $/MONTH  \n" +
-				"1x    0.5   2 GiB   $0.0137  $10.00   \n" +
-				"2x    1.0   4 GiB   $0.0274  $20.00   \n" +
-				"4x    2.0   8 GiB   $0.0548  $40.00   \n" +
-				"8x    4.0   16 GiB  $0.1096  $80.00   \n" +
-				"\n" +
-				"Storage: first 10 GiB per database included; $0.000342/GiB/hour ($0.25/GiB/month) above that.\n",
+			wantStdout: wantText,
 		},
 		{
 			name: "json output",
@@ -132,6 +143,12 @@ func TestPricingCmd(t *testing.T) {
       "price_per_gib_month": 0.25,
       "included_gib_per_database": 10
     }
+  },
+  "standard": {
+    "compute": {
+      "price_per_hour": 0.075,
+      "included_compute_hours_per_month": 100
+    }
   }
 }
 `,
@@ -172,6 +189,10 @@ func TestPricingCmd(t *testing.T) {
     included_gib_per_database: 10
     price_per_gib_hour: 0.0003424657534
     price_per_gib_month: 0.25
+standard:
+  compute:
+    included_compute_hours_per_month: 100
+    price_per_hour: 0.075
 `,
 		},
 		{
@@ -184,14 +205,7 @@ func TestPricingCmd(t *testing.T) {
 						JSON200:      &pricing,
 					}, nil)
 			},
-			wantStdout: "Dedicated\n" +
-				"SIZE  VCPU  MEMORY  $/HOUR   $/MONTH  \n" +
-				"1x    0.5   2 GiB   $0.0137  $10.00   \n" +
-				"2x    1.0   4 GiB   $0.0274  $20.00   \n" +
-				"4x    2.0   8 GiB   $0.0548  $40.00   \n" +
-				"8x    4.0   16 GiB  $0.1096  $80.00   \n" +
-				"\n" +
-				"Storage: first 10 GiB per database included; $0.000342/GiB/hour ($0.25/GiB/month) above that.\n",
+			wantStdout: wantText,
 		},
 		{
 			name: "prices alias",
@@ -203,14 +217,7 @@ func TestPricingCmd(t *testing.T) {
 						JSON200:      &pricing,
 					}, nil)
 			},
-			wantStdout: "Dedicated\n" +
-				"SIZE  VCPU  MEMORY  $/HOUR   $/MONTH  \n" +
-				"1x    0.5   2 GiB   $0.0137  $10.00   \n" +
-				"2x    1.0   4 GiB   $0.0274  $20.00   \n" +
-				"4x    2.0   8 GiB   $0.0548  $40.00   \n" +
-				"8x    4.0   16 GiB  $0.1096  $80.00   \n" +
-				"\n" +
-				"Storage: first 10 GiB per database included; $0.000342/GiB/hour ($0.25/GiB/month) above that.\n",
+			wantStdout: wantText,
 		},
 	}
 

@@ -61,8 +61,6 @@ func buildUsageCmd(app *common.App) *cobra.Command {
 
 func outputUsage(cmd *cobra.Command, usage common.Usage) {
 	computeHours := float64(usage.ComputeMinutes) / 60
-	computeLimitHours := float64(usage.ComputeLimitMinutes) / 60
-	computePercent := float64(usage.ComputeMinutes) / float64(usage.ComputeLimitMinutes) * 100
 
 	storageMibInt := int(usage.StorageMib)
 	storageStr := common.FormatStorageSize(&storageMibInt)
@@ -97,12 +95,22 @@ func outputUsage(cmd *cobra.Command, usage common.Usage) {
 	}
 
 	cmd.Printf("Space: %s\n", usage.SpaceID)
-	cmd.Printf("Compute: %g/%g hours (%s)\n", computeHours, computeLimitHours, formatPercent(computePercent))
+	if usage.ComputeLimitMinutes != nil {
+		computeLimitHours := float64(*usage.ComputeLimitMinutes) / 60
+		computePercent := float64(usage.ComputeMinutes) / float64(*usage.ComputeLimitMinutes) * 100
+		cmd.Printf("Compute: %g/%g hours (%s)\n", computeHours, computeLimitHours, formatPercent(computePercent))
+	} else {
+		cmd.Printf("Compute: %g hours (no limit)\n", computeHours)
+	}
 	cmd.Printf("Storage: %s/1TiB (%s)\n", storageStr, formatPercent(storagePercent))
 	if len(parts) > 0 {
 		cmd.Printf("Databases: %d (%s)\n", total, strings.Join(parts, ", "))
 	} else {
 		cmd.Printf("Databases: %d\n", total)
+	}
+	if usage.OveragesEnabled {
+		freeHours := float64(usage.FreeComputeMinutes) / 60
+		cmd.Printf("Overages: enabled (billed for compute above %g free hours)\n", freeHours)
 	}
 	// Show cost only when at least one field is non-zero. Free-tier users
 	// usually have zero cost, and "$0.00" adds noise.

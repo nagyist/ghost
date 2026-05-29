@@ -30,7 +30,9 @@ type DatabaseCounts struct {
 // Usage represents space usage including compute, storage, and database counts.
 type Usage struct {
 	ComputeMinutes      int64          `json:"compute_minutes"`
-	ComputeLimitMinutes int64          `json:"compute_limit_minutes"`
+	FreeComputeMinutes  int64          `json:"free_compute_minutes"`
+	ComputeLimitMinutes *int64         `json:"compute_limit_minutes"`
+	OveragesEnabled     bool           `json:"overages_enabled"`
 	StorageMib          int64          `json:"storage_mib"`
 	StorageLimitMib     int64          `json:"storage_limit_mib"`
 	Databases           DatabaseCounts `json:"databases"`
@@ -113,7 +115,9 @@ func FetchUsage(ctx context.Context, client api.ClientWithResponsesInterface, pr
 
 	return Usage{
 		ComputeMinutes:      spaceUsage.ComputeMinutes,
+		FreeComputeMinutes:  spaceUsage.FreeComputeMinutes,
 		ComputeLimitMinutes: spaceUsage.ComputeLimitMinutes,
+		OveragesEnabled:     spaceUsage.OveragesEnabled,
 		StorageMib:          spaceUsage.StorageMib,
 		StorageLimitMib:     spaceUsage.StorageLimitMib,
 		Databases:           counts,

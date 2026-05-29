@@ -16,7 +16,8 @@ func TestUsageCmd(t *testing.T) {
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200: &api.SpaceUsage{
 					ComputeMinutes:      120,
-					ComputeLimitMinutes: 600,
+					FreeComputeMinutes:  6000,
+					ComputeLimitMinutes: new(int64(600)),
 					StorageMib:          512,
 					StorageLimitMib:     1048576,
 				},
@@ -103,7 +104,7 @@ func TestUsageCmd(t *testing.T) {
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.SpaceUsage{
 							ComputeMinutes:      120,
-							ComputeLimitMinutes: 600,
+							ComputeLimitMinutes: new(int64(600)),
 							StorageMib:          512,
 							StorageLimitMib:     1048576,
 						},
@@ -132,7 +133,9 @@ Databases: 2 (1 running, 1 paused)
 			setup: successSetup,
 			wantStdout: `{
   "compute_minutes": 120,
+  "free_compute_minutes": 6000,
   "compute_limit_minutes": 600,
+  "overages_enabled": false,
   "storage_mib": 512,
   "storage_limit_mib": 1048576,
   "databases": {
@@ -152,6 +155,8 @@ compute_minutes: 120
 databases:
   paused: 1
   running: 1
+free_compute_minutes: 6000
+overages_enabled: false
 space_id: test-project
 storage_limit_mib: 1.048576e+06
 storage_mib: 512
@@ -176,7 +181,7 @@ Databases: 2 (1 running, 1 paused)
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.SpaceUsage{
 							ComputeMinutes:      120,
-							ComputeLimitMinutes: 600,
+							ComputeLimitMinutes: new(int64(600)),
 							StorageMib:          512,
 							StorageLimitMib:     1048576,
 							CostToDate:          new(12.34),
@@ -198,6 +203,36 @@ Cost: $12.34 so far this cycle ($27.50 estimated total)
 `,
 		},
 		{
+			name: "text output with overages enabled",
+			args: []string{"usage"},
+			setup: func(m *mock.MockClientWithResponsesInterface) {
+				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
+					Return(&api.SpaceUsageResponse{
+						HTTPResponse: httpResponse(http.StatusOK),
+						JSON200: &api.SpaceUsage{
+							ComputeMinutes:      120,
+							FreeComputeMinutes:  6000,
+							ComputeLimitMinutes: new(int64(12000)),
+							OveragesEnabled:     true,
+							StorageMib:          512,
+							StorageLimitMib:     1048576,
+						},
+					}, nil)
+				databases := []api.DatabaseWithUsage{sampleDatabaseWithUsage()}
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+					Return(&api.ListDatabasesResponse{
+						HTTPResponse: httpResponse(http.StatusOK),
+						JSON200:      &databases,
+					}, nil)
+			},
+			wantStdout: `Space: test-project
+Compute: 2/200 hours (1%)
+Storage: 512MiB/1TiB (0%)
+Databases: 1 (1 running)
+Overages: enabled (billed for compute above 100 free hours)
+`,
+		},
+		{
 			name: "text output with zero cost is omitted",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
@@ -206,7 +241,7 @@ Cost: $12.34 so far this cycle ($27.50 estimated total)
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.SpaceUsage{
 							ComputeMinutes:      120,
-							ComputeLimitMinutes: 600,
+							ComputeLimitMinutes: new(int64(600)),
 							StorageMib:          512,
 							StorageLimitMib:     1048576,
 							CostToDate:          new(0.0),
