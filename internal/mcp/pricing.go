@@ -24,7 +24,7 @@ type PricingOutput common.PricingOutput
 
 func (PricingOutput) Schema() *jsonschema.Schema {
 	schema := util.Must(jsonschema.For[PricingOutput](nil))
-	schema.Properties["dedicated"].Description = "Pricing for dedicated databases"
+	schema.Properties["dedicated"].Description = "Pricing for dedicated (always-on) databases"
 
 	ded := schema.Properties["dedicated"]
 	ded.Properties["compute"].Description = "Per-size compute pricing, ordered smallest to largest"
@@ -47,16 +47,20 @@ func (PricingOutput) Schema() *jsonschema.Schema {
 	std.Description = "Pricing for standard (non-dedicated) databases, which share a space-wide compute allowance"
 	sc := std.Properties["compute"]
 	sc.Description = "Pricing for standard (shared) compute used beyond the free monthly allowance"
-	sc.Properties["price_per_hour"].Description = "Price per compute-hour used beyond the included monthly allowance, metered in 15-minute increments"
-	sc.Properties["included_compute_hours_per_month"].Description = "Compute-hours included per month at no additional charge, shared across all standard databases in the space. Only usage above this amount is billed at price_per_hour"
+	sc.Properties["price_per_hour"].Description = "Price per compute-hour used beyond the included monthly allowance, metered in 15-minute intervals with at least one query"
+	sc.Properties["included_compute_hours_per_month"].Description = "Compute-hours included per month at no additional charge, shared across all non-dedicated databases in the space. Only usage above this amount is billed at price_per_hour"
 	return schema
 }
 
 func newPricingTool() *mcp.Tool {
 	return &mcp.Tool{
-		Name:         "ghost_pricing",
-		Title:        "Get Pricing",
-		Description:  "Get pricing for compute overages and dedicated databases.",
+		Name:  "ghost_pricing",
+		Title: "Get Pricing",
+		Description: `Get pricing for compute overages and dedicated databases.
+
+Standard (non-dedicated) databases share a monthly pool of compute-hours across the space. Usage is metered in 15-minute intervals with at least one query, and resets monthly. Databases are auto-paused when the compute limit is reached. Run 'ghost overages enable' to allow paid usage above the included hours.
+
+Dedicated databases are always-on and separate from the shared compute pool. They are billed by uptime, not query activity. Pausing stops compute charges; storage charges continue.`,
 		InputSchema:  PricingInput{}.Schema(),
 		OutputSchema: PricingOutput{}.Schema(),
 		Annotations: &mcp.ToolAnnotations{
