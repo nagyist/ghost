@@ -233,7 +233,7 @@ Successfully logged in as new@example.com
 To authenticate, visit: https://github.com/login/device
 and enter code: TEST-1234
 
-Waiting for authorization...
+Waiting for authorization (this can take a few seconds after you enter the code)...
 Found space: space-123
 Successfully logged in as test@example.com
 `)
@@ -278,7 +278,7 @@ Successfully logged in as test@example.com
 To authenticate, visit: https://github.com/login/device
 and enter code: TEST-1234
 
-Waiting for authorization...
+Waiting for authorization (this can take a few seconds after you enter the code)...
 Created space: space-new
 Successfully logged in as new@example.com
 `)

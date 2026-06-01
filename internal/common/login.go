@@ -303,7 +303,7 @@ func (l *oauthLogin) getTokenViaDeviceFlow(ctx context.Context) (*oauth2.Token, 
 	// Display instructions to user
 	fmt.Fprintf(l.out, "\nTo authenticate, visit: %s\n", deviceAuth.VerificationURI)
 	fmt.Fprintf(l.out, "and enter code: %s\n\n", deviceAuth.UserCode)
-	fmt.Fprintln(l.out, "Waiting for authorization...")
+	fmt.Fprintln(l.out, "Waiting for authorization (this can take a few seconds after you enter the code)...")
 
 	// Best effort attempt to open browser
 	OpenBrowserAsync(deviceAuth.VerificationURI)
