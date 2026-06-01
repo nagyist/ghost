@@ -21,6 +21,7 @@ type Config struct {
 	Analytics    bool   `mapstructure:"analytics"`
 	Color        bool   `mapstructure:"color"`
 	DocsMCPURL   string `mapstructure:"docs_mcp_url"`
+	Keyring      bool   `mapstructure:"keyring"`
 	ReadOnly     bool   `mapstructure:"read_only"`
 	ReleasesURL  string `mapstructure:"releases_url"`
 	ShareURL     string `mapstructure:"share_url"`
@@ -35,6 +36,7 @@ type ConfigOutput struct {
 	Analytics    *bool   `mapstructure:"analytics" json:"analytics,omitempty"`
 	Color        *bool   `mapstructure:"color" json:"color,omitempty"`
 	DocsMCPURL   *string `mapstructure:"docs_mcp_url" json:"docs_mcp_url,omitempty"`
+	Keyring      *bool   `mapstructure:"keyring" json:"keyring,omitempty"`
 	ReadOnly     *bool   `mapstructure:"read_only" json:"read_only,omitempty"`
 	ReleasesURL  *string `mapstructure:"releases_url" json:"releases_url,omitempty"`
 	ShareURL     *string `mapstructure:"share_url" json:"share_url,omitempty"`
@@ -51,6 +53,7 @@ const (
 	defaultAnalytics    = true
 	defaultColor        = true
 	defaultDocsMCPURL   = "https://mcp.tigerdata.com/docs"
+	defaultKeyring      = true
 	defaultReadOnly     = false
 	defaultReleasesURL  = "https://install.ghost.build"
 	defaultShareURL     = "https://ghost.build/share"
@@ -67,6 +70,7 @@ var publicDefaultValues = map[string]any{
 var privateDefaultValues = map[string]any{
 	"api_url":      defaultAPIURL,
 	"docs_mcp_url": defaultDocsMCPURL,
+	"keyring":      defaultKeyring,
 	"releases_url": defaultReleasesURL,
 	"share_url":    defaultShareURL,
 }
@@ -296,7 +300,7 @@ func validateValue(key, val string) (any, error) {
 	switch key {
 	case "api_url", "docs_mcp_url", "releases_url", "share_url":
 		return val, nil
-	case "analytics", "color", "read_only", "version_check":
+	case "analytics", "color", "keyring", "read_only", "version_check":
 		return parseBool(key, val)
 	default:
 		return nil, fmt.Errorf("unknown configuration key: %s", key)

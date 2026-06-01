@@ -105,6 +105,9 @@ func outputConfigTable(w io.Writer, cfg *config.ConfigOutput) error {
 	if cfg.DocsMCPURL != nil {
 		table.Append("docs_mcp_url", *cfg.DocsMCPURL)
 	}
+	if cfg.Keyring != nil {
+		table.Append("keyring", fmt.Sprintf("%t", *cfg.Keyring))
+	}
 	if cfg.ReleasesURL != nil {
 		table.Append("releases_url", *cfg.ReleasesURL)
 	}

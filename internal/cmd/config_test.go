@@ -74,6 +74,7 @@ version_check: true
 				"version_check  true                            \n" +
 				"api_url        https://api.ghost.build/v0      \n" +
 				"docs_mcp_url   https://mcp.tigerdata.com/docs  \n" +
+				"keyring        true                            \n" +
 				"releases_url   https://install.ghost.build     \n" +
 				"share_url      https://ghost.build/share       \n",
 		},
@@ -85,6 +86,7 @@ version_check: true
   "analytics": true,
   "color": true,
   "docs_mcp_url": "https://mcp.tigerdata.com/docs",
+  "keyring": true,
   "read_only": false,
   "releases_url": "https://install.ghost.build",
   "share_url": "https://ghost.build/share",
@@ -99,6 +101,7 @@ version_check: true
 api_url: https://api.ghost.build/v0
 color: true
 docs_mcp_url: https://mcp.tigerdata.com/docs
+keyring: true
 read_only: false
 releases_url: https://install.ghost.build
 share_url: https://ghost.build/share
@@ -115,6 +118,7 @@ version_check: true
 				"version_check  true                            \n" +
 				"api_url        https://api.ghost.build/v0      \n" +
 				"docs_mcp_url   https://mcp.tigerdata.com/docs  \n" +
+				"keyring        true                            \n" +
 				"releases_url   https://install.ghost.build     \n" +
 				"share_url      https://ghost.build/share       \n",
 		},
@@ -127,6 +131,7 @@ version_check: true
   "analytics": true,
   "color": false,
   "docs_mcp_url": "https://mcp.tigerdata.com/docs",
+  "keyring": true,
   "read_only": false,
   "releases_url": "https://install.ghost.build",
   "share_url": "https://ghost.build/share",
@@ -142,6 +147,7 @@ version_check: true
 api_url: https://api.ghost.build/v0
 color: false
 docs_mcp_url: https://mcp.tigerdata.com/docs
+keyring: true
 read_only: false
 releases_url: https://install.ghost.build
 share_url: https://ghost.build/share
