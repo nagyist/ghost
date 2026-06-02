@@ -32,19 +32,18 @@ func TestPricingCmd(t *testing.T) {
 		},
 	}
 
-	wantText := "Standard\n" +
-		"First 100 compute-hours per month included; $0.0750/hour above that.\n" +
+	wantText := "First 100 compute-hours per month included; $0.0750/hour above that.\n" +
 		"\n" +
 		"Compute-hours are shared across all non-dedicated databases in the space and\n" +
-		"reset monthly. Usage is metered in 15-minute intervals with at least one query.\n" +
-		"Databases are auto-paused when the compute limit is reached. Run 'ghost\n" +
-		"overages enable' to allow paid usage above the included hours.\n" +
+		"are reset monthly. Usage is metered in 15-minute intervals with at least one\n" +
+		"query. Databases are auto-paused when the compute limit is reached. Run 'ghost\n" +
+		"overages enable' to allow paid usage above the included free allowance.\n" +
 		"\n" +
 		"Dedicated\n" +
 		"Always-on databases for production workloads. Separate from the shared compute\n" +
-		"pool, and billed by uptime, not query activity. Pausing stops compute charges;\n" +
-		"storage charges continue. The first 10 GiB of storage per database is included;\n" +
-		"$0.000342/GiB/hour ($0.25/GiB/month) above that.\n" +
+		"pool and billed by uptime rather than query activity. Pausing stops compute\n" +
+		"charges, but storage charges continue. The first 10 GiB of storage per database\n" +
+		"is included; $0.000342/GiB/hour ($0.25/GiB/month) above that.\n" +
 		"\n" +
 		"SIZE  VCPU  MEMORY  $/HOUR   $/MONTH  \n" +
 		"1x    0.5   2 GiB   $0.0137  $10.00   \n" +

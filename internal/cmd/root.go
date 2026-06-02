@@ -57,7 +57,20 @@ func buildRootCmd() (*cobra.Command, *common.App, error) {
 	cmd := &cobra.Command{
 		Use:   "ghost",
 		Short: "CLI for managing Postgres databases",
-		Long:  `Ghost is a command-line interface for managing PostgreSQL databases.`,
+		Long: `Ghost is a command-line interface for managing PostgreSQL databases.
+
+Databases share a monthly pool of compute-hours across the space. Usage is
+metered in 15-minute intervals with at least one query. Databases are
+auto-paused when the compute limit is reached. Run 'ghost overages enable' to
+allow paid usage above the included free allowance (requires a payment
+method; see 'ghost payment add').
+
+Dedicated databases are always-on instances separate from the shared compute
+pool. They are billed by uptime instead, making them well-suited for production
+workloads.
+
+Run 'ghost pricing' for current rates and 'ghost usage' to see your current
+monthly usage.`,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			app.SetFlags(cmd.Flags())
 

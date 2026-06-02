@@ -57,22 +57,21 @@ func buildPricingCmd(app *common.App) *cobra.Command {
 
 func renderPricingText(w io.Writer, p common.PricingOutput) error {
 	overage := p.Standard.Compute
-	fmt.Fprintln(w, lipgloss.NewStyle().Bold(true).Render("Standard"))
 	fmt.Fprintf(w, `First %d compute-hours per month included; $%.4f/hour above that.
 
 Compute-hours are shared across all non-dedicated databases in the space and
-reset monthly. Usage is metered in 15-minute intervals with at least one query.
-Databases are auto-paused when the compute limit is reached. Run 'ghost
-overages enable' to allow paid usage above the included hours.
+are reset monthly. Usage is metered in 15-minute intervals with at least one
+query. Databases are auto-paused when the compute limit is reached. Run 'ghost
+overages enable' to allow paid usage above the included free allowance.
 `, overage.IncludedComputeHoursPerMonth, overage.PricePerHour)
 
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, lipgloss.NewStyle().Bold(true).Render("Dedicated"))
 	storage := p.Dedicated.Storage
 	fmt.Fprintf(w, `Always-on databases for production workloads. Separate from the shared compute
-pool, and billed by uptime, not query activity. Pausing stops compute charges;
-storage charges continue. The first %d GiB of storage per database is included;
-$%.6f/GiB/hour ($%.2f/GiB/month) above that.
+pool and billed by uptime rather than query activity. Pausing stops compute
+charges, but storage charges continue. The first %d GiB of storage per database
+is included; $%.6f/GiB/hour ($%.2f/GiB/month) above that.
 `, storage.IncludedGiBPerDatabase, storage.PricePerGiBHour, storage.PricePerGiBMonth)
 	fmt.Fprintln(w)
 	table := tablewriter.NewTable(w,
