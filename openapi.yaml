@@ -449,8 +449,6 @@ paths:
             type: array
             items:
               type: string
-          style: form
-          explode: true
           description: |
             Severity levels to filter results. Repeat the parameter for multiple
             values (e.g. `?severity=ERROR&severity=WARNING`). Common values
