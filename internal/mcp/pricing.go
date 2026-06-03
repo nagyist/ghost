@@ -58,9 +58,9 @@ func newPricingTool() *mcp.Tool {
 		Title: "Get Pricing",
 		Description: `Get pricing for compute overages and dedicated databases.
 
-Standard (non-dedicated) databases share a monthly pool of compute-hours across the space. Usage is metered in 15-minute intervals with at least one query, and resets monthly. Databases are auto-paused when the compute limit is reached. Run 'ghost overages enable' to allow paid usage above the included hours.
+Databases share a monthly pool of compute-hours across the space and are reset monthly. Usage is metered in 15-minute intervals with at least one query. Databases are auto-paused when the compute limit is reached. Run 'ghost overages enable' to allow paid usage above the included free allowance.
 
-Dedicated databases are always-on and separate from the shared compute pool. They are billed by uptime, not query activity. Pausing stops compute charges; storage charges continue.`,
+Dedicated databases are always-on instances separate from the shared compute pool. They are billed by uptime rather than query activity, making them well-suited for production workloads. Pausing stops compute charges, but storage charges continue.`,
 		InputSchema:  PricingInput{}.Schema(),
 		OutputSchema: PricingOutput{}.Schema(),
 		Annotations: &mcp.ToolAnnotations{
