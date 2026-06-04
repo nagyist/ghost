@@ -182,6 +182,14 @@ User: Jane Doe (jane@example.com)
 User: Jane Doe (jane@example.com)
 `,
 		},
+		{
+			name:  "who alias",
+			args:  []string{"who"},
+			setup: userSetup,
+			wantStdout: `Type: OAuth
+User: Jane Doe (jane@example.com)
+`,
+		},
 	}
 
 	runCmdTests(t, tests)

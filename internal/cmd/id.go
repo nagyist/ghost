@@ -18,7 +18,7 @@ func buildIDCmd(app *common.App) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:     "id",
-		Aliases: []string{"identity", "whoami"},
+		Aliases: []string{"identity", "whoami", "who"},
 		Short:   "Show the authenticated user or API key",
 		Long: `Show information about the authenticated caller.
 
