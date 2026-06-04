@@ -28,6 +28,7 @@ func TestMCPListCmd(t *testing.T) {
 				"tool    ghost_feedback                          \n" +
 				"tool    ghost_fork                              \n" +
 				"tool    ghost_fork_dedicated                    \n" +
+				"tool    ghost_id                                \n" +
 				"tool    ghost_invoice                           \n" +
 				"tool    ghost_invoice_list                      \n" +
 				"tool    ghost_list                              \n" +

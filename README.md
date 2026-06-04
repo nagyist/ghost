@@ -73,6 +73,7 @@ ghost tutorial
 | `fork` | Fork a database |
 | `fork-dedicated` | Fork a database as dedicated |
 | `help` | Help about any command |
+| `id` | Show the authenticated user or API key |
 | `init` | Interactively configure Ghost |
 | `invoice` | View invoices |
 | `list` | List all databases |
@@ -110,6 +111,7 @@ The `ghost mcp` command installs a [Model Context Protocol](https://modelcontext
 | `ghost_feedback` | Submit feedback, a bug report, or a support request |
 | `ghost_fork` | Fork a database |
 | `ghost_fork_dedicated` | Fork a database as a new dedicated instance |
+| `ghost_id` | Show the authenticated user or API key |
 | `ghost_invoice` | Get invoice line-item detail |
 | `ghost_invoice_list` | List invoices |
 | `ghost_list` | List all databases |
