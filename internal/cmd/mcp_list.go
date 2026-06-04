@@ -24,6 +24,7 @@ func buildMCPListCmd(app *common.App) *cobra.Command {
 		Long: `List all MCP tools, prompts, and resources exposed via the Ghost MCP server.
 
 The output can be formatted as a table, JSON, or YAML.`,
+		Aliases: []string{"ls"},
 		Example: `  # List all capabilities in table format (default)
   ghost mcp list
 
