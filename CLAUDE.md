@@ -203,7 +203,13 @@ cmd.Flags().BoolVar(&yamlOutput, "yaml", false, "Output in YAML format")
 cmd.MarkFlagsMutuallyExclusive("json", "yaml")
 ```
 
-Use `util.SerializeToJSON(cmd.OutOrStdout(), output)` and `util.SerializeToYAML(cmd.OutOrStdout(), output)` for serialization, with a default text output path (typically using `tablewriter` for lists or `cmd.Printf` for single items).
+Use `util.SerializeToJSON(cmd.OutOrStdout(), output)` and `util.SerializeToYAML(cmd.OutOrStdout(), output)` for serialization, with a default text output path (typically a table for lists or key/value output, or `cmd.Printf` for single items).
+
+### Tables
+
+For the text output path, use **`common.NewTable(w, opts...)`** (in `internal/common/table.go`) to construct tables — both for lists (with a `Header(...)` row) and for key/value output (rows only, no header). It returns a `*tablewriter.Table` preconfigured with Ghost's standard borderless, left-aligned style, so commands don't repeat the rendition/padding boilerplate. Don't call `tablewriter.NewTable` directly with inline options; use this helper wherever a normal table is output, passing extra `tablewriter.Option` values if a specific table needs to tweak the defaults.
+
+Header auto-formatting is **disabled** in this style, so headers render exactly as the literal strings you pass to `Header(...)` — no camel-case splitting or title-casing. Always pass headers in their final form (e.g. `"LAST 4"`, not `"LAST4"`). The only table that intentionally diverges from this style is `sql.go`, which uses a distinct pipe-delimited layout (column separators and a header underline) for query result sets and configures `tablewriter` inline.
 
 **Do not add `yaml:` struct tags to output types.** `SerializeToYAML` works by encoding to JSON first, then converting to YAML. This ensures consistent serialization even for types outside our control that only have `json:` tags. Only `json:` tags are needed.
 

@@ -7,8 +7,6 @@ import (
 	"net/http"
 
 	lipgloss "charm.land/lipgloss/v2"
-	"github.com/olekukonko/tablewriter"
-	"github.com/olekukonko/tablewriter/tw"
 	"github.com/spf13/cobra"
 
 	"github.com/timescale/ghost/internal/api"
@@ -86,32 +84,7 @@ is included; $%.6f/GiB/hour ($%.2f/GiB/month) above that.
 `, storage.IncludedGibPerDatabase, storage.PricePerGibHour, storage.PricePerGibMonth)
 	fmt.Fprintln(w)
 
-	table := tablewriter.NewTable(w,
-		tablewriter.WithHeaderAlignment(tw.AlignLeft),
-		// Disable auto-formatting so "$/HOUR" isn't split into "$ / HOUR" on
-		// non-alphanumeric boundaries.
-		tablewriter.WithHeaderAutoFormat(tw.Off),
-		tablewriter.WithPadding(tw.Padding{Left: "", Right: "  ", Overwrite: true}),
-		tablewriter.WithRendition(tw.Rendition{
-			Borders: tw.Border{
-				Left:   tw.Off,
-				Right:  tw.Off,
-				Top:    tw.Off,
-				Bottom: tw.Off,
-			},
-			Settings: tw.Settings{
-				Separators: tw.Separators{
-					ShowHeader:     tw.Off,
-					ShowFooter:     tw.Off,
-					BetweenRows:    tw.Off,
-					BetweenColumns: tw.Off,
-				},
-				Lines: tw.Lines{
-					ShowHeaderLine: tw.Off,
-				},
-			},
-		}),
-	)
+	table := common.NewTable(w)
 	table.Header("SIZE", "VCPU", "MEMORY", "$/HOUR", "$/MONTH")
 	for _, c := range pricing.Dedicated.Compute {
 		table.Append(

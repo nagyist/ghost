@@ -6,8 +6,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/olekukonko/tablewriter"
-	"github.com/olekukonko/tablewriter/tw"
 	"github.com/spf13/cobra"
 
 	"github.com/timescale/ghost/internal/api"
@@ -72,31 +70,9 @@ func buildPaymentListCmd(app *common.App) *cobra.Command {
 }
 
 func outputPaymentMethods(w io.Writer, methods []api.PaymentMethod) error {
-	table := tablewriter.NewTable(w,
-		tablewriter.WithHeaderAlignment(tw.AlignLeft),
-		tablewriter.WithPadding(tw.Padding{Left: "", Right: "  ", Overwrite: true}),
-		tablewriter.WithRendition(tw.Rendition{
-			Borders: tw.Border{
-				Left:   tw.Off,
-				Right:  tw.Off,
-				Top:    tw.Off,
-				Bottom: tw.Off,
-			},
-			Settings: tw.Settings{
-				Separators: tw.Separators{
-					ShowHeader:     tw.Off,
-					ShowFooter:     tw.Off,
-					BetweenRows:    tw.Off,
-					BetweenColumns: tw.Off,
-				},
-				Lines: tw.Lines{
-					ShowHeaderLine: tw.Off,
-				},
-			},
-		}),
-	)
+	table := common.NewTable(w)
 
-	table.Header("ID", "BRAND", "LAST4", "EXPIRES", "PRIMARY", "PENDING DELETION")
+	table.Header("ID", "BRAND", "LAST 4", "EXPIRES", "PRIMARY", "PENDING DELETION")
 	for _, pm := range methods {
 		expires := fmt.Sprintf("%02d/%d", pm.ExpMonth, pm.ExpYear)
 		primary := "no"
