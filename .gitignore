@@ -60,3 +60,12 @@ mcp-publisher
 # Local files
 todo.md
 new.md
+
+# ghost serve
+web/download/
+web/node_modules/
+web/dist/
+web/.npmrc
+web/tsconfig.tsbuildinfo
+internal/serve/web/*
+!internal/serve/web/.gitkeep
