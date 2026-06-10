@@ -71,25 +71,6 @@ workloads.
 
 Run 'ghost pricing' for current rates and 'ghost usage' to see your current
 monthly usage.`,
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			app.SetFlags(cmd.Flags())
-
-			// Load config and attempt API client creation (best-effort)
-			cfg, _, _, err := app.Load(cmd.Context())
-			if err != nil {
-				return err
-			}
-
-			// Disable colors by setting the color profile to ASCII, which
-			// causes the colorprofile writers (set below as stdout/stderr)
-			// to strip ANSI color sequences from all output.
-			if !cfg.Color {
-				stdoutWriter.ColorProfile.Profile = colorprofile.Ascii
-				stderrWriter.ColorProfile.Profile = colorprofile.Ascii
-			}
-
-			return nil
-		},
 	}
 
 	// Wrap stdout and stderr in colorprofile writers that automatically
@@ -146,16 +127,40 @@ monthly usage.`,
 	cmd.AddCommand(buildOveragesCmd(app))
 	cmd.AddCommand(buildServeCmd(app))
 
-	wrapCommands(cmd, app)
+	wrapCommands(cmd, app, stdoutWriter, stderrWriter)
 
 	return cmd, app, nil
 }
 
-func wrapCommands(cmd *cobra.Command, app *common.App) {
+// wrapCommands recursively wraps the RunE of every command in the tree rooted
+// at cmd with shared pre/post logic: loading the config and API client,
+// configuring color output, checking for updates, and tracking analytics.
+// Commands added to the tree after this runs (cobra's built-in help,
+// completion, and __complete commands) are not wrapped and so skip the app
+// load entirely — which avoids the system keyring, the config file, and
+// network requests (refreshing the OAuth access token or identifying the
+// user for analytics). Completion functions that need the config or client
+// load on demand via withAppLoad.
+func wrapCommands(cmd *cobra.Command, app *common.App, stdoutWriter, stderrWriter *util.TermWriter) {
 	// Wrap this command's RunE if it exists
 	if cmd.RunE != nil {
 		originalRunE := cmd.RunE
 		cmd.RunE = func(c *cobra.Command, args []string) (runErr error) {
+			// Load config and attempt API client creation (best-effort)
+			app.SetFlags(c.Flags())
+			cfg, _, _, err := app.Load(c.Context())
+			if err != nil {
+				return err
+			}
+
+			// Disable colors by setting the color profile to ASCII, which
+			// causes the colorprofile writers to strip ANSI color sequences
+			// from all output.
+			if !cfg.Color {
+				stdoutWriter.ColorProfile.Profile = colorprofile.Ascii
+				stderrWriter.ColorProfile.Profile = colorprofile.Ascii
+			}
+
 			// Perform version check. Skip for `ghost upgrade`, which does
 			// its own version comparison and would otherwise print a
 			// redundant warning alongside the upgrade output.
@@ -182,7 +187,7 @@ func wrapCommands(cmd *cobra.Command, app *common.App) {
 
 	// Recursively wrap all children
 	for _, child := range cmd.Commands() {
-		wrapCommands(child, app)
+		wrapCommands(child, app, stdoutWriter, stderrWriter)
 	}
 }
 

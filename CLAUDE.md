@@ -89,8 +89,8 @@ Database-scoped API endpoints accept either an ID or a name, so the path paramet
 All cobra commands must:
 
 1. Set `SilenceUsage: true`
-2. Set `ValidArgsFunction` or `ValidArgs` for shell completions. Use `ValidArgsFunction` for dynamic completions (e.g. database IDs) and `ValidArgs` for static lists. Use `cobra.NoFileCompletions` if no completions are needed. The important thing is that one of these is always set.
-3. Use `RunE` (not `Run`) for error handling
+2. Set `ValidArgsFunction` or `ValidArgs` for shell completions. Use `ValidArgsFunction` for dynamic completions (e.g. database IDs) and `ValidArgs` for static lists. Use `cobra.NoFileCompletions` if no completions are needed. The important thing is that one of these is always set. Completion functions live in `internal/cmd/completion.go`; any that need the config or API client must be wrapped with `withAppLoad`, since the `App` is not loaded automatically for completion requests.
+3. Use `RunE` (not `Run`) for error handling. This also matters because only `RunE` commands are wrapped with the shared per-command logic (app loading, color configuration, version check, analytics) — see `wrapCommands` in `root.go`.
 4. Use `cmd.Print*` functions for output (not `fmt.Print*` or `fmt.Fprint*`)
 5. Use `cmd.InOrStdin()`, `cmd.OutOrStdout()`, `cmd.ErrOrStderr()` for any direct references to stdin/stdout/stderr (do not use os.Stdin/os.Stdout/os.Stderr directly)
 
@@ -150,7 +150,7 @@ The config directory can be overridden via `--config-dir` flag or `GHOST_CONFIG_
 
 ## Config & API Client
 
-All CLI commands and MCP tool handlers receive a `*common.App` which holds the config and API client. The `App` is loaded once in `PersistentPreRunE` (see `root.go`) and shared across all command handlers. MCP tool handlers call `s.app.Load(ctx)` on each invocation to refresh credentials.
+All CLI commands and MCP tool handlers receive a `*common.App` which holds the config and API client. The `App` is loaded once at the start of each command's wrapped `RunE` (see `wrapCommands` in `root.go`). Cobra's built-in commands (help, completion, `__complete`) are added after `wrapCommands` runs and so never load the `App` — this keeps them from touching the config file, the system keyring, or the network. Completion functions that need the config or API client must be wrapped with `withAppLoad` (see `internal/cmd/completion.go`). MCP tool handlers call `s.app.Load(ctx)` on each invocation to refresh credentials. The `App`'s accessor methods panic if it has never been loaded — that's a programmer error, so make sure any new code path that reads the `App` arranges for `Load` to be called first.
 
 Use the appropriate getter depending on what you need:
 

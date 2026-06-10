@@ -13,8 +13,25 @@ import (
 	"github.com/timescale/ghost/internal/mcp"
 )
 
-func databaseCompletion(app *common.App) func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+// withAppLoad wraps a completion function, loading the config and API client
+// before invoking it. The app is only loaded automatically for wrapped
+// commands (see wrapCommands), not for the __complete commands that drive
+// live tab completion — so completions which don't need the config or client
+// (subcommand names, flag names, static lists) avoid the config file, the
+// system keyring, and the network. Completion functions that do need them
+// must be wrapped with this helper.
+func withAppLoad(app *common.App, fn cobra.CompletionFunc) cobra.CompletionFunc {
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		app.SetFlags(cmd.Flags())
+		if _, _, _, err := app.Load(cmd.Context()); err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return fn(cmd, args, toComplete)
+	}
+}
+
+func databaseCompletion(app *common.App) cobra.CompletionFunc {
+	return withAppLoad(app, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		// Database name/ID is always first positional argument
 		if len(args) > 0 {
 			return nil, cobra.ShellCompDirectiveNoFileComp
@@ -35,7 +52,7 @@ func databaseCompletion(app *common.App) func(cmd *cobra.Command, args []string,
 			}
 		}
 		return results, cobra.ShellCompDirectiveNoFileComp
-	}
+	})
 }
 
 func listDatabases(cmd *cobra.Command, app *common.App) ([]api.DatabaseWithUsage, error) {
@@ -71,8 +88,8 @@ func configOptionCompletion(cmd *cobra.Command, args []string, toComplete string
 	return filterCompletionsByPrefix(config.PublicConfigOptions(), toComplete), cobra.ShellCompDirectiveNoFileComp
 }
 
-func mcpCapabilityCompletion(app *common.App) func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func mcpCapabilityCompletion(app *common.App) cobra.CompletionFunc {
+	return withAppLoad(app, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		// Capability name is always first positional argument
 		if len(args) > 0 {
 			return nil, cobra.ShellCompDirectiveNoFileComp
@@ -96,11 +113,11 @@ func mcpCapabilityCompletion(app *common.App) func(cmd *cobra.Command, args []st
 		}
 
 		return filterCompletionsByPrefix(capabilities.Names(), toComplete), cobra.ShellCompDirectiveNoFileComp
-	}
+	})
 }
 
-func paymentMethodIDCompletion(app *common.App) func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func paymentMethodIDCompletion(app *common.App) cobra.CompletionFunc {
+	return withAppLoad(app, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		// Payment method ID is always first positional argument
 		if len(args) > 0 {
 			return nil, cobra.ShellCompDirectiveNoFileComp
@@ -119,7 +136,7 @@ func paymentMethodIDCompletion(app *common.App) func(cmd *cobra.Command, args []
 			}
 		}
 		return results, cobra.ShellCompDirectiveNoFileComp
-	}
+	})
 }
 
 func listPaymentMethods(cmd *cobra.Command, app *common.App) ([]api.PaymentMethod, error) {
@@ -144,8 +161,8 @@ func listPaymentMethods(cmd *cobra.Command, app *common.App) ([]api.PaymentMetho
 	return resp.JSON200.PaymentMethods, nil
 }
 
-func apiKeyPrefixCompletion(app *common.App) func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func apiKeyPrefixCompletion(app *common.App) cobra.CompletionFunc {
+	return withAppLoad(app, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) > 0 {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
@@ -162,7 +179,7 @@ func apiKeyPrefixCompletion(app *common.App) func(cmd *cobra.Command, args []str
 			}
 		}
 		return results, cobra.ShellCompDirectiveNoFileComp
-	}
+	})
 }
 
 func listApiKeys(cmd *cobra.Command, app *common.App) ([]api.ApiKey, error) {
@@ -187,14 +204,58 @@ func listApiKeys(cmd *cobra.Command, app *common.App) ([]api.ApiKey, error) {
 	return *resp.JSON200, nil
 }
 
+func invoiceIDCompletion(app *common.App) cobra.CompletionFunc {
+	return withAppLoad(app, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) > 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		invoices, err := listInvoices(cmd, app)
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		results := make([]string, 0, len(invoices))
+		for _, inv := range invoices {
+			if strings.HasPrefix(inv.Id, toComplete) {
+				desc := fmt.Sprintf("%s (%s)", inv.InvoiceNumber, inv.InvoiceDate.Format("2006-01-02"))
+				results = append(results, cobra.CompletionWithDesc(inv.Id, desc))
+			}
+		}
+		return results, cobra.ShellCompDirectiveNoFileComp
+	})
+}
+
+func listInvoices(cmd *cobra.Command, app *common.App) ([]api.Invoice, error) {
+	client, projectID, err := app.GetClient()
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := client.ListInvoicesWithResponse(cmd.Context(), projectID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list invoices: %w", err)
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, common.ExitWithErrorFromStatusCode(resp.StatusCode(), resp.JSONDefault)
+	}
+
+	if resp.JSON200 == nil {
+		return nil, errors.New("empty response from API")
+	}
+
+	return resp.JSON200.Invoices, nil
+}
+
 var validSizes = []string{"1x", "2x", "4x", "8x"}
 
 var sizeCompletion = cobra.FixedCompletions(validSizes, cobra.ShellCompDirectiveNoFileComp)
 
 var logLevelCompletion = cobra.FixedCompletions([]string{"debug", "info", "warn", "error"}, cobra.ShellCompDirectiveNoFileComp)
 
-func shareTokenCompletion(app *common.App) func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func shareTokenCompletion(app *common.App) cobra.CompletionFunc {
+	return withAppLoad(app, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		// Share token is always first positional argument
 		if len(args) > 0 {
 			return nil, cobra.ShellCompDirectiveNoFileComp
@@ -222,7 +283,7 @@ func shareTokenCompletion(app *common.App) func(cmd *cobra.Command, args []strin
 			}
 		}
 		return results, cobra.ShellCompDirectiveNoFileComp
-	}
+	})
 }
 
 // filterCompletionsByPrefix filters a slice of strings to only include items

@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/spf13/cobra"
 
-	"github.com/timescale/ghost/internal/api"
 	"github.com/timescale/ghost/internal/common"
 	"github.com/timescale/ghost/internal/util"
 )
@@ -101,48 +99,4 @@ func outputInvoices(w io.Writer, invoices []InvoiceOutput) error {
 	}
 
 	return table.Render()
-}
-
-func invoiceIDCompletion(app *common.App) func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		if len(args) > 0 {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-
-		invoices, err := listInvoices(cmd, app)
-		if err != nil {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-
-		results := make([]string, 0, len(invoices))
-		for _, inv := range invoices {
-			if strings.HasPrefix(inv.Id, toComplete) {
-				desc := fmt.Sprintf("%s (%s)", inv.InvoiceNumber, inv.InvoiceDate.Format("2006-01-02"))
-				results = append(results, cobra.CompletionWithDesc(inv.Id, desc))
-			}
-		}
-		return results, cobra.ShellCompDirectiveNoFileComp
-	}
-}
-
-func listInvoices(cmd *cobra.Command, app *common.App) ([]api.Invoice, error) {
-	client, projectID, err := app.GetClient()
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := client.ListInvoicesWithResponse(cmd.Context(), projectID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to list invoices: %w", err)
-	}
-
-	if resp.StatusCode() != http.StatusOK {
-		return nil, common.ExitWithErrorFromStatusCode(resp.StatusCode(), resp.JSONDefault)
-	}
-
-	if resp.JSON200 == nil {
-		return nil, errors.New("empty response from API")
-	}
-
-	return resp.JSON200.Invoices, nil
 }
