@@ -140,7 +140,7 @@ Configuration is managed via Viper. The config file is stored in the config dire
 
 Many public config options have corresponding global CLI flags. All config values can be provided as `GHOST_*` environment variables (e.g. `GHOST_COLOR=false`). Precedence is: **flags > env vars > config file > defaults**.
 
-The config directory can be overridden via `--config-dir` flag or `GHOST_CONFIG_DIR` env var. This controls where the config file (and credentials file, if the system keyring is unavailable) are stored.
+The config directory can be overridden via `--config-dir` flag or `GHOST_CONFIG_DIR` env var. This controls where the config file (and credentials file, if the system keyring is unavailable or disabled) are stored. Note that the system keyring is global, so overriding the config directory does not isolate credentials by itself. To fully isolate both config and credentials in a single directory, disable the keyring via `GHOST_KEYRING=false` or `ghost config set keyring false` — credentials are then stored in a fallback file inside the config directory. This is useful for manual testing, and for maintaining a fully scoped CLI per environment: a dedicated config directory with `keyring: false` and `api_url` pointed at another environment (e.g. dev) keeps that environment's config and credentials entirely separate from the default login.
 
 ## Environment Variables
 
