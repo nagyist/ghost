@@ -94,7 +94,11 @@ func outputUsage(cmd *cobra.Command, usage common.Usage) {
 		}
 	}
 
-	cmd.Printf("Space: %s\n", usage.SpaceID)
+	if usage.SpaceName != "" {
+		cmd.Printf("Space: %s (%s)\n", usage.SpaceName, usage.SpaceID)
+	} else {
+		cmd.Printf("Space: %s\n", usage.SpaceID)
+	}
 	if usage.ComputeLimitMinutes != nil {
 		computeLimitHours := float64(*usage.ComputeLimitMinutes) / 60
 		computePercent := float64(usage.ComputeMinutes) / float64(*usage.ComputeLimitMinutes) * 100

@@ -168,7 +168,7 @@ Successfully logged in as test@example.com
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &emptySpaces,
 			}, nil)
-		postLoginMock.EXPECT().CreateSpaceWithResponse(validCtx, api.CreateSpaceJSONRequestBody{Name: "Ghost"}).
+		postLoginMock.EXPECT().CreateSpaceWithResponse(validCtx, api.CreateSpaceJSONRequestBody{}).
 			Return(&api.CreateSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusCreated),
 				JSON201:      &api.Space{Id: "space-new", Name: "Ghost"},
@@ -250,7 +250,7 @@ Successfully logged in as test@example.com
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &emptySpaces,
 			}, nil)
-		postLoginMock.EXPECT().CreateSpaceWithResponse(validCtx, api.CreateSpaceJSONRequestBody{Name: "Ghost"}).
+		postLoginMock.EXPECT().CreateSpaceWithResponse(validCtx, api.CreateSpaceJSONRequestBody{}).
 			Return(&api.CreateSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusCreated),
 				JSON201:      &api.Space{Id: "space-new", Name: "Ghost"},
@@ -382,7 +382,7 @@ Successfully logged in as new@example.com
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &emptySpaces,
 			}, nil)
-		postLoginMock.EXPECT().CreateSpaceWithResponse(validCtx, api.CreateSpaceJSONRequestBody{Name: "Ghost"}).
+		postLoginMock.EXPECT().CreateSpaceWithResponse(validCtx, api.CreateSpaceJSONRequestBody{}).
 			Return(&api.CreateSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusForbidden),
 				JSONDefault:  &api.Error{Message: "forbidden"},
@@ -412,7 +412,7 @@ Successfully logged in as new@example.com
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &emptySpaces,
 			}, nil)
-		postLoginMock.EXPECT().CreateSpaceWithResponse(validCtx, api.CreateSpaceJSONRequestBody{Name: "Ghost"}).
+		postLoginMock.EXPECT().CreateSpaceWithResponse(validCtx, api.CreateSpaceJSONRequestBody{}).
 			Return(&api.CreateSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusCreated),
 				JSON201:      nil,

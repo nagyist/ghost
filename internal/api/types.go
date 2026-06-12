@@ -164,8 +164,8 @@ type CreateDatabaseRequest struct {
 
 // CreateSpaceRequest defines model for CreateSpaceRequest.
 type CreateSpaceRequest struct {
-	// Name Name for the new space.
-	Name string `json:"name"`
+	// Name Name for the new space. When omitted, the space is named after its owner (e.g. "Jane Doe's space").
+	Name *string `json:"name,omitempty"`
 }
 
 // Database A Ghost database.
@@ -462,6 +462,24 @@ type RenameDatabaseRequest struct {
 	Name string `json:"name"`
 }
 
+// RenameSpaceRequest defines model for RenameSpaceRequest.
+type RenameSpaceRequest struct {
+	// Name New name for the space.
+	Name string `json:"name"`
+}
+
+// RenameSpaceResult Result of renaming a space.
+type RenameSpaceResult struct {
+	// Id Space ID.
+	Id string `json:"id"`
+
+	// NewName Space name after the rename.
+	NewName string `json:"new_name"`
+
+	// OldName Space name before the rename.
+	OldName string `json:"old_name"`
+}
+
 // ShareDatabaseRequest Options for creating a database share.
 type ShareDatabaseRequest struct {
 	// ExpiresAt Time after which the share expires. If omitted, the share does not expire.
@@ -666,3 +684,6 @@ type ShareDatabaseJSONRequestBody = ShareDatabaseRequest
 
 // UpdateOveragesJSONRequestBody defines body for UpdateOverages for application/json ContentType.
 type UpdateOveragesJSONRequestBody = UpdateOverageSettingsRequest
+
+// RenameSpaceJSONRequestBody defines body for RenameSpace for application/json ContentType.
+type RenameSpaceJSONRequestBody = RenameSpaceRequest

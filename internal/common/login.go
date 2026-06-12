@@ -83,10 +83,10 @@ func Login(ctx context.Context, app *App, headless bool, out io.Writer) (*LoginR
 		return nil, fmt.Errorf("failed to identify user: %w", err)
 	}
 
-	// Store the OAuth token and project ID securely
+	// Store the OAuth token and space ID securely
 	if err := cfg.StoreCredentials(config.Credentials{
-		Token:     token,
-		ProjectID: spaceID,
+		Token:   token,
+		SpaceID: spaceID,
 	}); err != nil {
 		return nil, fmt.Errorf("failed to store credentials: %w", err)
 	}
@@ -340,10 +340,9 @@ func (l *oauthLogin) findOrCreateSpace(ctx context.Context, client api.ClientWit
 		return spaces[0].Id, nil
 	}
 
-	// No Ghost space found - create one
-	createResp, err := client.CreateSpaceWithResponse(ctx, api.CreateSpaceJSONRequestBody{
-		Name: "Ghost",
-	})
+	// No Ghost space found - create one. The name is omitted so the API
+	// applies the owner-derived default name (e.g. "Jane Doe's space").
+	createResp, err := client.CreateSpaceWithResponse(ctx, api.CreateSpaceJSONRequestBody{})
 	if err != nil {
 		return "", fmt.Errorf("failed to create space: %w", err)
 	}

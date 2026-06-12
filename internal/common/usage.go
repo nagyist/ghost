@@ -41,12 +41,14 @@ type Usage struct {
 	BillingPeriodStart  *time.Time     `json:"billing_period_start,omitempty"`
 	BillingPeriodEnd    *time.Time     `json:"billing_period_end,omitempty"`
 	SpaceID             string         `json:"space_id"`
+	SpaceName           string         `json:"space_name,omitempty"`
 }
 
 // FetchUsage fetches space usage and database counts from the API.
 func FetchUsage(ctx context.Context, client api.ClientWithResponsesInterface, projectID string) (Usage, error) {
 	var spaceUsage *api.SpaceUsage
 	var databases []api.DatabaseWithUsage
+	var spaceName string
 
 	g, ctx := errgroup.WithContext(ctx)
 
@@ -77,6 +79,26 @@ func FetchUsage(ctx context.Context, client api.ClientWithResponsesInterface, pr
 			return errors.New("empty response from API")
 		}
 		databases = *resp.JSON200
+		return nil
+	})
+
+	g.Go(func() error {
+		resp, err := client.ListSpacesWithResponse(ctx)
+		if err != nil {
+			return fmt.Errorf("failed to list spaces: %w", err)
+		}
+		if resp.StatusCode() != http.StatusOK {
+			return ExitWithErrorFromStatusCode(resp.StatusCode(), resp.JSONDefault)
+		}
+		if resp.JSON200 == nil {
+			return errors.New("empty response from API")
+		}
+		for _, space := range *resp.JSON200 {
+			if space.Id == projectID {
+				spaceName = space.Name
+				break
+			}
+		}
 		return nil
 	})
 
@@ -126,5 +148,6 @@ func FetchUsage(ctx context.Context, client api.ClientWithResponsesInterface, pr
 		BillingPeriodStart:  spaceUsage.BillingPeriodStart,
 		BillingPeriodEnd:    spaceUsage.BillingPeriodEnd,
 		SpaceID:             projectID,
+		SpaceName:           spaceName,
 	}, nil
 }

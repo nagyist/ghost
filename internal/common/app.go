@@ -31,10 +31,10 @@ type App struct {
 	flags         *pflag.FlagSet
 	config        *config.Config
 	client        api.ClientWithResponsesInterface // nil if credentials unavailable
-	projectID     string
+	spaceID       string
 	clientErr     error         // returned by GetClient() when client is nil
 	clientFactory ClientFactory // nil in production; set in tests
-	lock          sync.RWMutex  // protects config, client, projectID, clientErr
+	lock          sync.RWMutex  // protects config, client, spaceID, clientErr
 }
 
 // SetFlags stores the command's flag set for use by config.Load. Must be
@@ -50,7 +50,7 @@ func (a *App) SetClientFactory(f ClientFactory) {
 }
 
 // Load loads (or reloads) the config from disk and attempts to create the API
-// client. Returns the loaded config, API client, and project ID. Config
+// client. Returns the loaded config, API client, and space ID. Config
 // loading errors are returned; API client errors are stored internally and
 // surfaced via GetClient (the returned client will simply be nil if it
 // couldn't be loaded).
@@ -64,19 +64,19 @@ func (a *App) Load(ctx context.Context) (*config.Config, api.ClientWithResponses
 	}
 	a.config = cfg
 
-	a.client, a.projectID, a.clientErr = a.newAPIClient(ctx, a.config)
+	a.client, a.spaceID, a.clientErr = a.newAPIClient(ctx, a.config)
 
-	return a.config, a.client, a.projectID, nil
+	return a.config, a.client, a.spaceID, nil
 }
 
-// SetClient stores an existing API client and project ID on the App. Use this
+// SetClient stores an existing API client and space ID on the App. Use this
 // when a valid client already exists (e.g. after login creates one for
 // validation) to avoid redundantly re-reading credentials from disk.
-func (a *App) SetClient(client api.ClientWithResponsesInterface, projectID string) {
+func (a *App) SetClient(client api.ClientWithResponsesInterface, spaceID string) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 	a.client = client
-	a.projectID = projectID
+	a.spaceID = spaceID
 	a.clientErr = nil
 }
 
@@ -104,29 +104,29 @@ func (a *App) getAll() (*config.Config, api.ClientWithResponsesInterface, string
 	if a.config == nil {
 		panic("App.Load must be called before accessing the config or API client")
 	}
-	return a.config, a.client, a.projectID, a.clientErr
+	return a.config, a.client, a.spaceID, a.clientErr
 }
 
-// GetAll returns a snapshot of the config, API client, and project ID.
+// GetAll returns a snapshot of the config, API client, and space ID.
 // Returns an error (and nil/zero values) if the client is not available
 // (e.g. user is not logged in). Panics if the App has never been loaded
 // (see getAll).
 func (a *App) GetAll() (*config.Config, api.ClientWithResponsesInterface, string, error) {
-	cfg, client, projectID, err := a.getAll()
+	cfg, client, spaceID, err := a.getAll()
 	if err != nil {
 		return nil, nil, "", err
 	}
-	return cfg, client, projectID, nil
+	return cfg, client, spaceID, nil
 }
 
-// TryGetAll returns a snapshot of the config, API client, and project ID,
+// TryGetAll returns a snapshot of the config, API client, and space ID,
 // like GetAll, but does not return an error if the client is unavailable
 // (e.g. user is not logged in) — the returned client is simply nil. Use it
 // for best-effort access where the API call is optional (e.g. analytics
 // tracking). Panics if the App has never been loaded (see getAll).
 func (a *App) TryGetAll() (*config.Config, api.ClientWithResponsesInterface, string) {
-	cfg, client, projectID, _ := a.getAll() // error dropped: best-effort access
-	return cfg, client, projectID
+	cfg, client, spaceID, _ := a.getAll() // error dropped: best-effort access
+	return cfg, client, spaceID
 }
 
 // GetConfig returns a snapshot of the config. Panics if the App has never
@@ -136,10 +136,10 @@ func (a *App) GetConfig() *config.Config {
 	return cfg
 }
 
-// GetClient returns a snapshot of the API client and project ID. Returns an
+// GetClient returns a snapshot of the API client and space ID. Returns an
 // error if the client is not available (e.g. user is not logged in). Panics
 // if the App has never been loaded (see getAll).
 func (a *App) GetClient() (api.ClientWithResponsesInterface, string, error) {
-	_, client, projectID, err := a.getAll()
-	return client, projectID, err
+	_, client, spaceID, err := a.getAll()
+	return client, spaceID, err
 }

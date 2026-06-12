@@ -109,6 +109,8 @@ paths:
       description: |
         Creates a new Ghost space. Requires user authentication (JWT).
         API keys cannot be used to create spaces.
+        When no name is provided, the space is named after its owner
+        (e.g. "Jane Doe's space").
       requestBody:
         required: true
         content:
@@ -122,6 +124,31 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Space"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/rename:
+    post:
+      operationId: renameSpace
+      summary: Rename a space
+      description: |
+        Renames a space. Requires user authentication (JWT).
+        API keys cannot be used to rename spaces.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenameSpaceRequest"
+      responses:
+        "200":
+          description: Space renamed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RenameSpaceResult"
         default:
           $ref: "#/components/responses/Error"
 
@@ -1045,12 +1072,37 @@ components:
 
     CreateSpaceRequest:
       type: object
+      properties:
+        name:
+          type: string
+          description: Name for the new space. When omitted, the space is named after its owner (e.g. "Jane Doe's space").
+
+    RenameSpaceRequest:
+      type: object
       required:
         - name
       properties:
         name:
           type: string
-          description: Name for the new space.
+          description: New name for the space.
+
+    RenameSpaceResult:
+      type: object
+      description: Result of renaming a space.
+      required:
+        - id
+        - old_name
+        - new_name
+      properties:
+        id:
+          type: string
+          description: Space ID.
+        old_name:
+          type: string
+          description: Space name before the rename.
+        new_name:
+          type: string
+          description: Space name after the rename.
 
     SpaceUsage:
       type: object

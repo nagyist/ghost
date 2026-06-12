@@ -209,6 +209,11 @@ type ClientInterface interface {
 	// SetPaymentMethodPrimary request
 	SetPaymentMethodPrimary(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// RenameSpaceWithBody request with any body
+	RenameSpaceWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RenameSpace(ctx context.Context, spaceId SpaceId, body RenameSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListShares request
 	ListShares(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -740,6 +745,30 @@ func (c *Client) CancelPaymentMethodDeletion(ctx context.Context, spaceId SpaceI
 
 func (c *Client) SetPaymentMethodPrimary(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSetPaymentMethodPrimaryRequest(c.Server, spaceId, paymentId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RenameSpaceWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenameSpaceRequestWithBody(c.Server, spaceId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RenameSpace(ctx context.Context, spaceId SpaceId, body RenameSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenameSpaceRequest(c.Server, spaceId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2170,6 +2199,53 @@ func NewSetPaymentMethodPrimaryRequest(server string, spaceId SpaceId, paymentId
 	return req, nil
 }
 
+// NewRenameSpaceRequest calls the generic RenameSpace builder with application/json body
+func NewRenameSpaceRequest(server string, spaceId SpaceId, body RenameSpaceJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRenameSpaceRequestWithBody(server, spaceId, "application/json", bodyReader)
+}
+
+// NewRenameSpaceRequestWithBody generates requests for RenameSpace with any type of body
+func NewRenameSpaceRequestWithBody(server string, spaceId SpaceId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s/rename", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListSharesRequest generates requests for ListShares
 func NewListSharesRequest(server string, spaceId SpaceId) (*http.Request, error) {
 	var err error
@@ -2475,6 +2551,11 @@ type ClientWithResponsesInterface interface {
 
 	// SetPaymentMethodPrimaryWithResponse request
 	SetPaymentMethodPrimaryWithResponse(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*SetPaymentMethodPrimaryResponse, error)
+
+	// RenameSpaceWithBodyWithResponse request with any body
+	RenameSpaceWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameSpaceResponse, error)
+
+	RenameSpaceWithResponse(ctx context.Context, spaceId SpaceId, body RenameSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameSpaceResponse, error)
 
 	// ListSharesWithResponse request
 	ListSharesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListSharesResponse, error)
@@ -3215,6 +3296,29 @@ func (r SetPaymentMethodPrimaryResponse) StatusCode() int {
 	return 0
 }
 
+type RenameSpaceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RenameSpaceResult
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r RenameSpaceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RenameSpaceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListSharesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -3689,6 +3793,23 @@ func (c *ClientWithResponses) SetPaymentMethodPrimaryWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseSetPaymentMethodPrimaryResponse(rsp)
+}
+
+// RenameSpaceWithBodyWithResponse request with arbitrary body returning *RenameSpaceResponse
+func (c *ClientWithResponses) RenameSpaceWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameSpaceResponse, error) {
+	rsp, err := c.RenameSpaceWithBody(ctx, spaceId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRenameSpaceResponse(rsp)
+}
+
+func (c *ClientWithResponses) RenameSpaceWithResponse(ctx context.Context, spaceId SpaceId, body RenameSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameSpaceResponse, error) {
+	rsp, err := c.RenameSpace(ctx, spaceId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRenameSpaceResponse(rsp)
 }
 
 // ListSharesWithResponse request returning *ListSharesResponse
@@ -4698,6 +4819,39 @@ func ParseSetPaymentMethodPrimaryResponse(rsp *http.Response) (*SetPaymentMethod
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRenameSpaceResponse parses an HTTP response from a RenameSpaceWithResponse call
+func ParseRenameSpaceResponse(rsp *http.Response) (*RenameSpaceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RenameSpaceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RenameSpaceResult
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

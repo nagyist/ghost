@@ -24,10 +24,10 @@ var (
 )
 
 // newAPIClient initializes a [api.ClientWithResponses] and returns it along
-// with the current project ID. Credentials are pulled from the environment (if
+// with the current space ID. Credentials are pulled from the environment (if
 // present), or loaded from storage (either the keyring or fallback file). When
 // pulled from the environment, the credentials are first validated by hitting
-// the /auth/info endpoint (which also allows us to fetch the project ID), and
+// the /auth/info endpoint (which also allows us to fetch the space ID), and
 // the user is identified for the sake of analytics by hitting the /analytics/identify
 // endpoint. When credentials are pulled from storage, those operations should
 // have already been performed during authentication.
@@ -46,7 +46,7 @@ func newAPIClient(ctx context.Context, cfg *config.Config) (api.ClientWithRespon
 		var auth api.AuthMethod
 		switch {
 		case creds.Token != nil:
-			token, err := refreshTokenIfNeeded(ctx, cfg, creds.Token, creds.ProjectID)
+			token, err := refreshTokenIfNeeded(ctx, cfg, creds.Token, creds.SpaceID)
 			if err != nil {
 				return nil, "", ExitWithCode(ExitAuthenticationError, err)
 			}
@@ -67,7 +67,7 @@ func newAPIClient(ctx context.Context, cfg *config.Config) (api.ClientWithRespon
 
 		// Return immediately. Credentials were already verified and user was
 		// already identified for analytics during authentication.
-		return client, creds.ProjectID, nil
+		return client, creds.SpaceID, nil
 	}
 
 	// Create API client using environment variable credentials
@@ -91,7 +91,7 @@ func newAPIClient(ctx context.Context, cfg *config.Config) (api.ClientWithRespon
 	return client, authInfo.ApiKey.SpaceId, nil
 }
 
-func refreshTokenIfNeeded(ctx context.Context, cfg *config.Config, token *oauth2.Token, projectID string) (*oauth2.Token, error) {
+func refreshTokenIfNeeded(ctx context.Context, cfg *config.Config, token *oauth2.Token, spaceID string) (*oauth2.Token, error) {
 	// OAuth token auth (new login flow). Get a valid token via the
 	// token source, which will refresh automatically if expired.
 	tokenSource := newRefreshTokenSource(ctx, cfg, token)
@@ -109,8 +109,8 @@ func refreshTokenIfNeeded(ctx context.Context, cfg *config.Config, token *oauth2
 	// Persist the refreshed token so subsequent invocations can reuse it
 	if newToken.AccessToken != token.AccessToken {
 		if err := cfg.StoreCredentials(config.Credentials{
-			Token:     newToken,
-			ProjectID: projectID,
+			Token:   newToken,
+			SpaceID: spaceID,
 		}); err != nil {
 			return nil, fmt.Errorf("failed to save refreshed token: %w", err)
 		}

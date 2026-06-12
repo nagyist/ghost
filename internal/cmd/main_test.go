@@ -3,10 +3,12 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -34,9 +36,10 @@ func TestMain(m *testing.M) {
 }
 
 type cmdResult struct {
-	stdout string
-	stderr string
-	err    error
+	stdout    string
+	stderr    string
+	err       error
+	configDir string
 }
 
 type runOption func(*runConfig)
@@ -49,6 +52,7 @@ type runConfig struct {
 	clientErr      error                                                                  // if set, the client factory returns this error (nil client)
 	openBrowser    func(string) error                                                     // if set, overrides common.OpenBrowser for this test
 	newGhostClient func(string, api.AuthMethod) (api.ClientWithResponsesInterface, error) // if set, overrides api.NewGhostClient
+	credentials    *config.Credentials                                                    // if set, seeded into the credentials file in the temp config dir
 }
 
 func withStdin(input string) runOption {
@@ -78,6 +82,18 @@ func withIsTerminal(isTerminal bool) runOption {
 func withEnv(key, value string) runOption {
 	return func(rc *runConfig) {
 		rc.envVars[key] = value
+	}
+}
+
+// withStoredCredentials seeds the temp config dir's credentials file before
+// the command runs, for commands that read or rewrite stored credentials
+// (e.g. `ghost space use`). It also disables the keyring so that credential
+// reads and writes go to the file in the temp config dir instead of the
+// process-global mock keyring, keeping tests isolated from each other.
+func withStoredCredentials(creds config.Credentials) runOption {
+	return func(rc *runConfig) {
+		rc.credentials = &creds
+		rc.envVars["GHOST_KEYRING"] = "false"
 	}
 }
 
@@ -145,6 +161,15 @@ func runCommand(
 	}
 
 	configDir := t.TempDir()
+	if rc.credentials != nil {
+		data, err := json.Marshal(rc.credentials)
+		if err != nil {
+			t.Fatalf("failed to marshal seeded credentials: %v", err)
+		}
+		if err := os.WriteFile(filepath.Join(configDir, "credentials"), data, 0600); err != nil {
+			t.Fatalf("failed to seed credentials file: %v", err)
+		}
+	}
 	app.SetClientFactory(func(ctx context.Context, cfg *config.Config) (api.ClientWithResponsesInterface, string, error) {
 		if rc.clientErr != nil {
 			return nil, "", rc.clientErr
@@ -204,10 +229,27 @@ func runCommand(
 	execErr := cmd.ExecuteContext(rc.ctx)
 
 	return cmdResult{
-		stdout: stdout.String(),
-		stderr: stderr.String(),
-		err:    execErr,
+		stdout:    stdout.String(),
+		stderr:    stderr.String(),
+		err:       execErr,
+		configDir: configDir,
 	}
+}
+
+// readStoredCredentials reads the credentials file from the test config dir.
+// Use with withStoredCredentials to verify credential rewrites (e.g. the
+// space ID switch performed by `ghost space use`).
+func readStoredCredentials(t *testing.T, configDir string) config.Credentials {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join(configDir, "credentials"))
+	if err != nil {
+		t.Fatalf("failed to read credentials file: %v", err)
+	}
+	var creds config.Credentials
+	if err := json.Unmarshal(data, &creds); err != nil {
+		t.Fatalf("failed to parse credentials file: %v", err)
+	}
+	return creds
 }
 
 // httpResponse creates a minimal *http.Response with the given status code.
@@ -281,6 +323,7 @@ type cmdTest struct {
 	wantStdout string
 	wantStderr string
 	wantErr    string
+	check      func(t *testing.T, result cmdResult) // optional extra assertions after the standard ones
 }
 
 // runCmdTests runs a slice of table-driven command tests using the standard
@@ -312,6 +355,10 @@ func runCmdTests(t *testing.T, tests []cmdTest) {
 				wantStderr = "Error: " + tt.wantErr + "\n"
 			}
 			assertOutput(t, result.stderr, wantStderr)
+
+			if tt.check != nil {
+				tt.check(t, result)
+			}
 		})
 	}
 }

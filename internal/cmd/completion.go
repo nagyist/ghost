@@ -55,6 +55,35 @@ func databaseCompletion(app *common.App) cobra.CompletionFunc {
 	})
 }
 
+func spaceCompletion(app *common.App) cobra.CompletionFunc {
+	return withAppLoad(app, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		// Space ID is always first positional argument
+		if len(args) > 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		client, _, err := app.GetClient()
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		resp, err := client.ListSpacesWithResponse(cmd.Context())
+		if err != nil || resp.StatusCode() != http.StatusOK || resp.JSON200 == nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		// Suggest space IDs, with the space name as the description
+		spaces := *resp.JSON200
+		results := make([]string, 0, len(spaces))
+		for _, space := range spaces {
+			if strings.HasPrefix(space.Id, toComplete) {
+				results = append(results, cobra.CompletionWithDesc(space.Id, space.Name))
+			}
+		}
+		return results, cobra.ShellCompDirectiveNoFileComp
+	})
+}
+
 func listDatabases(cmd *cobra.Command, app *common.App) ([]api.DatabaseWithUsage, error) {
 	client, projectID, err := app.GetClient()
 	if err != nil {

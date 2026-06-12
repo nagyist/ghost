@@ -19,17 +19,19 @@ const (
 
 // Credentials represents the JSON structure for stored credentials.
 // Legacy logins populate APIKey; new OAuth logins populate Token.
+// The SpaceID field keeps the legacy "project_id" JSON key for backwards
+// compatibility with credentials stored by older CLI versions.
 type Credentials struct {
-	APIKey    string        `json:"api_key,omitempty"`
-	ProjectID string        `json:"project_id"`
-	Token     *oauth2.Token `json:"token,omitempty"`
+	APIKey  string        `json:"api_key,omitempty"`
+	SpaceID string        `json:"project_id"`
+	Token   *oauth2.Token `json:"token,omitempty"`
 }
 
 func (c *Config) credentialsFileName() string {
 	return fmt.Sprintf("%s/credentials", c.ConfigDir)
 }
 
-// StoreCredentials stores credentials (either an OAuth token or API key, plus project ID).
+// StoreCredentials stores credentials (either an OAuth token or API key, plus space ID).
 func (c *Config) StoreCredentials(creds Credentials) error {
 	credentialsJSON, err := json.Marshal(creds)
 	if err != nil {
@@ -77,7 +79,7 @@ func (c *Config) storeToFile(credentials string) error {
 
 var ErrNotLoggedIn = errors.New("not logged in")
 
-// GetCredentials retrieves stored credentials (OAuth token or API key + project ID).
+// GetCredentials retrieves stored credentials (OAuth token or API key + space ID).
 func (c *Config) GetCredentials() (Credentials, error) {
 	// Try keyring first, unless disabled
 	if c.Keyring {
@@ -128,8 +130,8 @@ func parseCredentials(combined string) (Credentials, error) {
 	if creds.Token == nil && creds.APIKey == "" {
 		return Credentials{}, errors.New("no valid credentials found")
 	}
-	if creds.ProjectID == "" {
-		return Credentials{}, errors.New("project ID not found in stored credentials")
+	if creds.SpaceID == "" {
+		return Credentials{}, errors.New("space ID not found in stored credentials")
 	}
 
 	return creds, nil

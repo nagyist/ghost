@@ -782,6 +782,46 @@ func (mr *MockClientInterfaceMockRecorder) RenameDatabaseWithBody(ctx, spaceId, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RenameDatabaseWithBody", reflect.TypeOf((*MockClientInterface)(nil).RenameDatabaseWithBody), varargs...)
 }
 
+// RenameSpace mocks base method.
+func (m *MockClientInterface) RenameSpace(ctx context.Context, spaceId api.SpaceId, body api.RenameSpaceJSONRequestBody, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "RenameSpace", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RenameSpace indicates an expected call of RenameSpace.
+func (mr *MockClientInterfaceMockRecorder) RenameSpace(ctx, spaceId, body any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RenameSpace", reflect.TypeOf((*MockClientInterface)(nil).RenameSpace), varargs...)
+}
+
+// RenameSpaceWithBody mocks base method.
+func (m *MockClientInterface) RenameSpaceWithBody(ctx context.Context, spaceId api.SpaceId, contentType string, body io.Reader, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId, contentType, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "RenameSpaceWithBody", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RenameSpaceWithBody indicates an expected call of RenameSpaceWithBody.
+func (mr *MockClientInterfaceMockRecorder) RenameSpaceWithBody(ctx, spaceId, contentType, body any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId, contentType, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RenameSpaceWithBody", reflect.TypeOf((*MockClientInterface)(nil).RenameSpaceWithBody), varargs...)
+}
+
 // ResumeDatabase mocks base method.
 func (m *MockClientInterface) ResumeDatabase(ctx context.Context, spaceId api.SpaceId, databaseRef api.DatabaseRef, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
 	m.ctrl.T.Helper()
@@ -1764,6 +1804,46 @@ func (mr *MockClientWithResponsesInterfaceMockRecorder) RenameDatabaseWithRespon
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, spaceId, databaseRef, body}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RenameDatabaseWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).RenameDatabaseWithResponse), varargs...)
+}
+
+// RenameSpaceWithBodyWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) RenameSpaceWithBodyWithResponse(ctx context.Context, spaceId api.SpaceId, contentType string, body io.Reader, reqEditors ...api.RequestEditorFn) (*api.RenameSpaceResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId, contentType, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "RenameSpaceWithBodyWithResponse", varargs...)
+	ret0, _ := ret[0].(*api.RenameSpaceResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RenameSpaceWithBodyWithResponse indicates an expected call of RenameSpaceWithBodyWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) RenameSpaceWithBodyWithResponse(ctx, spaceId, contentType, body any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId, contentType, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RenameSpaceWithBodyWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).RenameSpaceWithBodyWithResponse), varargs...)
+}
+
+// RenameSpaceWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) RenameSpaceWithResponse(ctx context.Context, spaceId api.SpaceId, body api.RenameSpaceJSONRequestBody, reqEditors ...api.RequestEditorFn) (*api.RenameSpaceResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "RenameSpaceWithResponse", varargs...)
+	ret0, _ := ret[0].(*api.RenameSpaceResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RenameSpaceWithResponse indicates an expected call of RenameSpaceWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) RenameSpaceWithResponse(ctx, spaceId, body any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RenameSpaceWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).RenameSpaceWithResponse), varargs...)
 }
 
 // ResumeDatabaseWithResponse mocks base method.

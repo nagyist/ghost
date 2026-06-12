@@ -127,6 +127,11 @@ monthly usage.`,
 	cmd.AddCommand(buildOveragesCmd(app))
 	cmd.AddCommand(buildServeCmd(app))
 
+	// Experimental commands, hidden until publicly released
+	if app.Experimental {
+		cmd.AddCommand(buildSpaceCmd(app))
+	}
+
 	wrapCommands(cmd, app, stdoutWriter, stderrWriter)
 
 	return cmd, app, nil
