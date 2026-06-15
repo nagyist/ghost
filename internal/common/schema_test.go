@@ -1,6 +1,8 @@
 package common
 
 import (
+	"errors"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -28,17 +30,24 @@ func TestFormatSchema(t *testing.T) {
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "name", Type: "text"},
-							{Name: "age", Type: "integer"},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "name", Type: "text"},
+									{Name: "age", Type: "integer"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   name  TEXT
@@ -50,19 +59,26 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "integer", IsSerial: true, NotNull: true},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintPrimaryKey, Name: "users_pkey", Columns: []string{"id"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "integer", IsSerial: true, NotNull: true},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintPrimaryKey, Name: "users_pkey", Columns: []string{"id"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   id  SERIAL PRIMARY KEY
@@ -73,19 +89,26 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "events",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "bigint", IsSerial: true, NotNull: true},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintPrimaryKey, Name: "events_pkey", Columns: []string{"id"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "events",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "bigint", IsSerial: true, NotNull: true},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintPrimaryKey, Name: "events_pkey", Columns: []string{"id"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: events
   id  BIGSERIAL PRIMARY KEY
@@ -96,19 +119,26 @@ TABLE: events
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "counters",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "smallint", IsSerial: true, NotNull: true},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintPrimaryKey, Name: "counters_pkey", Columns: []string{"id"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "counters",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "smallint", IsSerial: true, NotNull: true},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintPrimaryKey, Name: "counters_pkey", Columns: []string{"id"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: counters
   id  SMALLSERIAL PRIMARY KEY
@@ -119,19 +149,26 @@ TABLE: counters
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "products",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "integer", IdentityType: "a", NotNull: true},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintPrimaryKey, Name: "products_pkey", Columns: []string{"id"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "products",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "integer", IdentityType: "a", NotNull: true},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintPrimaryKey, Name: "products_pkey", Columns: []string{"id"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: products
   id  INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY
@@ -142,19 +179,26 @@ TABLE: products
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "categories",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "integer", IdentityType: "d", NotNull: true},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintPrimaryKey, Name: "categories_pkey", Columns: []string{"id"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "categories",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "integer", IdentityType: "d", NotNull: true},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintPrimaryKey, Name: "categories_pkey", Columns: []string{"id"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: categories
   id  INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY
@@ -165,16 +209,23 @@ TABLE: categories
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "email", Type: "text", NotNull: true},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "email", Type: "text", NotNull: true},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   email  TEXT NOT NULL
@@ -185,19 +236,26 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "integer", NotNull: true},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintPrimaryKey, Name: "users_pkey", Columns: []string{"id"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "integer", NotNull: true},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintPrimaryKey, Name: "users_pkey", Columns: []string{"id"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   id  INTEGER PRIMARY KEY
@@ -208,16 +266,23 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "integer", IsSerial: true, NotNull: true},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "integer", IsSerial: true, NotNull: true},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   id  SERIAL
@@ -228,16 +293,23 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "integer", IdentityType: "a", NotNull: true},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "integer", IdentityType: "a", NotNull: true},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   id  INTEGER GENERATED ALWAYS AS IDENTITY
@@ -248,16 +320,23 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "status", Type: "text", Default: "'active'"},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "status", Type: "text", Default: "'active'"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   status  TEXT DEFAULT 'active'
@@ -268,16 +347,23 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "integer", IsSerial: true, Default: "nextval('users_id_seq')"},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "integer", IsSerial: true, Default: "nextval('users_id_seq')"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   id  SERIAL
@@ -288,16 +374,23 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "integer", IdentityType: "a", Default: "nextval('users_id_seq')"},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "integer", IdentityType: "a", Default: "nextval('users_id_seq')"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   id  INTEGER GENERATED ALWAYS AS IDENTITY
@@ -308,16 +401,23 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "data", Type: "character varying(255)"},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "data", Type: "character varying(255)"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   data  CHARACTER VARYING(255)
@@ -330,19 +430,26 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "integer"},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintPrimaryKey, Name: "users_pkey", Columns: []string{"id"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "integer"},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintPrimaryKey, Name: "users_pkey", Columns: []string{"id"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   id  INTEGER PRIMARY KEY
@@ -353,19 +460,26 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "email", Type: "text"},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintUnique, Name: "users_email_key", Columns: []string{"email"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "email", Type: "text"},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintUnique, Name: "users_email_key", Columns: []string{"email"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   email  TEXT UNIQUE
@@ -376,19 +490,26 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "posts",
-						Columns: []TableColumnSchema{
-							{Name: "user_id", Type: "integer"},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintForeignKey, Name: "posts_user_id_fkey", Columns: []string{"user_id"}, RefTable: "users", RefColumns: []string{"id"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "posts",
+								Columns: []TableColumnSchema{
+									{Name: "user_id", Type: "integer"},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintForeignKey, Name: "posts_user_id_fkey", Columns: []string{"user_id"}, RefTable: "users", RefColumns: []string{"id"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: posts
   user_id  INTEGER REFERENCES users(id)
@@ -399,19 +520,26 @@ TABLE: posts
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "age", Type: "integer"},
-						},
-						Checks: []CheckConstraint{
-							{Name: "users_age_check", Columns: []string{"age"}, Expression: "CHECK ((age >= 0))"},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "age", Type: "integer"},
+								},
+								Checks: []CheckConstraint{
+									{Name: "users_age_check", Columns: []string{"age"}, Expression: "CHECK ((age >= 0))"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   age  INTEGER CHECK ((age >= 0))
@@ -424,20 +552,27 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "order_items",
-						Columns: []TableColumnSchema{
-							{Name: "order_id", Type: "integer"},
-							{Name: "product_id", Type: "integer"},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintPrimaryKey, Name: "order_items_pkey", Columns: []string{"order_id", "product_id"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "order_items",
+								Columns: []TableColumnSchema{
+									{Name: "order_id", Type: "integer"},
+									{Name: "product_id", Type: "integer"},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintPrimaryKey, Name: "order_items_pkey", Columns: []string{"order_id", "product_id"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: order_items
   order_id    INTEGER
@@ -451,20 +586,27 @@ TABLE: order_items
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "posts",
-						Columns: []TableColumnSchema{
-							{Name: "user_id", Type: "integer"},
-							{Name: "slug", Type: "text"},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintUnique, Name: "posts_user_id_slug_key", Columns: []string{"user_id", "slug"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "posts",
+								Columns: []TableColumnSchema{
+									{Name: "user_id", Type: "integer"},
+									{Name: "slug", Type: "text"},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintUnique, Name: "posts_user_id_slug_key", Columns: []string{"user_id", "slug"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: posts
   user_id  INTEGER
@@ -478,20 +620,27 @@ TABLE: posts
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "notes",
-						Columns: []TableColumnSchema{
-							{Name: "order_id", Type: "integer"},
-							{Name: "product_id", Type: "integer"},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintForeignKey, Name: "notes_fkey", Columns: []string{"order_id", "product_id"}, RefTable: "order_items", RefColumns: []string{"order_id", "product_id"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "notes",
+								Columns: []TableColumnSchema{
+									{Name: "order_id", Type: "integer"},
+									{Name: "product_id", Type: "integer"},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintForeignKey, Name: "notes_fkey", Columns: []string{"order_id", "product_id"}, RefTable: "order_items", RefColumns: []string{"order_id", "product_id"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: notes
   order_id    INTEGER
@@ -505,20 +654,27 @@ TABLE: notes
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "events",
-						Columns: []TableColumnSchema{
-							{Name: "start_time", Type: "timestamp"},
-							{Name: "end_time", Type: "timestamp"},
-						},
-						Checks: []CheckConstraint{
-							{Name: "events_time_check", Columns: []string{"start_time", "end_time"}, Expression: "CHECK ((end_time > start_time))"},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "events",
+								Columns: []TableColumnSchema{
+									{Name: "start_time", Type: "timestamp"},
+									{Name: "end_time", Type: "timestamp"},
+								},
+								Checks: []CheckConstraint{
+									{Name: "events_time_check", Columns: []string{"start_time", "end_time"}, Expression: "CHECK ((end_time > start_time))"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: events
   start_time  TIMESTAMP
@@ -534,20 +690,27 @@ TABLE: events
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "audit_log",
-						Columns: []TableColumnSchema{
-							{Name: "user_id", Type: "integer"},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintForeignKey, Name: "audit_log_user_fk1", Columns: []string{"user_id"}, RefTable: "users", RefColumns: []string{"id"}},
-							{Type: ConstraintForeignKey, Name: "audit_log_user_fk2", Columns: []string{"user_id"}, RefTable: "admins", RefColumns: []string{"id"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "audit_log",
+								Columns: []TableColumnSchema{
+									{Name: "user_id", Type: "integer"},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintForeignKey, Name: "audit_log_user_fk1", Columns: []string{"user_id"}, RefTable: "users", RefColumns: []string{"id"}},
+									{Type: ConstraintForeignKey, Name: "audit_log_user_fk2", Columns: []string{"user_id"}, RefTable: "admins", RefColumns: []string{"id"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: audit_log
   user_id  INTEGER
@@ -561,20 +724,27 @@ TABLE: audit_log
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "scores",
-						Columns: []TableColumnSchema{
-							{Name: "value", Type: "integer"},
-						},
-						Checks: []CheckConstraint{
-							{Name: "positive_check", Columns: []string{"value"}, Expression: "CHECK ((value >= 0))"},
-							{Name: "max_check", Columns: []string{"value"}, Expression: "CHECK ((value <= 100))"},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "scores",
+								Columns: []TableColumnSchema{
+									{Name: "value", Type: "integer"},
+								},
+								Checks: []CheckConstraint{
+									{Name: "positive_check", Columns: []string{"value"}, Expression: "CHECK ((value >= 0))"},
+									{Name: "max_check", Columns: []string{"value"}, Expression: "CHECK ((value <= 100))"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: scores
   value  INTEGER
@@ -590,20 +760,27 @@ TABLE: scores
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "room_bookings",
-						Columns: []TableColumnSchema{
-							{Name: "room_id", Type: "integer"},
-							{Name: "during", Type: "tstzrange"},
-						},
-						Exclusions: []ExclusionConstraint{
-							{Name: "room_bookings_excl", Definition: "EXCLUDE USING gist (room_id WITH =, during WITH &&)"},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "room_bookings",
+								Columns: []TableColumnSchema{
+									{Name: "room_id", Type: "integer"},
+									{Name: "during", Type: "tstzrange"},
+								},
+								Exclusions: []ExclusionConstraint{
+									{Name: "room_bookings_excl", Definition: "EXCLUDE USING gist (room_id WITH =, during WITH &&)"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: room_bookings
   room_id  INTEGER
@@ -619,19 +796,26 @@ TABLE: room_bookings
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "status", Type: "text"},
-						},
-						Indexes: []IndexSchema{
-							{Name: "users_status_idx", Columns: "status", IsUnique: false},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "status", Type: "text"},
+								},
+								Indexes: []IndexSchema{
+									{Name: "users_status_idx", Columns: "status", IsUnique: false},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   status  TEXT
@@ -644,19 +828,26 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "email", Type: "text"},
-						},
-						Indexes: []IndexSchema{
-							{Name: "users_email_idx", Columns: "email", IsUnique: true},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "email", Type: "text"},
+								},
+								Indexes: []IndexSchema{
+									{Name: "users_email_idx", Columns: "email", IsUnique: true},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   email  TEXT
@@ -669,19 +860,26 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "events",
-						Columns: []TableColumnSchema{
-							{Name: "created_at", Type: "timestamp"},
-						},
-						Indexes: []IndexSchema{
-							{Name: "events_created_at_idx", Columns: "created_at DESC", IsUnique: false},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "events",
+								Columns: []TableColumnSchema{
+									{Name: "created_at", Type: "timestamp"},
+								},
+								Indexes: []IndexSchema{
+									{Name: "events_created_at_idx", Columns: "created_at DESC", IsUnique: false},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: events
   created_at  TIMESTAMP
@@ -694,19 +892,26 @@ TABLE: events
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "events",
-						Columns: []TableColumnSchema{
-							{Name: "created_at", Type: "timestamp"},
-						},
-						Indexes: []IndexSchema{
-							{Name: "events_created_at_idx", Columns: "created_at DESC NULLS LAST", IsUnique: false},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "events",
+								Columns: []TableColumnSchema{
+									{Name: "created_at", Type: "timestamp"},
+								},
+								Indexes: []IndexSchema{
+									{Name: "events_created_at_idx", Columns: "created_at DESC NULLS LAST", IsUnique: false},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: events
   created_at  TIMESTAMP
@@ -719,19 +924,26 @@ TABLE: events
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "events",
-						Columns: []TableColumnSchema{
-							{Name: "created_at", Type: "timestamp"},
-						},
-						Indexes: []IndexSchema{
-							{Name: "events_created_at_idx", Columns: "created_at NULLS FIRST", IsUnique: false},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "events",
+								Columns: []TableColumnSchema{
+									{Name: "created_at", Type: "timestamp"},
+								},
+								Indexes: []IndexSchema{
+									{Name: "events_created_at_idx", Columns: "created_at NULLS FIRST", IsUnique: false},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: events
   created_at  TIMESTAMP
@@ -744,20 +956,27 @@ TABLE: events
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "products",
-						Columns: []TableColumnSchema{
-							{Name: "category", Type: "text"},
-							{Name: "in_stock", Type: "boolean"},
-						},
-						Indexes: []IndexSchema{
-							{Name: "products_in_stock_idx", Columns: "category", IsUnique: false, WhereClause: "(in_stock = true)"},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "products",
+								Columns: []TableColumnSchema{
+									{Name: "category", Type: "text"},
+									{Name: "in_stock", Type: "boolean"},
+								},
+								Indexes: []IndexSchema{
+									{Name: "products_in_stock_idx", Columns: "category", IsUnique: false, WhereClause: "(in_stock = true)"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: products
   category  TEXT
@@ -771,19 +990,26 @@ TABLE: products
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "documents",
-						Columns: []TableColumnSchema{
-							{Name: "title", Type: "text"},
-						},
-						Indexes: []IndexSchema{
-							{Name: "documents_lower_title_idx", Columns: "lower((title)::text)", IsUnique: false},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "documents",
+								Columns: []TableColumnSchema{
+									{Name: "title", Type: "text"},
+								},
+								Indexes: []IndexSchema{
+									{Name: "documents_lower_title_idx", Columns: "lower((title)::text)", IsUnique: false},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: documents
   title  TEXT
@@ -796,20 +1022,27 @@ TABLE: documents
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "documents",
-						Columns: []TableColumnSchema{
-							{Name: "category", Type: "text"},
-							{Name: "created_at", Type: "timestamp"},
-						},
-						Indexes: []IndexSchema{
-							{Name: "documents_cat_created_idx", Columns: "category, created_at DESC", IsUnique: false},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "documents",
+								Columns: []TableColumnSchema{
+									{Name: "category", Type: "text"},
+									{Name: "created_at", Type: "timestamp"},
+								},
+								Indexes: []IndexSchema{
+									{Name: "documents_cat_created_idx", Columns: "category, created_at DESC", IsUnique: false},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: documents
   category    TEXT
@@ -825,17 +1058,24 @@ TABLE: documents
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Views: []ViewSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "active_users",
-						Columns: []ViewColumnSchema{
-							{Name: "id", Type: "integer"},
-							{Name: "email", Type: "text"},
+						Name: "public",
+						Views: []ViewSchema{
+							{
+								Name: "active_users",
+								Columns: []ViewColumnSchema{
+									{Name: "id", Type: "integer"},
+									{Name: "email", Type: "text"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 VIEW: active_users
   id     INTEGER
@@ -847,19 +1087,515 @@ VIEW: active_users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Views: []ViewSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "user_view",
-						Columns: []ViewColumnSchema{
-							{Name: "name", Type: "character varying(255)"},
+						Name: "public",
+						Views: []ViewSchema{
+							{
+								Name: "user_view",
+								Columns: []ViewColumnSchema{
+									{Name: "name", Type: "character varying(255)"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
 
+SCHEMA: public
+
 VIEW: user_view
   name  CHARACTER VARYING(255)
+`,
+		},
+		{
+			name: "view with definition",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Views: []ViewSchema{
+							{
+								Name: "active_users",
+								Columns: []ViewColumnSchema{
+									{Name: "id", Type: "integer"},
+								},
+								Definition: "SELECT id\n   FROM users\n  WHERE active;",
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+VIEW: active_users
+  id  INTEGER
+
+  AS
+    SELECT id
+       FROM users
+      WHERE active;
+`,
+		},
+		{
+			name: "view with instead-of trigger",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Views: []ViewSchema{
+							{
+								Name: "active_users",
+								Columns: []ViewColumnSchema{
+									{Name: "id", Type: "integer"},
+								},
+								Triggers: []TriggerSchema{
+									{Name: "active_users_insert", Timing: "INSTEAD OF", Manipulation: "INSERT", Statement: "EXECUTE FUNCTION active_users_insert_fn()"},
+								},
+								Definition: "SELECT id\n   FROM users;",
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+VIEW: active_users
+  id  INTEGER
+
+  TRIGGER active_users_insert INSTEAD OF INSERT EXECUTE FUNCTION active_users_insert_fn()
+
+  AS
+    SELECT id
+       FROM users;
+`,
+		},
+		// ==================== Partitioned Table Tests ====================
+		{
+			name: "partitioned table lists its partitions",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "events",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "bigint", NotNull: true},
+									{Name: "occurred_at", Type: "date", NotNull: true},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintPrimaryKey, Name: "events_pk", Columns: []string{"id", "occurred_at"}},
+								},
+								Partitions: []PartitionInfo{
+									{Name: "events_2024", Bound: "FOR VALUES FROM ('2024-01-01') TO ('2025-01-01')"},
+									{Name: "events_2025", Bound: "FOR VALUES FROM ('2025-01-01') TO ('2026-01-01')"},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+TABLE: events
+  id           BIGINT NOT NULL
+  occurred_at  DATE NOT NULL
+
+  PRIMARY KEY (id, occurred_at)
+  PARTITION events_2024 FOR VALUES FROM ('2024-01-01') TO ('2025-01-01')
+  PARTITION events_2025 FOR VALUES FROM ('2025-01-01') TO ('2026-01-01')
+`,
+		},
+		{
+			name: "partition without bound expression",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "events",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "bigint"},
+								},
+								Partitions: []PartitionInfo{
+									{Name: "events_default"},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+TABLE: events
+  id  BIGINT
+
+  PARTITION events_default
+`,
+		},
+		{
+			name: "partition in a different schema is schema-qualified",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "events",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "bigint"},
+								},
+								Partitions: []PartitionInfo{
+									{Name: "events_2024", Bound: "FOR VALUES FROM ('2024-01-01') TO ('2025-01-01')"},
+									{Name: "events_archive", Schema: "archive", Bound: "FOR VALUES FROM ('2023-01-01') TO ('2024-01-01')"},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+TABLE: events
+  id  BIGINT
+
+  PARTITION events_2024 FOR VALUES FROM ('2024-01-01') TO ('2025-01-01')
+  PARTITION archive.events_archive FOR VALUES FROM ('2023-01-01') TO ('2024-01-01')
+`,
+		},
+
+		// ==================== Foreign Table Tests ====================
+		{
+			name: "foreign table with server, wrapper, and options",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "remote_orders",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "bigint", NotNull: true},
+									{Name: "total", Type: "numeric(10,2)"},
+								},
+								Checks: []CheckConstraint{
+									{Name: "remote_orders_total_check", Columns: []string{"total"}, Expression: "CHECK ((total >= (0)::numeric))"},
+								},
+								Triggers: []TriggerSchema{
+									{Name: "audit_remote", Timing: "AFTER", Manipulation: "INSERT", Statement: "EXECUTE FUNCTION audit()"},
+								},
+								Foreign: &ForeignTableInfo{
+									Server:  "shard1",
+									Wrapper: "postgres_fdw",
+									Options: []string{"schema_name=public", "table_name=orders"},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+TABLE: remote_orders
+  -- FOREIGN TABLE (server=shard1, wrapper=postgres_fdw, schema_name=public, table_name=orders)
+  id     BIGINT NOT NULL
+  total  NUMERIC(10,2) CHECK ((total >= (0)::numeric))
+
+  TRIGGER audit_remote AFTER INSERT EXECUTE FUNCTION audit()
+`,
+		},
+		{
+			name: "foreign table without options",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "remote_log",
+								Columns: []TableColumnSchema{
+									{Name: "line", Type: "text"},
+								},
+								Foreign: &ForeignTableInfo{
+									Server:  "logsrv",
+									Wrapper: "file_fdw",
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+TABLE: remote_log
+  -- FOREIGN TABLE (server=logsrv, wrapper=file_fdw)
+  line  TEXT
+`,
+		},
+		{
+			name: "foreign table comment renders before FDW annotation",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name:    "remote_orders",
+								Comment: "orders mirrored from shard1",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "bigint"},
+								},
+								Foreign: &ForeignTableInfo{
+									Server:  "shard1",
+									Wrapper: "postgres_fdw",
+									Options: []string{"table_name=orders"},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+TABLE: remote_orders
+  -- orders mirrored from shard1
+  -- FOREIGN TABLE (server=shard1, wrapper=postgres_fdw, table_name=orders)
+  id  BIGINT
+`,
+		},
+		{
+			name: "materialized view with definition",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						MaterializedViews: []ViewSchema{
+							{
+								Name: "user_stats",
+								Columns: []ViewColumnSchema{
+									{Name: "n", Type: "bigint"},
+								},
+								Indexes: []IndexSchema{
+									{Name: "user_stats_n_idx", Columns: "n"},
+								},
+								Definition: "SELECT count(*) AS n\n   FROM users;",
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+MATERIALIZED VIEW: user_stats
+  n  BIGINT
+
+  INDEX user_stats_n_idx (n)
+
+  AS
+    SELECT count(*) AS n
+       FROM users;
+`,
+		},
+		{
+			name: "view without definition",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Views: []ViewSchema{
+							{
+								Name: "active_users",
+								Columns: []ViewColumnSchema{
+									{Name: "id", Type: "integer"},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+VIEW: active_users
+  id  INTEGER
+`,
+		},
+
+		// ==================== Continuous Aggregate Tests ====================
+		{
+			name: "continuous aggregate annotation on view",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Views: []ViewSchema{
+							{
+								Name: "metrics_hourly",
+								Columns: []ViewColumnSchema{
+									{Name: "bucket", Type: "timestamp with time zone"},
+									{Name: "avg_value", Type: "double precision"},
+								},
+								ContinuousAggregate: &ContinuousAggregateInfo{
+									CompressionEnabled: true,
+									MaterializedOnly:   false,
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+VIEW: metrics_hourly
+  -- CONTINUOUS AGGREGATE (materialized_only=false, compression=enabled)
+  bucket     TIMESTAMP WITH TIME ZONE
+  avg_value  DOUBLE PRECISION
+`,
+		},
+		{
+			name: "continuous aggregate with definition",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Views: []ViewSchema{
+							{
+								Name: "metrics_hourly",
+								Columns: []ViewColumnSchema{
+									{Name: "bucket", Type: "timestamp with time zone"},
+								},
+								Definition: "SELECT time_bucket('01:00:00'::interval, \"time\") AS bucket\n   FROM metrics\n  GROUP BY 1;",
+								ContinuousAggregate: &ContinuousAggregateInfo{
+									CompressionEnabled: false,
+									MaterializedOnly:   true,
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+VIEW: metrics_hourly
+  -- CONTINUOUS AGGREGATE (materialized_only=true, compression=disabled)
+  bucket  TIMESTAMP WITH TIME ZONE
+
+  AS
+    SELECT time_bucket('01:00:00'::interval, "time") AS bucket
+       FROM metrics
+      GROUP BY 1;
+`,
+		},
+
+		// ==================== Routine (Function/Procedure) Tests ====================
+		{
+			name: "function with body included",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Functions: []Routine{
+							{
+								Name:       "add",
+								Arguments:  "integer, integer",
+								Definition: "CREATE OR REPLACE FUNCTION public.add(a integer, b integer)\n RETURNS integer\nAS $function$ SELECT a + b $function$;",
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+FUNCTION: add(integer, integer)
+  CREATE OR REPLACE FUNCTION public.add(a integer, b integer)
+   RETURNS integer
+  AS $function$ SELECT a + b $function$;
+`,
+		},
+		{
+			name: "function and procedure without bodies",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Functions: []Routine{
+							{
+								Name:      "add",
+								Arguments: "integer, integer",
+							},
+						},
+						Procedures: []Routine{
+							{
+								Name:      "do_thing",
+								Arguments: "text",
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+FUNCTION: add(integer, integer)
+
+PROCEDURE: do_thing(text)
 `,
 		},
 
@@ -869,17 +1605,24 @@ VIEW: user_view
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				MaterializedViews: []ViewSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "user_stats",
-						Columns: []ViewColumnSchema{
-							{Name: "user_id", Type: "integer"},
-							{Name: "post_count", Type: "bigint"},
+						Name: "public",
+						MaterializedViews: []ViewSchema{
+							{
+								Name: "user_stats",
+								Columns: []ViewColumnSchema{
+									{Name: "user_id", Type: "integer"},
+									{Name: "post_count", Type: "bigint"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 MATERIALIZED VIEW: user_stats
   user_id     INTEGER
@@ -891,19 +1634,26 @@ MATERIALIZED VIEW: user_stats
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				MaterializedViews: []ViewSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "category_stats",
-						Columns: []ViewColumnSchema{
-							{Name: "category", Type: "text"},
-						},
-						Indexes: []IndexSchema{
-							{Name: "category_stats_idx", Columns: "category", IsUnique: false},
+						Name: "public",
+						MaterializedViews: []ViewSchema{
+							{
+								Name: "category_stats",
+								Columns: []ViewColumnSchema{
+									{Name: "category", Type: "text"},
+								},
+								Indexes: []IndexSchema{
+									{Name: "category_stats_idx", Columns: "category", IsUnique: false},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 MATERIALIZED VIEW: category_stats
   category  TEXT
@@ -916,19 +1666,26 @@ MATERIALIZED VIEW: category_stats
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				MaterializedViews: []ViewSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "user_stats",
-						Columns: []ViewColumnSchema{
-							{Name: "user_id", Type: "integer"},
-						},
-						Indexes: []IndexSchema{
-							{Name: "user_stats_user_id_idx", Columns: "user_id", IsUnique: true},
+						Name: "public",
+						MaterializedViews: []ViewSchema{
+							{
+								Name: "user_stats",
+								Columns: []ViewColumnSchema{
+									{Name: "user_id", Type: "integer"},
+								},
+								Indexes: []IndexSchema{
+									{Name: "user_stats_user_id_idx", Columns: "user_id", IsUnique: true},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 MATERIALIZED VIEW: user_stats
   user_id  INTEGER
@@ -941,16 +1698,23 @@ MATERIALIZED VIEW: user_stats
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				MaterializedViews: []ViewSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "stats",
-						Columns: []ViewColumnSchema{
-							{Name: "avg_price", Type: "numeric(10,2)"},
+						Name: "public",
+						MaterializedViews: []ViewSchema{
+							{
+								Name: "stats",
+								Columns: []ViewColumnSchema{
+									{Name: "avg_price", Type: "numeric(10,2)"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 MATERIALIZED VIEW: stats
   avg_price  NUMERIC(10,2)
@@ -963,11 +1727,18 @@ MATERIALIZED VIEW: stats
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Enums: []EnumSchema{
-					{Name: "status", Values: []string{"active"}},
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Enums: []EnumSchema{
+							{Name: "status", Values: []string{"active"}},
+						},
+					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 ENUM: status
   'active'
@@ -978,11 +1749,18 @@ ENUM: status
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Enums: []EnumSchema{
-					{Name: "status", Values: []string{"active", "inactive", "banned"}},
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Enums: []EnumSchema{
+							{Name: "status", Values: []string{"active", "inactive", "banned"}},
+						},
+					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 ENUM: status
   'active', 'inactive', 'banned'
@@ -995,20 +1773,27 @@ ENUM: status
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "integer"},
-							{Name: "name", Type: "text"},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintPrimaryKey, Name: "users_pkey", Columns: []string{"id"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "integer"},
+									{Name: "name", Type: "text"},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintPrimaryKey, Name: "users_pkey", Columns: []string{"id"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   id    INTEGER PRIMARY KEY
@@ -1020,20 +1805,27 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "items",
-						Columns: []TableColumnSchema{
-							{Name: "a", Type: "integer"},
-							{Name: "b", Type: "integer"},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintPrimaryKey, Name: "items_pkey", Columns: []string{"a", "b"}},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "items",
+								Columns: []TableColumnSchema{
+									{Name: "a", Type: "integer"},
+									{Name: "b", Type: "integer"},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintPrimaryKey, Name: "items_pkey", Columns: []string{"a", "b"}},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: items
   a  INTEGER
@@ -1047,19 +1839,26 @@ TABLE: items
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "email", Type: "text"},
-						},
-						Indexes: []IndexSchema{
-							{Name: "users_email_idx", Columns: "email", IsUnique: false},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "email", Type: "text"},
+								},
+								Indexes: []IndexSchema{
+									{Name: "users_email_idx", Columns: "email", IsUnique: false},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   email  TEXT
@@ -1072,16 +1871,23 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				MaterializedViews: []ViewSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "stats",
-						Columns: []ViewColumnSchema{
-							{Name: "count", Type: "bigint"},
+						Name: "public",
+						MaterializedViews: []ViewSchema{
+							{
+								Name: "stats",
+								Columns: []ViewColumnSchema{
+									{Name: "count", Type: "bigint"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 MATERIALIZED VIEW: stats
   count  BIGINT
@@ -1094,18 +1900,25 @@ MATERIALIZED VIEW: stats
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "integer"},
-							{Name: "longer_name", Type: "text"},
-							{Name: "x", Type: "boolean"},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "integer"},
+									{Name: "longer_name", Type: "text"},
+									{Name: "x", Type: "boolean"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   id           INTEGER
@@ -1118,17 +1931,24 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Views: []ViewSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "my_view",
-						Columns: []ViewColumnSchema{
-							{Name: "short", Type: "integer"},
-							{Name: "very_long_column_name", Type: "text"},
+						Name: "public",
+						Views: []ViewSchema{
+							{
+								Name: "my_view",
+								Columns: []ViewColumnSchema{
+									{Name: "short", Type: "integer"},
+									{Name: "very_long_column_name", Type: "text"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 VIEW: my_view
   short                  INTEGER
@@ -1142,22 +1962,29 @@ VIEW: my_view
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "email", Type: "text", NotNull: true},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintUnique, Name: "users_email_key", Columns: []string{"email"}},
-						},
-						Checks: []CheckConstraint{
-							{Name: "email_check", Columns: []string{"email"}, Expression: "CHECK ((email ~~ '%@%'))"},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "email", Type: "text", NotNull: true},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintUnique, Name: "users_email_key", Columns: []string{"email"}},
+								},
+								Checks: []CheckConstraint{
+									{Name: "email_check", Columns: []string{"email"}, Expression: "CHECK ((email ~~ '%@%'))"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: users
   email  TEXT NOT NULL UNIQUE CHECK ((email ~~ '%@%'))
@@ -1170,13 +1997,20 @@ TABLE: users
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
-					{Name: "apple", Columns: []TableColumnSchema{{Name: "id", Type: "integer"}}},
-					{Name: "mango", Columns: []TableColumnSchema{{Name: "id", Type: "integer"}}},
-					{Name: "zebra", Columns: []TableColumnSchema{{Name: "id", Type: "integer"}}},
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Tables: []TableSchema{
+							{Name: "apple", Columns: []TableColumnSchema{{Name: "id", Type: "integer"}}},
+							{Name: "mango", Columns: []TableColumnSchema{{Name: "id", Type: "integer"}}},
+							{Name: "zebra", Columns: []TableColumnSchema{{Name: "id", Type: "integer"}}},
+						},
+					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: apple
   id  INTEGER
@@ -1193,12 +2027,19 @@ TABLE: zebra
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Views: []ViewSchema{
-					{Name: "a_view", Columns: []ViewColumnSchema{{Name: "id", Type: "integer"}}},
-					{Name: "z_view", Columns: []ViewColumnSchema{{Name: "id", Type: "integer"}}},
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Views: []ViewSchema{
+							{Name: "a_view", Columns: []ViewColumnSchema{{Name: "id", Type: "integer"}}},
+							{Name: "z_view", Columns: []ViewColumnSchema{{Name: "id", Type: "integer"}}},
+						},
+					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 VIEW: a_view
   id  INTEGER
@@ -1212,12 +2053,19 @@ VIEW: z_view
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				MaterializedViews: []ViewSchema{
-					{Name: "a_stats", Columns: []ViewColumnSchema{{Name: "count", Type: "bigint"}}},
-					{Name: "z_stats", Columns: []ViewColumnSchema{{Name: "count", Type: "bigint"}}},
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						MaterializedViews: []ViewSchema{
+							{Name: "a_stats", Columns: []ViewColumnSchema{{Name: "count", Type: "bigint"}}},
+							{Name: "z_stats", Columns: []ViewColumnSchema{{Name: "count", Type: "bigint"}}},
+						},
+					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 MATERIALIZED VIEW: a_stats
   count  BIGINT
@@ -1231,12 +2079,19 @@ MATERIALIZED VIEW: z_stats
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Enums: []EnumSchema{
-					{Name: "a_type", Values: []string{"b"}},
-					{Name: "z_type", Values: []string{"a"}},
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Enums: []EnumSchema{
+							{Name: "a_type", Values: []string{"b"}},
+							{Name: "z_type", Values: []string{"a"}},
+						},
+					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 ENUM: a_type
   'b'
@@ -1250,45 +2105,52 @@ ENUM: z_type
 			schema: &DatabaseSchema{
 				ID:   "abc123",
 				Name: "myapp",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "users",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "integer", IsSerial: true, NotNull: true},
-							{Name: "email", Type: "text", NotNull: true},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "integer", IsSerial: true, NotNull: true},
+									{Name: "email", Type: "text", NotNull: true},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintPrimaryKey, Name: "users_pkey", Columns: []string{"id"}},
+									{Type: ConstraintUnique, Name: "users_email_key", Columns: []string{"email"}},
+								},
+							},
 						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintPrimaryKey, Name: "users_pkey", Columns: []string{"id"}},
-							{Type: ConstraintUnique, Name: "users_email_key", Columns: []string{"email"}},
+						Views: []ViewSchema{
+							{
+								Name: "active_users",
+								Columns: []ViewColumnSchema{
+									{Name: "id", Type: "integer"},
+									{Name: "email", Type: "text"},
+								},
+							},
+						},
+						MaterializedViews: []ViewSchema{
+							{
+								Name: "user_stats",
+								Columns: []ViewColumnSchema{
+									{Name: "user_id", Type: "integer"},
+									{Name: "count", Type: "bigint"},
+								},
+								Indexes: []IndexSchema{
+									{Name: "user_stats_user_id_idx", Columns: "user_id", IsUnique: true},
+								},
+							},
+						},
+						Enums: []EnumSchema{
+							{Name: "status", Values: []string{"active", "inactive"}},
 						},
 					},
-				},
-				Views: []ViewSchema{
-					{
-						Name: "active_users",
-						Columns: []ViewColumnSchema{
-							{Name: "id", Type: "integer"},
-							{Name: "email", Type: "text"},
-						},
-					},
-				},
-				MaterializedViews: []ViewSchema{
-					{
-						Name: "user_stats",
-						Columns: []ViewColumnSchema{
-							{Name: "user_id", Type: "integer"},
-							{Name: "count", Type: "bigint"},
-						},
-						Indexes: []IndexSchema{
-							{Name: "user_stats_user_id_idx", Columns: "user_id", IsUnique: true},
-						},
-					},
-				},
-				Enums: []EnumSchema{
-					{Name: "status", Values: []string{"active", "inactive"}},
 				},
 			},
 			expected: `DATABASE: myapp (abc123)
+
+SCHEMA: public
 
 TABLE: users
   id     SERIAL PRIMARY KEY
@@ -1313,31 +2175,38 @@ ENUM: status
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "orders",
-						Columns: []TableColumnSchema{
-							{Name: "id", Type: "integer", IsSerial: true, NotNull: true},
-							{Name: "user_id", Type: "integer", NotNull: true},
-							{Name: "status", Type: "text", NotNull: true, Default: "'pending'"},
-							{Name: "total", Type: "numeric(10,2)"},
-							{Name: "created_at", Type: "timestamp", Default: "now()"},
-						},
-						Constraints: []TableConstraint{
-							{Type: ConstraintPrimaryKey, Name: "orders_pkey", Columns: []string{"id"}},
-							{Type: ConstraintForeignKey, Name: "orders_user_fkey", Columns: []string{"user_id"}, RefTable: "users", RefColumns: []string{"id"}},
-						},
-						Checks: []CheckConstraint{
-							{Name: "orders_total_check", Columns: []string{"total"}, Expression: "CHECK ((total >= 0))"},
-						},
-						Indexes: []IndexSchema{
-							{Name: "orders_user_id_idx", Columns: "user_id", IsUnique: false},
-							{Name: "orders_created_at_idx", Columns: "created_at DESC", IsUnique: false},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "orders",
+								Columns: []TableColumnSchema{
+									{Name: "id", Type: "integer", IsSerial: true, NotNull: true},
+									{Name: "user_id", Type: "integer", NotNull: true},
+									{Name: "status", Type: "text", NotNull: true, Default: "'pending'"},
+									{Name: "total", Type: "numeric(10,2)"},
+									{Name: "created_at", Type: "timestamp", Default: "now()"},
+								},
+								Constraints: []TableConstraint{
+									{Type: ConstraintPrimaryKey, Name: "orders_pkey", Columns: []string{"id"}},
+									{Type: ConstraintForeignKey, Name: "orders_user_fkey", Columns: []string{"user_id"}, RefTable: "users", RefColumns: []string{"id"}},
+								},
+								Checks: []CheckConstraint{
+									{Name: "orders_total_check", Columns: []string{"total"}, Expression: "CHECK ((total >= 0))"},
+								},
+								Indexes: []IndexSchema{
+									{Name: "orders_user_id_idx", Columns: "user_id", IsUnique: false},
+									{Name: "orders_created_at_idx", Columns: "created_at DESC", IsUnique: false},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: orders
   id          SERIAL PRIMARY KEY
@@ -1365,11 +2234,18 @@ TABLE: orders
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
-					{Name: "empty_table", Columns: []TableColumnSchema{}},
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Tables: []TableSchema{
+							{Name: "empty_table", Columns: []TableColumnSchema{}},
+						},
+					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
 
 TABLE: empty_table
 `,
@@ -1379,24 +2255,149 @@ TABLE: empty_table
 			schema: &DatabaseSchema{
 				ID:   "test123",
 				Name: "testdb",
-				Tables: []TableSchema{
+				Schemas: []NamespacedSchema{
 					{
-						Name: "config",
-						Columns: []TableColumnSchema{
-							{Name: "value", Type: "integer"},
-						},
-						Checks: []CheckConstraint{
-							{Name: "config_check", Columns: []string{}, Expression: "CHECK (true)"},
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "config",
+								Columns: []TableColumnSchema{
+									{Name: "value", Type: "integer"},
+								},
+								Checks: []CheckConstraint{
+									{Name: "config_check", Columns: []string{}, Expression: "CHECK (true)"},
+								},
+							},
 						},
 					},
 				},
 			},
 			expected: `DATABASE: testdb (test123)
 
+SCHEMA: public
+
 TABLE: config
   value  INTEGER
 
   CHECK (true)
+`,
+		},
+
+		// ==================== Comment Tests ====================
+		{
+			name: "comments render under headers and inline on columns",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name:    "public",
+						Comment: "app schema",
+						Tables: []TableSchema{
+							{
+								Name:    "users",
+								Comment: "registered users",
+								Columns: []TableColumnSchema{
+									{Name: "name", Type: "text", Comment: "display name"},
+									{Name: "age", Type: "integer"},
+								},
+							},
+						},
+						Views: []ViewSchema{
+							{
+								Name:    "active_users",
+								Comment: "users active in the last 30 days",
+								Columns: []ViewColumnSchema{
+									{Name: "name", Type: "text", Comment: "display name"},
+								},
+							},
+						},
+						Enums: []EnumSchema{
+							{Name: "mood", Comment: "user mood", Values: []string{"happy", "sad"}},
+						},
+						Functions: []Routine{
+							{Name: "add", Arguments: "integer, integer", Type: RoutineFunction, Comment: "adds two numbers"},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+  -- app schema
+
+TABLE: users
+  -- registered users
+  name  TEXT  -- display name
+  age   INTEGER
+
+VIEW: active_users
+  -- users active in the last 30 days
+  name  TEXT  -- display name
+
+ENUM: mood
+  -- user mood
+  'happy', 'sad'
+
+FUNCTION: add(integer, integer)
+  -- adds two numbers
+`,
+		},
+		{
+			name: "multi-line object comments get a prefix per line",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name:    "users",
+								Comment: "line one\nline two",
+								Columns: []TableColumnSchema{
+									{Name: "name", Type: "text", Comment: "inline one\ninline two"},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+TABLE: users
+  -- line one
+  -- line two
+  name  TEXT  -- inline one inline two
+`,
+		},
+		{
+			name: "schema without comments",
+			schema: &DatabaseSchema{
+				ID:   "test123",
+				Name: "testdb",
+				Schemas: []NamespacedSchema{
+					{
+						Name: "public",
+						Tables: []TableSchema{
+							{
+								Name: "users",
+								Columns: []TableColumnSchema{
+									{Name: "name", Type: "text"},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: `DATABASE: testdb (test123)
+
+SCHEMA: public
+
+TABLE: users
+  name  TEXT
 `,
 		},
 	}
@@ -1409,4 +2410,201 @@ TABLE: config
 			}
 		})
 	}
+}
+
+func TestSchemaNotFoundError(t *testing.T) {
+	tests := []struct {
+		name     string
+		err      *SchemaNotFoundError
+		expected string
+	}{
+		{
+			name:     "with available schemas",
+			err:      &SchemaNotFoundError{Schema: "typo", Available: []string{"public", "sales"}},
+			expected: `schema "typo" not found; available schemas: public, sales`,
+		},
+		{
+			name:     "no available schemas",
+			err:      &SchemaNotFoundError{Schema: "typo"},
+			expected: `schema "typo" not found`,
+		},
+		{
+			name:     "listing failed",
+			err:      &SchemaNotFoundError{Schema: "typo", ListErr: errors.New("boom")},
+			expected: `schema "typo" not found (failed to list available schemas: boom)`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if diff := cmp.Diff(tt.expected, tt.err.Error()); diff != "" {
+				t.Errorf("Error() mismatch (-expected +got):\n%s", diff)
+			}
+			// ListErr should be unwrappable for errors.Is/As chains.
+			if tt.err.ListErr != nil && !errors.Is(tt.err, tt.err.ListErr) {
+				t.Errorf("errors.Is did not match wrapped ListErr")
+			}
+		})
+	}
+}
+
+// TestLeafPartitionExclusion verifies the leaf-partition suppression clause
+// only hides a leaf when its immediate parent would itself pass the relations
+// query's filters (i.e. land in tableIndex to carry the child). This guards
+// the orphaning regression: a leaf whose parent is filtered out — because the
+// parent lives in an out-of-scope schema (explicit --schema or default-browse
+// name exclusions), or is extension-owned / inaccessible / superuser-owned —
+// must remain visible (shown standalone) rather than vanishing entirely.
+func TestLeafPartitionExclusion(t *testing.T) {
+	t.Run("every form gates suppression on the parent being visible", func(t *testing.T) {
+		for _, f := range []schemaFilter{
+			{},
+			{includeInternal: true},
+			{schema: "archive"},
+			{schema: "archive", includeInternal: true},
+		} {
+			clause := f.leafPartitionExclusion("c")
+			for _, want := range []string{
+				"c.relispartition AND c.relkind <> 'p'",
+				"pg_catalog.pg_inherits",
+				"inh.inhrelid = c.oid",
+			} {
+				if !strings.Contains(clause, want) {
+					t.Errorf("clause for %+v missing %q:\n%s", f, want, clause)
+				}
+			}
+		}
+	})
+
+	t.Run("alias parameter is threaded through the predicate", func(t *testing.T) {
+		// The indexes query aliases pg_class as "t", so the clause must
+		// reference t.* rather than the relations query's "c".
+		clause := schemaFilter{schema: "archive"}.leafPartitionExclusion("t")
+		for _, want := range []string{
+			"t.relispartition AND t.relkind <> 'p'",
+			"inh.inhrelid = t.oid",
+		} {
+			if !strings.Contains(clause, want) {
+				t.Errorf("aliased clause missing %q:\n%s", want, clause)
+			}
+		}
+		if strings.Contains(clause, "c.relispartition") || strings.Contains(clause, "= c.oid") {
+			t.Errorf("aliased clause leaked the default \"c\" alias:\n%s", clause)
+		}
+	})
+
+	t.Run("default browse gates the parent on the name exclusions", func(t *testing.T) {
+		// A leaf whose parent lives in an excluded schema (pg_*, timescaledb
+		// internals, etc.) must stay visible: the parent fails the EXISTS, so
+		// the leaf is not suppressed. The clause therefore applies onSchema's
+		// name exclusions to the parent's namespace.
+		clause := schemaFilter{}.leafPartitionExclusion("c")
+		for _, want := range []string{
+			"pn.nspname !~ '^pg_'",
+			"pn.nspname <> 'information_schema'",
+			"pn.nspname !~ '^_?timescaledb_'",
+		} {
+			if !strings.Contains(clause, want) {
+				t.Errorf("default-browse clause missing parent name exclusion %q:\n%s", want, clause)
+			}
+		}
+		if strings.Contains(clause, "$1") {
+			t.Errorf("default-browse clause unexpectedly references $1:\n%s", clause)
+		}
+	})
+
+	t.Run("default browse gates the parent on owner/extension/accessibility", func(t *testing.T) {
+		// A leaf whose parent is extension-owned, inaccessible, or
+		// superuser-owned must stay visible, so those filters are applied to
+		// the parent inside the EXISTS.
+		clause := schemaFilter{}.leafPartitionExclusion("c")
+		for _, want := range []string{
+			"dep.objid = parent.oid",
+			"pg_catalog.has_schema_privilege(current_user, pn.oid, 'USAGE')",
+			"pg_catalog.has_table_privilege(current_user, parent.oid",
+			"r.oid = parent.relowner",
+		} {
+			if !strings.Contains(clause, want) {
+				t.Errorf("default-browse clause missing parent filter %q:\n%s", want, clause)
+			}
+		}
+	})
+
+	t.Run("includeInternal drops the parent filters", func(t *testing.T) {
+		// With --internal there are no exclusions, so the EXISTS reduces to
+		// "the leaf has a parent partitioned table" and every leaf is hidden.
+		clause := schemaFilter{includeInternal: true}.leafPartitionExclusion("c")
+		for _, unwanted := range []string{"$1", "pn.nspname", "has_schema_privilege", "has_table_privilege", "rolsuper"} {
+			if strings.Contains(clause, unwanted) {
+				t.Errorf("includeInternal clause should not reference %q:\n%s", unwanted, clause)
+			}
+		}
+	})
+
+	t.Run("schema-scoped gates the parent on the requested schema", func(t *testing.T) {
+		clause := schemaFilter{schema: "archive"}.leafPartitionExclusion("c")
+		if !strings.Contains(clause, "pn.nspname = $1") {
+			t.Errorf("schema-scoped clause should bind the parent schema to $1:\n%s", clause)
+		}
+		// Unlike onUserOwned, the schema-USAGE check still applies to an
+		// explicit --schema request, matching checkSchemaExists.
+		if !strings.Contains(clause, "pg_catalog.has_schema_privilege(current_user, pn.oid, 'USAGE')") {
+			t.Errorf("schema-scoped clause should gate the parent on schema USAGE:\n%s", clause)
+		}
+		// onUserOwned is dropped for an explicit --schema, like onSchema's
+		// name exclusions, so a leaf in a superuser-owned namespace stays
+		// reachable.
+		if strings.Contains(clause, "rolsuper") {
+			t.Errorf("schema-scoped clause should not apply onUserOwned to the parent:\n%s", clause)
+		}
+	})
+
+	t.Run("clause is spliced into the relations query", func(t *testing.T) {
+		for _, f := range []schemaFilter{{}, {schema: "archive"}} {
+			q := buildRelationsAndColumnsQuery(f)
+			if !strings.Contains(q, "pg_catalog.pg_inherits") {
+				t.Errorf("relations query for %+v missing leaf EXISTS:\n%s", f, q)
+			}
+			if strings.Contains(q, "%!") {
+				t.Errorf("relations query for %+v has a format error:\n%s", f, q)
+			}
+		}
+	})
+
+	t.Run("foreign tables query uses the same leaf exclusion", func(t *testing.T) {
+		// A foreign leaf partition whose parent is in scope is hidden by the
+		// relations query, so its FDW metadata row would be discarded anyway;
+		// the same predicate keeps a cross-schema standalone leaf's metadata.
+		for _, f := range []schemaFilter{{}, {schema: "archive"}} {
+			q := buildForeignTablesQuery(f)
+			if !strings.Contains(q, "pg_catalog.pg_inherits") {
+				t.Errorf("foreign tables query for %+v missing leaf EXISTS:\n%s", f, q)
+			}
+			if !strings.Contains(q, "inh.inhrelid = c.oid") {
+				t.Errorf("foreign tables query for %+v should match on the c alias:\n%s", f, q)
+			}
+			if strings.Contains(q, "%!") {
+				t.Errorf("foreign tables query for %+v has a format error:\n%s", f, q)
+			}
+		}
+	})
+
+	t.Run("indexes query uses the same leaf exclusion", func(t *testing.T) {
+		// Regression: a leaf partition surfaced as a standalone table must
+		// also have its indexes listed. The indexes query aliases pg_class as
+		// "t", so it must exclude leaves via the same predicate, referencing
+		// t.* rather than c.*.
+		for _, f := range []schemaFilter{{}, {schema: "archive"}} {
+			q := buildIndexesQuery(f)
+			if !strings.Contains(q, "pg_catalog.pg_inherits") {
+				t.Errorf("indexes query for %+v missing leaf EXISTS:\n%s", f, q)
+			}
+			if !strings.Contains(q, "inh.inhrelid = t.oid") {
+				t.Errorf("indexes query for %+v should match on the t alias:\n%s", f, q)
+			}
+			if strings.Contains(q, "%!") {
+				t.Errorf("indexes query for %+v has a format error:\n%s", f, q)
+			}
+		}
+	})
 }
