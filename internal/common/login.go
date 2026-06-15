@@ -317,7 +317,12 @@ func (l *oauthLogin) getTokenViaDeviceFlow(ctx context.Context) (*oauth2.Token, 
 	return token, nil
 }
 
-// findOrCreateSpace finds an existing Ghost space or creates a new one.
+// findOrCreateSpace selects the Ghost space to use after login. Every Ghost
+// user should own a personal space, so if the user doesn't own one yet (e.g. a
+// new user whose account was created by accepting an invitation to someone
+// else's space), one is created for them. The login defaults to the owned
+// space; any additional spaces the user has only joined are listed with a hint
+// for switching to them.
 func (l *oauthLogin) findOrCreateSpace(ctx context.Context, client api.ClientWithResponsesInterface) (string, error) {
 	// First, list the user's existing spaces
 	listResp, err := client.ListSpacesWithResponse(ctx)
@@ -334,30 +339,51 @@ func (l *oauthLogin) findOrCreateSpace(ctx context.Context, client api.ClientWit
 		return "", errors.New("failed to list spaces: empty response from API")
 	}
 
-	// Look for an existing Ghost space
-	if spaces := *listResp.JSON200; len(spaces) > 0 {
-		fmt.Fprintf(l.out, "Found space: %s\n", spaces[0].Id)
-		return spaces[0].Id, nil
-	}
-
-	// No Ghost space found - create one. The name is omitted so the API
-	// applies the owner-derived default name (e.g. "Jane Doe's space").
-	createResp, err := client.CreateSpaceWithResponse(ctx, api.CreateSpaceJSONRequestBody{})
-	if err != nil {
-		return "", fmt.Errorf("failed to create space: %w", err)
-	}
-	if createResp.StatusCode() != 201 {
-		if createResp.JSONDefault != nil {
-			return "", fmt.Errorf("failed to create space: %w", createResp.JSONDefault)
+	// Partition into the space the user owns and the ones they've only joined
+	// (e.g. via invitation). Ownership is the API "owner" role.
+	var ownedSpace *api.Space
+	var joined []api.Space
+	for _, space := range *listResp.JSON200 {
+		if space.Role != nil && *space.Role == api.MemberRoleOwner {
+			ownedSpace = &space
+		} else {
+			joined = append(joined, space)
 		}
-		return "", fmt.Errorf("failed to create space: unexpected status %d", createResp.StatusCode())
-	}
-	if createResp.JSON201 == nil {
-		return "", errors.New("failed to create space: empty response from API")
 	}
 
-	fmt.Fprintf(l.out, "Created space: %s\n", createResp.JSON201.Id)
-	return createResp.JSON201.Id, nil
+	// If the user doesn't own a space yet, create one. The name is omitted so
+	// the API applies the owner-derived default name (e.g. "Jane Doe's space").
+	if ownedSpace == nil {
+		createResp, err := client.CreateSpaceWithResponse(ctx, api.CreateSpaceJSONRequestBody{})
+		if err != nil {
+			return "", fmt.Errorf("failed to create space: %w", err)
+		}
+		if createResp.StatusCode() != 201 {
+			if createResp.JSONDefault != nil {
+				return "", fmt.Errorf("failed to create space: %w", createResp.JSONDefault)
+			}
+			return "", fmt.Errorf("failed to create space: unexpected status %d", createResp.StatusCode())
+		}
+		if createResp.JSON201 == nil {
+			return "", errors.New("failed to create space: empty response from API")
+		}
+		fmt.Fprintf(l.out, "Created space: %s\n", createResp.JSON201.Id)
+		ownedSpace = createResp.JSON201
+	} else {
+		fmt.Fprintf(l.out, "Found space: %s\n", ownedSpace.Id)
+	}
+
+	// Default to the owned space. If the user also belongs to other spaces,
+	// point them at `ghost space use` for switching.
+	if len(joined) > 0 {
+		fmt.Fprintln(l.out, "\nYou also belong to:")
+		for _, space := range joined {
+			fmt.Fprintf(l.out, "  %s (%s)\n", space.Name, space.Id)
+		}
+		fmt.Fprintln(l.out, "Run 'ghost space use <id>' to switch the current space.")
+	}
+
+	return ownedSpace.Id, nil
 }
 
 // identifyWithUserToken calls the /auth/info endpoint to validate a user token
