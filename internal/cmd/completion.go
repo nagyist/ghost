@@ -84,6 +84,50 @@ func spaceCompletion(app *common.App) cobra.CompletionFunc {
 	})
 }
 
+// memberEmailCompletion completes the email of a space member as the first
+// positional argument.
+func memberEmailCompletion(app *common.App) cobra.CompletionFunc {
+	return withAppLoad(app, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) > 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		client, spaceID, err := app.GetClient()
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		resp, err := client.ListMembersWithResponse(cmd.Context(), api.SpaceId(spaceID))
+		if err != nil || resp.StatusCode() != http.StatusOK || resp.JSON200 == nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		// Suggest member emails, with the member name as the description
+		members := *resp.JSON200
+		results := make([]string, 0, len(members))
+		for _, member := range members {
+			if strings.HasPrefix(member.Email, toComplete) {
+				results = append(results, cobra.CompletionWithDesc(member.Email, member.Name))
+			}
+		}
+		return results, cobra.ShellCompDirectiveNoFileComp
+	})
+}
+
+// memberEmailRoleCompletion completes the email of a space member as the first
+// positional argument (via memberEmailCompletion), then the grantable role
+// vocabulary as the second (for 'ghost member role'). The role branch is a
+// static list and needs no app load; the email branch loads the app via
+// memberEmailCompletion's own withAppLoad wrapper.
+func memberEmailRoleCompletion(app *common.App) cobra.CompletionFunc {
+	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 1 {
+			return filterCompletionsByPrefix([]string{"admin", "developer", "viewer"}, toComplete), cobra.ShellCompDirectiveNoFileComp
+		}
+		return memberEmailCompletion(app)(cmd, args, toComplete)
+	}
+}
+
 func listDatabases(cmd *cobra.Command, app *common.App) ([]api.DatabaseWithUsage, error) {
 	client, projectID, err := app.GetClient()
 	if err != nil {

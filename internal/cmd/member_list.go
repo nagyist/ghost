@@ -8,32 +8,33 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/timescale/ghost/internal/api"
 	"github.com/timescale/ghost/internal/common"
 	"github.com/timescale/ghost/internal/util"
 )
 
-// Space represents a space in CLI output.
-type Space struct {
-	ID      string `json:"id"`
-	Name    string `json:"name"`
-	Role    string `json:"role,omitempty"`
-	Current bool   `json:"current"`
+// Member represents a space member in CLI output.
+type Member struct {
+	UserID int64          `json:"user_id"`
+	Name   string         `json:"name"`
+	Email  string         `json:"email"`
+	Role   api.MemberRole `json:"role"`
 }
 
-func buildSpaceListCmd(app *common.App) *cobra.Command {
+func buildMemberListCmd(app *common.App) *cobra.Command {
 	var jsonOutput bool
 	var yamlOutput bool
 
 	cmd := &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"ls"},
-		Short:   "List spaces",
-		Long:    `List your Ghost spaces. The current space is marked with an asterisk.`,
-		Example: `  # List your spaces
-  ghost space list
+		Short:   "List space members",
+		Long:    `List the members of the current space.`,
+		Example: `  # List the members of the current space
+  ghost member list
 
   # Output as JSON
-  ghost space list --json`,
+  ghost member list --json`,
 		Args:              cobra.NoArgs,
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
@@ -43,9 +44,9 @@ func buildSpaceListCmd(app *common.App) *cobra.Command {
 				return err
 			}
 
-			resp, err := client.ListSpacesWithResponse(cmd.Context())
+			resp, err := client.ListMembersWithResponse(cmd.Context(), api.SpaceId(spaceID))
 			if err != nil {
-				return fmt.Errorf("failed to list spaces: %w", err)
+				return fmt.Errorf("failed to list members: %w", err)
 			}
 			if resp.StatusCode() != http.StatusOK {
 				return common.ExitWithErrorFromStatusCode(resp.StatusCode(), resp.JSONDefault)
@@ -54,14 +55,14 @@ func buildSpaceListCmd(app *common.App) *cobra.Command {
 				return errors.New("empty response from API")
 			}
 
-			spaces := *resp.JSON200
-			output := make([]Space, len(spaces))
-			for i, s := range spaces {
-				output[i] = Space{
-					ID:      s.Id,
-					Name:    s.Name,
-					Role:    util.DerefStr(s.Role),
-					Current: s.Id == spaceID,
+			members := *resp.JSON200
+			output := make([]Member, len(members))
+			for i, m := range members {
+				output[i] = Member{
+					UserID: m.UserId,
+					Name:   m.Name,
+					Email:  m.Email,
+					Role:   m.Role,
 				}
 			}
 
@@ -71,7 +72,7 @@ func buildSpaceListCmd(app *common.App) *cobra.Command {
 			case yamlOutput:
 				return util.SerializeToYAML(cmd.OutOrStdout(), output)
 			default:
-				return outputSpaces(cmd.OutOrStdout(), output)
+				return outputMembers(cmd.OutOrStdout(), output)
 			}
 		},
 	}
@@ -83,16 +84,12 @@ func buildSpaceListCmd(app *common.App) *cobra.Command {
 	return cmd
 }
 
-func outputSpaces(w io.Writer, spaces []Space) error {
+func outputMembers(w io.Writer, members []Member) error {
 	table := common.NewTable(w)
 
-	table.Header("ID", "NAME", "ROLE")
-	for _, s := range spaces {
-		name := s.Name
-		if s.Current {
-			name += " *"
-		}
-		table.Append(s.ID, name, s.Role)
+	table.Header("NAME", "EMAIL", "ROLE")
+	for _, m := range members {
+		table.Append(m.Name, m.Email, m.Role)
 	}
 	return table.Render()
 }

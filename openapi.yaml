@@ -187,6 +187,78 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
+  # --- Members ---
+
+  /spaces/{space_id}/members:
+    get:
+      operationId: listMembers
+      summary: List space members
+      description: |
+        Lists the members of a space.
+        Requires user authentication (JWT). API keys cannot manage members.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: List of space members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Member"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/members/{user_id}:
+    delete:
+      operationId: removeMember
+      summary: Remove a member
+      description: |
+        Removes a member from a space. The space owner cannot be removed,
+        and callers cannot remove themselves.
+        Requires user authentication (JWT). API keys cannot manage members.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/MemberUserId"
+      responses:
+        "200":
+          description: Member removed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/members/{user_id}/role:
+    put:
+      operationId: updateMemberRole
+      summary: Update a member's role
+      description: |
+        Changes a member's role within a space. The `owner` role cannot be
+        granted, the owner's role cannot be changed, and callers cannot
+        change their own role.
+        Requires user authentication (JWT). API keys cannot manage members.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/MemberUserId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMemberRoleRequest"
+      responses:
+        "200":
+          description: Member role updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        default:
+          $ref: "#/components/responses/Error"
+
   # --- API Keys ---
 
   /spaces/{space_id}/api_keys:
@@ -801,6 +873,14 @@ components:
       description: Ghost space ID.
       schema:
         type: string
+    MemberUserId:
+      name: user_id
+      in: path
+      required: true
+      description: User ID of the space member.
+      schema:
+        type: integer
+        format: int64
     DatabaseRef:
       name: database_ref
       in: path
@@ -1069,6 +1149,8 @@ components:
         name:
           type: string
           description: Space name.
+        role:
+          $ref: "#/components/schemas/MemberRole"
 
     CreateSpaceRequest:
       type: object
@@ -1160,6 +1242,53 @@ components:
           type: string
           format: date-time
           description: End of the current billing cycle.
+
+    # --- Members ---
+
+    Member:
+      type: object
+      description: A member of a Ghost space.
+      required:
+        - user_id
+        - name
+        - email
+        - role
+      properties:
+        user_id:
+          type: integer
+          format: int64
+          description: User ID of the member.
+        name:
+          type: string
+          description: Display name of the member.
+        email:
+          type: string
+          description: Email address of the member.
+        role:
+          $ref: "#/components/schemas/MemberRole"
+
+    MemberRole:
+      type: string
+      description: |
+        A member's role within a space. The `owner` role belongs to the user
+        who created the space; every space has exactly one owner, so `owner`
+        is never accepted as an input when granting a role. On the `Space`
+        schema, this is the caller's own role in the space, omitted for
+        API-key authentication (API keys are space-scoped and carry no
+        member identity).
+      enum:
+        - owner
+        - admin
+        - developer
+        - viewer
+
+    UpdateMemberRoleRequest:
+      type: object
+      required:
+        - role
+      properties:
+        role:
+          $ref: "#/components/schemas/MemberRole"
 
     # --- API Keys ---
 

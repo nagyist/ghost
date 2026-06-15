@@ -53,6 +53,14 @@ const (
 	InvoiceStatusPaid       InvoiceStatus = "paid"
 )
 
+// Defines values for MemberRole.
+const (
+	MemberRoleAdmin     MemberRole = "admin"
+	MemberRoleDeveloper MemberRole = "developer"
+	MemberRoleOwner     MemberRole = "owner"
+	MemberRoleViewer    MemberRole = "viewer"
+)
+
 // ApiKey An API key in a space.
 type ApiKey struct {
 	// CreatedAt Time the API key was created.
@@ -407,6 +415,34 @@ type LogsResponse struct {
 	LastCursor *string `json:"last_cursor,omitempty"`
 }
 
+// Member A member of a Ghost space.
+type Member struct {
+	// Email Email address of the member.
+	Email string `json:"email"`
+
+	// Name Display name of the member.
+	Name string `json:"name"`
+
+	// Role A member's role within a space. The `owner` role belongs to the user
+	// who created the space; every space has exactly one owner, so `owner`
+	// is never accepted as an input when granting a role. On the `Space`
+	// schema, this is the caller's own role in the space, omitted for
+	// API-key authentication (API keys are space-scoped and carry no
+	// member identity).
+	Role MemberRole `json:"role"`
+
+	// UserId User ID of the member.
+	UserId int64 `json:"user_id"`
+}
+
+// MemberRole A member's role within a space. The `owner` role belongs to the user
+// who created the space; every space has exactly one owner, so `owner`
+// is never accepted as an input when granting a role. On the `Space`
+// schema, this is the caller's own role in the space, omitted for
+// API-key authentication (API keys are space-scoped and carry no
+// member identity).
+type MemberRole string
+
 // PaymentMethod A payment method on file for a space.
 type PaymentMethod struct {
 	// Brand Card brand (e.g. `visa`, `mastercard`).
@@ -493,6 +529,14 @@ type Space struct {
 
 	// Name Space name.
 	Name string `json:"name"`
+
+	// Role A member's role within a space. The `owner` role belongs to the user
+	// who created the space; every space has exactly one owner, so `owner`
+	// is never accepted as an input when granting a role. On the `Space`
+	// schema, this is the caller's own role in the space, omitted for
+	// API-key authentication (API keys are space-scoped and carry no
+	// member identity).
+	Role *MemberRole `json:"role,omitempty"`
 }
 
 // SpaceUsage Space-level usage and cost for the current billing cycle.
@@ -581,6 +625,17 @@ type TrackRequest struct {
 	Properties *map[string]interface{} `json:"properties,omitempty"`
 }
 
+// UpdateMemberRoleRequest defines model for UpdateMemberRoleRequest.
+type UpdateMemberRoleRequest struct {
+	// Role A member's role within a space. The `owner` role belongs to the user
+	// who created the space; every space has exactly one owner, so `owner`
+	// is never accepted as an input when granting a role. On the `Space`
+	// schema, this is the caller's own role in the space, omitted for
+	// API-key authentication (API keys are space-scoped and carry no
+	// member identity).
+	Role MemberRole `json:"role"`
+}
+
 // UpdateOverageSettingsRequest Request body for updating compute overage settings on a space.
 type UpdateOverageSettingsRequest struct {
 	// ComputeLimitMinutes Optional when `enabled` is true: the monthly compute-minute limit
@@ -618,6 +673,9 @@ type ApiKeyPrefix = string
 
 // DatabaseRef defines model for DatabaseRef.
 type DatabaseRef = string
+
+// MemberUserId defines model for MemberUserId.
+type MemberUserId = int64
 
 // PaymentId defines model for PaymentId.
 type PaymentId = string
@@ -681,6 +739,9 @@ type RenameDatabaseJSONRequestBody = RenameDatabaseRequest
 
 // ShareDatabaseJSONRequestBody defines body for ShareDatabase for application/json ContentType.
 type ShareDatabaseJSONRequestBody = ShareDatabaseRequest
+
+// UpdateMemberRoleJSONRequestBody defines body for UpdateMemberRole for application/json ContentType.
+type UpdateMemberRoleJSONRequestBody = UpdateMemberRoleRequest
 
 // UpdateOveragesJSONRequestBody defines body for UpdateOverages for application/json ContentType.
 type UpdateOveragesJSONRequestBody = UpdateOverageSettingsRequest

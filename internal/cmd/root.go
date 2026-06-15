@@ -130,6 +130,7 @@ monthly usage.`,
 	// Experimental commands, hidden until publicly released
 	if app.Experimental {
 		cmd.AddCommand(buildSpaceCmd(app))
+		cmd.AddCommand(buildMemberCmd(app))
 	}
 
 	wrapCommands(cmd, app, stdoutWriter, stderrWriter)

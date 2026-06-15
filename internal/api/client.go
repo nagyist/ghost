@@ -186,6 +186,17 @@ type ClientInterface interface {
 	// GetInvoice request
 	GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListMembers request
+	ListMembers(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RemoveMember request
+	RemoveMember(ctx context.Context, spaceId SpaceId, userId MemberUserId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateMemberRoleWithBody request with any body
+	UpdateMemberRoleWithBody(ctx context.Context, spaceId SpaceId, userId MemberUserId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateMemberRole(ctx context.Context, spaceId SpaceId, userId MemberUserId, body UpdateMemberRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// UpdateOveragesWithBody request with any body
 	UpdateOveragesWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -649,6 +660,54 @@ func (c *Client) ListInvoices(ctx context.Context, spaceId SpaceId, reqEditors .
 
 func (c *Client) GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetInvoiceRequest(c.Server, spaceId, invoiceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListMembers(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListMembersRequest(c.Server, spaceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemoveMember(ctx context.Context, spaceId SpaceId, userId MemberUserId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveMemberRequest(c.Server, spaceId, userId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateMemberRoleWithBody(ctx context.Context, spaceId SpaceId, userId MemberUserId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateMemberRoleRequestWithBody(c.Server, spaceId, userId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateMemberRole(ctx context.Context, spaceId SpaceId, userId MemberUserId, body UpdateMemberRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateMemberRoleRequest(c.Server, spaceId, userId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1920,6 +1979,135 @@ func NewGetInvoiceRequest(server string, spaceId SpaceId, invoiceId string) (*ht
 	return req, nil
 }
 
+// NewListMembersRequest generates requests for ListMembers
+func NewListMembersRequest(server string, spaceId SpaceId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s/members", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRemoveMemberRequest generates requests for RemoveMember
+func NewRemoveMemberRequest(server string, spaceId SpaceId, userId MemberUserId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "user_id", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s/members/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateMemberRoleRequest calls the generic UpdateMemberRole builder with application/json body
+func NewUpdateMemberRoleRequest(server string, spaceId SpaceId, userId MemberUserId, body UpdateMemberRoleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateMemberRoleRequestWithBody(server, spaceId, userId, "application/json", bodyReader)
+}
+
+// NewUpdateMemberRoleRequestWithBody generates requests for UpdateMemberRole with any type of body
+func NewUpdateMemberRoleRequestWithBody(server string, spaceId SpaceId, userId MemberUserId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "user_id", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s/members/%s/role", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewUpdateOveragesRequest calls the generic UpdateOverages builder with application/json body
 func NewUpdateOveragesRequest(server string, spaceId SpaceId, body UpdateOveragesJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -2528,6 +2716,17 @@ type ClientWithResponsesInterface interface {
 
 	// GetInvoiceWithResponse request
 	GetInvoiceWithResponse(ctx context.Context, spaceId SpaceId, invoiceId string, reqEditors ...RequestEditorFn) (*GetInvoiceResponse, error)
+
+	// ListMembersWithResponse request
+	ListMembersWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListMembersResponse, error)
+
+	// RemoveMemberWithResponse request
+	RemoveMemberWithResponse(ctx context.Context, spaceId SpaceId, userId MemberUserId, reqEditors ...RequestEditorFn) (*RemoveMemberResponse, error)
+
+	// UpdateMemberRoleWithBodyWithResponse request with any body
+	UpdateMemberRoleWithBodyWithResponse(ctx context.Context, spaceId SpaceId, userId MemberUserId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateMemberRoleResponse, error)
+
+	UpdateMemberRoleWithResponse(ctx context.Context, spaceId SpaceId, userId MemberUserId, body UpdateMemberRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateMemberRoleResponse, error)
 
 	// UpdateOveragesWithBodyWithResponse request with any body
 	UpdateOveragesWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOveragesResponse, error)
@@ -3139,6 +3338,75 @@ func (r GetInvoiceResponse) StatusCode() int {
 	return 0
 }
 
+type ListMembersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Member
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ListMembersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListMembersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RemoveMemberResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Member
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r RemoveMemberResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemoveMemberResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateMemberRoleResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Member
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateMemberRoleResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateMemberRoleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type UpdateOveragesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -3722,6 +3990,41 @@ func (c *ClientWithResponses) GetInvoiceWithResponse(ctx context.Context, spaceI
 		return nil, err
 	}
 	return ParseGetInvoiceResponse(rsp)
+}
+
+// ListMembersWithResponse request returning *ListMembersResponse
+func (c *ClientWithResponses) ListMembersWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListMembersResponse, error) {
+	rsp, err := c.ListMembers(ctx, spaceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListMembersResponse(rsp)
+}
+
+// RemoveMemberWithResponse request returning *RemoveMemberResponse
+func (c *ClientWithResponses) RemoveMemberWithResponse(ctx context.Context, spaceId SpaceId, userId MemberUserId, reqEditors ...RequestEditorFn) (*RemoveMemberResponse, error) {
+	rsp, err := c.RemoveMember(ctx, spaceId, userId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoveMemberResponse(rsp)
+}
+
+// UpdateMemberRoleWithBodyWithResponse request with arbitrary body returning *UpdateMemberRoleResponse
+func (c *ClientWithResponses) UpdateMemberRoleWithBodyWithResponse(ctx context.Context, spaceId SpaceId, userId MemberUserId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateMemberRoleResponse, error) {
+	rsp, err := c.UpdateMemberRoleWithBody(ctx, spaceId, userId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateMemberRoleResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateMemberRoleWithResponse(ctx context.Context, spaceId SpaceId, userId MemberUserId, body UpdateMemberRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateMemberRoleResponse, error) {
+	rsp, err := c.UpdateMemberRole(ctx, spaceId, userId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateMemberRoleResponse(rsp)
 }
 
 // UpdateOveragesWithBodyWithResponse request with arbitrary body returning *UpdateOveragesResponse
@@ -4611,6 +4914,105 @@ func ParseGetInvoiceResponse(rsp *http.Response) (*GetInvoiceResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest InvoiceDetail
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListMembersResponse parses an HTTP response from a ListMembersWithResponse call
+func ParseListMembersResponse(rsp *http.Response) (*ListMembersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListMembersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Member
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRemoveMemberResponse parses an HTTP response from a RemoveMemberWithResponse call
+func ParseRemoveMemberResponse(rsp *http.Response) (*RemoveMemberResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemoveMemberResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Member
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateMemberRoleResponse parses an HTTP response from a UpdateMemberRoleWithResponse call
+func ParseUpdateMemberRoleResponse(rsp *http.Response) (*UpdateMemberRoleResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateMemberRoleResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Member
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
