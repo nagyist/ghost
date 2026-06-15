@@ -1,15 +1,19 @@
 package serve
 
 import (
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-// TestSchemaHandler_ParamValidation covers the query-param validation that
-// runs before any client/database access. The auth path and the
-// FetchDatabaseSchema error mapping require a live database connection and
-// are exercised by integration testing, not here.
+// TestSchemaHandler_ParamValidation covers the query-param validation that the
+// requiredQueryParam and boolQueryParam middleware perform before the schema
+// handler runs (and before any client/database access). It drives the request
+// through the full router so the middleware chain registered for /api/schema
+// is exercised. The auth path and the FetchDatabaseSchema error mapping
+// require a live database connection and are exercised by integration testing,
+// not here.
 func TestSchemaHandler_ParamValidation(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -50,11 +54,12 @@ func TestSchemaHandler_ParamValidation(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			h := &Handler{}
+			h := &Handler{logger: slog.Default()}
+			handler := h.Handler()
 			req := httptest.NewRequest(http.MethodGet, "/api/schema?"+tc.query, nil)
 			rr := httptest.NewRecorder()
 
-			h.schemaHandler(rr, req)
+			handler.ServeHTTP(rr, req)
 
 			if rr.Code != tc.wantStatus {
 				t.Fatalf("status = %d, want %d\nbody: %s", rr.Code, tc.wantStatus, rr.Body.String())

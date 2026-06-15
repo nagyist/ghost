@@ -59,6 +59,27 @@ func (e *RequiredFieldError) Error() string {
 	return fmt.Sprintf("missing required field: '%s'", e.Field)
 }
 
+// RequiredQueryParamError is returned when a required query param is missing or
+// empty.
+type RequiredQueryParamError struct {
+	ParamName string
+}
+
+func (e *RequiredQueryParamError) Error() string {
+	return fmt.Sprintf("missing required query parameter: '%s'", e.ParamName)
+}
+
+// InvalidBoolQueryParamError is returned when a query param expected to be a
+// boolean cannot be parsed as one.
+type InvalidBoolQueryParamError struct {
+	ParamName string
+	Value     string
+}
+
+func (e *InvalidBoolQueryParamError) Error() string {
+	return fmt.Sprintf("query parameter '%s' must be a boolean: %s", e.ParamName, e.Value)
+}
+
 type InvalidContentTypeError struct {
 	Required string
 }

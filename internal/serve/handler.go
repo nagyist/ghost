@@ -55,6 +55,10 @@ func (h *Handler) Handler() http.Handler {
 	)
 	router.GET("/api/schema",
 		h.schemaHandler,
+		requiredQueryParam("databaseId"),
+		boolQueryParam("internal", false),
+		boolQueryParam("definitions", false),
+		boolQueryParam("comments", false),
 	)
 	router.GET("/api/state",
 		h.loadStateHandler,
@@ -209,6 +213,55 @@ func (h *Handler) databasesHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Cache-Control", "no-store")
 	writeJSON(w, http.StatusOK, DatabasesResponse{Databases: databases}, logger)
+}
+
+// schemaHandler serves GET /api/schema?databaseId=…&schema=…&internal=true&definitions=true&comments=true.
+// Returns the database schema as JSON. Opens a short-lived pgx connection
+// per request via common.FetchDatabaseSchema — same path used by the CLI's
+// `ghost schema` command, so the two stay in sync automatically. The
+// databaseId and boolean query params are validated by the requiredQueryParam
+// and boolQueryParam middleware before this handler runs.
+func (h *Handler) schemaHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	logger := log.FromContext(ctx)
+
+	databaseRef := queryParamFromContext(ctx, "databaseId")
+	schemaName := queryParamFromContext(ctx, "schema")
+	includeInternal := boolQueryParamFromContext(ctx, "internal")
+	includeDefinitions := boolQueryParamFromContext(ctx, "definitions")
+	includeComments := boolQueryParamFromContext(ctx, "comments")
+
+	client, projectID, err := h.loadClient(ctx)
+	if err != nil {
+		logger.Warn("Error loading client", slog.Any("error", err))
+		writeError(w, http.StatusUnauthorized, err, logger)
+		return
+	}
+
+	schema, err := common.FetchDatabaseSchema(ctx, common.FetchDatabaseSchemaArgs{
+		Client:             client,
+		ProjectID:          projectID,
+		DatabaseRef:        databaseRef,
+		Schema:             schemaName,
+		IncludeInternal:    includeInternal,
+		IncludeDefinitions: includeDefinitions,
+		IncludeComments:    includeComments,
+	})
+	if err != nil {
+		status := httpStatusForFetchError(err)
+		// Client errors (4xx) — e.g. a mistyped ?schema= — are expected and
+		// shouldn't be logged as server-side errors.
+		if status >= http.StatusInternalServerError {
+			logger.Error("Error fetching database schema", slog.Any("error", err))
+		} else {
+			logger.Warn("Could not fetch database schema", slog.Any("error", err))
+		}
+		writeError(w, status, err, logger)
+		return
+	}
+
+	w.Header().Set("Cache-Control", "no-store")
+	writeJSON(w, http.StatusOK, schema, logger)
 }
 
 // State is the persisted UI state for `ghost serve`, shared by the GET and PUT
