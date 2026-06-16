@@ -81,16 +81,16 @@ func TestMemberListCmd(t *testing.T) {
 			setup: successSetup,
 			wantStdout: `[
   {
-    "user_id": 101,
-    "name": "Alice Smith",
     "email": "alice@example.com",
-    "role": "owner"
+    "name": "Alice Smith",
+    "role": "owner",
+    "user_id": 101
   },
   {
-    "user_id": 102,
-    "name": "Bob Jones",
     "email": "bob@example.com",
-    "role": "developer"
+    "name": "Bob Jones",
+    "role": "developer",
+    "user_id": 102
   }
 ]
 `,

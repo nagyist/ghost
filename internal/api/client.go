@@ -115,6 +115,15 @@ type ClientInterface interface {
 	// Health request
 	Health(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListReceivedInvites request
+	ListReceivedInvites(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AcceptInvite request
+	AcceptInvite(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeclineInvite request
+	DeclineInvite(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetPricing request
 	GetPricing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -179,6 +188,17 @@ type ClientInterface interface {
 	ShareDatabaseWithBody(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	ShareDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListInvites request
+	ListInvites(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateInviteWithBody request with any body
+	CreateInviteWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateInvite(ctx context.Context, spaceId SpaceId, body CreateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CancelInvite request
+	CancelInvite(ctx context.Context, spaceId SpaceId, email InviteEmail, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListInvoices request
 	ListInvoices(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -348,6 +368,42 @@ func (c *Client) SubmitFeedback(ctx context.Context, body SubmitFeedbackJSONRequ
 
 func (c *Client) Health(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewHealthRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListReceivedInvites(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListReceivedInvitesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AcceptInvite(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAcceptInviteRequest(c.Server, spaceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeclineInvite(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeclineInviteRequest(c.Server, spaceId)
 	if err != nil {
 		return nil, err
 	}
@@ -636,6 +692,54 @@ func (c *Client) ShareDatabaseWithBody(ctx context.Context, spaceId SpaceId, dat
 
 func (c *Client) ShareDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewShareDatabaseRequest(c.Server, spaceId, databaseRef, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListInvites(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListInvitesRequest(c.Server, spaceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateInviteWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateInviteRequestWithBody(c.Server, spaceId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateInvite(ctx context.Context, spaceId SpaceId, body CreateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateInviteRequest(c.Server, spaceId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CancelInvite(ctx context.Context, spaceId SpaceId, email InviteEmail, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCancelInviteRequest(c.Server, spaceId, email)
 	if err != nil {
 		return nil, err
 	}
@@ -1093,6 +1197,101 @@ func NewHealthRequest(server string) (*http.Request, error) {
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListReceivedInvitesRequest generates requests for ListReceivedInvites
+func NewListReceivedInvitesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/invites")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewAcceptInviteRequest generates requests for AcceptInvite
+func NewAcceptInviteRequest(server string, spaceId SpaceId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/invites/%s/accept", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeclineInviteRequest generates requests for DeclineInvite
+func NewDeclineInviteRequest(server string, spaceId SpaceId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/invites/%s/decline", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -1904,6 +2103,128 @@ func NewShareDatabaseRequestWithBody(server string, spaceId SpaceId, databaseRef
 	return req, nil
 }
 
+// NewListInvitesRequest generates requests for ListInvites
+func NewListInvitesRequest(server string, spaceId SpaceId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s/invites", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateInviteRequest calls the generic CreateInvite builder with application/json body
+func NewCreateInviteRequest(server string, spaceId SpaceId, body CreateInviteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateInviteRequestWithBody(server, spaceId, "application/json", bodyReader)
+}
+
+// NewCreateInviteRequestWithBody generates requests for CreateInvite with any type of body
+func NewCreateInviteRequestWithBody(server string, spaceId SpaceId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s/invites", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCancelInviteRequest generates requests for CancelInvite
+func NewCancelInviteRequest(server string, spaceId SpaceId, email InviteEmail) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "email", runtime.ParamLocationPath, email)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s/invites/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListInvoicesRequest generates requests for ListInvoices
 func NewListInvoicesRequest(server string, spaceId SpaceId) (*http.Request, error) {
 	var err error
@@ -2646,6 +2967,15 @@ type ClientWithResponsesInterface interface {
 	// HealthWithResponse request
 	HealthWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*HealthResponse, error)
 
+	// ListReceivedInvitesWithResponse request
+	ListReceivedInvitesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListReceivedInvitesResponse, error)
+
+	// AcceptInviteWithResponse request
+	AcceptInviteWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*AcceptInviteResponse, error)
+
+	// DeclineInviteWithResponse request
+	DeclineInviteWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*DeclineInviteResponse, error)
+
 	// GetPricingWithResponse request
 	GetPricingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPricingResponse, error)
 
@@ -2710,6 +3040,17 @@ type ClientWithResponsesInterface interface {
 	ShareDatabaseWithBodyWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ShareDatabaseResponse, error)
 
 	ShareDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ShareDatabaseResponse, error)
+
+	// ListInvitesWithResponse request
+	ListInvitesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListInvitesResponse, error)
+
+	// CreateInviteWithBodyWithResponse request with any body
+	CreateInviteWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateInviteResponse, error)
+
+	CreateInviteWithResponse(ctx context.Context, spaceId SpaceId, body CreateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateInviteResponse, error)
+
+	// CancelInviteWithResponse request
+	CancelInviteWithResponse(ctx context.Context, spaceId SpaceId, email InviteEmail, reqEditors ...RequestEditorFn) (*CancelInviteResponse, error)
 
 	// ListInvoicesWithResponse request
 	ListInvoicesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListInvoicesResponse, error)
@@ -2898,6 +3239,75 @@ func (r HealthResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r HealthResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListReceivedInvitesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]ReceivedInvite
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ListReceivedInvitesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListReceivedInvitesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type AcceptInviteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *InviteActionResult
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r AcceptInviteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AcceptInviteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeclineInviteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *InviteActionResult
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r DeclineInviteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeclineInviteResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -3286,6 +3696,75 @@ func (r ShareDatabaseResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ShareDatabaseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListInvitesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Invite
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ListInvitesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListInvitesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateInviteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *Invite
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateInviteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateInviteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CancelInviteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Invite
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r CancelInviteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CancelInviteResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -3765,6 +4244,33 @@ func (c *ClientWithResponses) HealthWithResponse(ctx context.Context, reqEditors
 	return ParseHealthResponse(rsp)
 }
 
+// ListReceivedInvitesWithResponse request returning *ListReceivedInvitesResponse
+func (c *ClientWithResponses) ListReceivedInvitesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListReceivedInvitesResponse, error) {
+	rsp, err := c.ListReceivedInvites(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListReceivedInvitesResponse(rsp)
+}
+
+// AcceptInviteWithResponse request returning *AcceptInviteResponse
+func (c *ClientWithResponses) AcceptInviteWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*AcceptInviteResponse, error) {
+	rsp, err := c.AcceptInvite(ctx, spaceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAcceptInviteResponse(rsp)
+}
+
+// DeclineInviteWithResponse request returning *DeclineInviteResponse
+func (c *ClientWithResponses) DeclineInviteWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*DeclineInviteResponse, error) {
+	rsp, err := c.DeclineInvite(ctx, spaceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeclineInviteResponse(rsp)
+}
+
 // GetPricingWithResponse request returning *GetPricingResponse
 func (c *ClientWithResponses) GetPricingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPricingResponse, error) {
 	rsp, err := c.GetPricing(ctx, reqEditors...)
@@ -3972,6 +4478,41 @@ func (c *ClientWithResponses) ShareDatabaseWithResponse(ctx context.Context, spa
 		return nil, err
 	}
 	return ParseShareDatabaseResponse(rsp)
+}
+
+// ListInvitesWithResponse request returning *ListInvitesResponse
+func (c *ClientWithResponses) ListInvitesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListInvitesResponse, error) {
+	rsp, err := c.ListInvites(ctx, spaceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListInvitesResponse(rsp)
+}
+
+// CreateInviteWithBodyWithResponse request with arbitrary body returning *CreateInviteResponse
+func (c *ClientWithResponses) CreateInviteWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateInviteResponse, error) {
+	rsp, err := c.CreateInviteWithBody(ctx, spaceId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateInviteResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateInviteWithResponse(ctx context.Context, spaceId SpaceId, body CreateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateInviteResponse, error) {
+	rsp, err := c.CreateInvite(ctx, spaceId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateInviteResponse(rsp)
+}
+
+// CancelInviteWithResponse request returning *CancelInviteResponse
+func (c *ClientWithResponses) CancelInviteWithResponse(ctx context.Context, spaceId SpaceId, email InviteEmail, reqEditors ...RequestEditorFn) (*CancelInviteResponse, error) {
+	rsp, err := c.CancelInvite(ctx, spaceId, email, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCancelInviteResponse(rsp)
 }
 
 // ListInvoicesWithResponse request returning *ListInvoicesResponse
@@ -4320,6 +4861,105 @@ func ParseHealthResponse(rsp *http.Response) (*HealthResponse, error) {
 	response := &HealthResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseListReceivedInvitesResponse parses an HTTP response from a ListReceivedInvitesWithResponse call
+func ParseListReceivedInvitesResponse(rsp *http.Response) (*ListReceivedInvitesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListReceivedInvitesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []ReceivedInvite
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAcceptInviteResponse parses an HTTP response from a AcceptInviteWithResponse call
+func ParseAcceptInviteResponse(rsp *http.Response) (*AcceptInviteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AcceptInviteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest InviteActionResult
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeclineInviteResponse parses an HTTP response from a DeclineInviteWithResponse call
+func ParseDeclineInviteResponse(rsp *http.Response) (*DeclineInviteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeclineInviteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest InviteActionResult
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
 	}
 
 	return response, nil
@@ -4852,6 +5492,105 @@ func ParseShareDatabaseResponse(rsp *http.Response) (*ShareDatabaseResponse, err
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListInvitesResponse parses an HTTP response from a ListInvitesWithResponse call
+func ParseListInvitesResponse(rsp *http.Response) (*ListInvitesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListInvitesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Invite
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateInviteResponse parses an HTTP response from a CreateInviteWithResponse call
+func ParseCreateInviteResponse(rsp *http.Response) (*CreateInviteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateInviteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest Invite
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCancelInviteResponse parses an HTTP response from a CancelInviteWithResponse call
+func ParseCancelInviteResponse(rsp *http.Response) (*CancelInviteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CancelInviteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Invite
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error

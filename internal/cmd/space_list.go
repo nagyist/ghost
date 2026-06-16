@@ -8,16 +8,17 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/timescale/ghost/internal/api"
 	"github.com/timescale/ghost/internal/common"
 	"github.com/timescale/ghost/internal/util"
 )
 
 // Space represents a space in CLI output.
 type Space struct {
-	ID      string `json:"id"`
-	Name    string `json:"name"`
-	Role    string `json:"role,omitempty"`
-	Current bool   `json:"current"`
+	ID      string         `json:"id"`
+	Name    string         `json:"name"`
+	Role    api.MemberRole `json:"role,omitempty"`
+	Current bool           `json:"current"`
 }
 
 func buildSpaceListCmd(app *common.App) *cobra.Command {
@@ -60,7 +61,7 @@ func buildSpaceListCmd(app *common.App) *cobra.Command {
 				output[i] = Space{
 					ID:      s.Id,
 					Name:    s.Name,
-					Role:    util.DerefStr(s.Role),
+					Role:    util.Deref(s.Role),
 					Current: s.Id == spaceID,
 				}
 			}

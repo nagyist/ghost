@@ -46,6 +46,12 @@ const (
 	DatabaseTypeStandard  DatabaseType = "standard"
 )
 
+// Defines values for InviteStatus.
+const (
+	InviteStatusDeclined InviteStatus = "declined"
+	InviteStatusPending  InviteStatus = "pending"
+)
+
 // Defines values for InvoiceStatus.
 const (
 	InvoiceStatusDelinquent InvoiceStatus = "delinquent"
@@ -168,6 +174,20 @@ type CreateDatabaseRequest struct {
 	// - `standard` — shared-resource databases subject to the space's compute and storage limits.
 	// - `dedicated` — per-instance paid databases with guaranteed resources, exempt from space-level auto-pause.
 	Type *DatabaseType `json:"type,omitempty"`
+}
+
+// CreateInviteRequest Request to invite a user to a space.
+type CreateInviteRequest struct {
+	// Email Email address to invite.
+	Email string `json:"email"`
+
+	// Role A member's role within a space. The `owner` role belongs to the user
+	// who created the space; every space has exactly one owner, so `owner`
+	// is never accepted as an input when granting a role. On the `Space`
+	// schema, this is the caller's own role in the space, omitted for
+	// API-key authentication (API keys are space-scoped and carry no
+	// member identity).
+	Role *MemberRole `json:"role,omitempty"`
 }
 
 // CreateSpaceRequest defines model for CreateSpaceRequest.
@@ -324,6 +344,46 @@ type IdentifyRequest struct {
 	// Properties Free-form user properties.
 	Properties map[string]interface{} `json:"properties"`
 }
+
+// Invite An invite sent for a space.
+type Invite struct {
+	// CreatedAt When the invite was created.
+	CreatedAt time.Time `json:"created_at"`
+
+	// Email Email address the invite was sent to.
+	Email string `json:"email"`
+
+	// Role A member's role within a space. The `owner` role belongs to the user
+	// who created the space; every space has exactly one owner, so `owner`
+	// is never accepted as an input when granting a role. On the `Space`
+	// schema, this is the caller's own role in the space, omitted for
+	// API-key authentication (API keys are space-scoped and carry no
+	// member identity).
+	Role MemberRole `json:"role"`
+
+	// Status Status of a sent invite. `pending` means it's still awaiting a
+	// response; `declined` means the invitee declined it. A declined invite
+	// still occupies the email's slot for the space (one pending-or-declined
+	// invite per email), so it must be cancelled before that email can be
+	// re-invited.
+	Status InviteStatus `json:"status"`
+}
+
+// InviteActionResult Result of accepting or declining a received invite.
+type InviteActionResult struct {
+	// SpaceId ID of the space the invite was for.
+	SpaceId string `json:"space_id"`
+
+	// SpaceName Name of the space the invite was for.
+	SpaceName string `json:"space_name"`
+}
+
+// InviteStatus Status of a sent invite. `pending` means it's still awaiting a
+// response; `declined` means the invitee declined it. A declined invite
+// still occupies the email's slot for the space (one pending-or-declined
+// invite per email), so it must be cancelled before that email can be
+// re-invited.
+type InviteStatus string
 
 // Invoice Invoice summary.
 type Invoice struct {
@@ -490,6 +550,32 @@ type Pricing struct {
 	// Standard Pricing for standard (non-dedicated) databases, which share a
 	// space-wide compute allowance.
 	Standard StandardPricing `json:"standard"`
+}
+
+// ReceivedInvite A pending invite the authenticated user has received.
+type ReceivedInvite struct {
+	// CreatedAt When the invite was created.
+	CreatedAt time.Time `json:"created_at"`
+
+	// InviterEmail Email address of the user who sent the invite.
+	InviterEmail string `json:"inviter_email"`
+
+	// InviterName Display name of the user who sent the invite.
+	InviterName string `json:"inviter_name"`
+
+	// Role A member's role within a space. The `owner` role belongs to the user
+	// who created the space; every space has exactly one owner, so `owner`
+	// is never accepted as an input when granting a role. On the `Space`
+	// schema, this is the caller's own role in the space, omitted for
+	// API-key authentication (API keys are space-scoped and carry no
+	// member identity).
+	Role MemberRole `json:"role"`
+
+	// SpaceId ID of the space the user is invited to.
+	SpaceId string `json:"space_id"`
+
+	// SpaceName Name of the space the user is invited to.
+	SpaceName string `json:"space_name"`
 }
 
 // RenameDatabaseRequest defines model for RenameDatabaseRequest.
@@ -674,6 +760,9 @@ type ApiKeyPrefix = string
 // DatabaseRef defines model for DatabaseRef.
 type DatabaseRef = string
 
+// InviteEmail defines model for InviteEmail.
+type InviteEmail = string
+
 // MemberUserId defines model for MemberUserId.
 type MemberUserId = int64
 
@@ -739,6 +828,9 @@ type RenameDatabaseJSONRequestBody = RenameDatabaseRequest
 
 // ShareDatabaseJSONRequestBody defines body for ShareDatabase for application/json ContentType.
 type ShareDatabaseJSONRequestBody = ShareDatabaseRequest
+
+// CreateInviteJSONRequestBody defines body for CreateInvite for application/json ContentType.
+type CreateInviteJSONRequestBody = CreateInviteRequest
 
 // UpdateMemberRoleJSONRequestBody defines body for UpdateMemberRole for application/json ContentType.
 type UpdateMemberRoleJSONRequestBody = UpdateMemberRoleRequest

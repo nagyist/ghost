@@ -37,9 +37,9 @@ the owner's role cannot be changed.`,
 			email := args[0]
 			role := strings.ToLower(args[1])
 
-			switch role {
-			case "admin", "developer", "viewer":
-			case "owner":
+			switch api.MemberRole(role) {
+			case api.MemberRoleAdmin, api.MemberRoleDeveloper, api.MemberRoleViewer:
+			case api.MemberRoleOwner:
 				return errors.New("the owner role cannot be granted; every space has exactly one owner")
 			default:
 				return fmt.Errorf("invalid role '%s'; must be one of admin, developer, or viewer", role)

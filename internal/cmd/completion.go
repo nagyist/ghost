@@ -102,16 +102,26 @@ func memberEmailCompletion(app *common.App) cobra.CompletionFunc {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
 
-		// Suggest member emails, with the member name as the description
+		// Suggest member emails, with the member name as the description.
+		// Emails are stored lowercase, so match the typed prefix
+		// case-insensitively.
 		members := *resp.JSON200
 		results := make([]string, 0, len(members))
 		for _, member := range members {
-			if strings.HasPrefix(member.Email, toComplete) {
+			if strings.HasPrefix(member.Email, strings.ToLower(toComplete)) {
 				results = append(results, cobra.CompletionWithDesc(member.Email, member.Name))
 			}
 		}
 		return results, cobra.ShellCompDirectiveNoFileComp
 	})
+}
+
+// grantableRoles are the roles that can be granted via invite or member-role
+// changes, in privilege order. Owner is never grantable, so it's excluded.
+var grantableRoles = []string{
+	string(api.MemberRoleAdmin),
+	string(api.MemberRoleDeveloper),
+	string(api.MemberRoleViewer),
 }
 
 // memberEmailRoleCompletion completes the email of a space member as the first
@@ -122,10 +132,71 @@ func memberEmailCompletion(app *common.App) cobra.CompletionFunc {
 func memberEmailRoleCompletion(app *common.App) cobra.CompletionFunc {
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 1 {
-			return filterCompletionsByPrefix([]string{"admin", "developer", "viewer"}, toComplete), cobra.ShellCompDirectiveNoFileComp
+			return filterCompletionsByPrefix(grantableRoles, toComplete), cobra.ShellCompDirectiveNoFileComp
 		}
 		return memberEmailCompletion(app)(cmd, args, toComplete)
 	}
+}
+
+// inviteSentCompletion completes a sent invite, suggesting the invitee email
+// (with the granted role as the description) as the first positional argument.
+func inviteSentCompletion(app *common.App) cobra.CompletionFunc {
+	return withAppLoad(app, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) > 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		client, spaceID, err := app.GetClient()
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		resp, err := client.ListInvitesWithResponse(cmd.Context(), api.SpaceId(spaceID))
+		if err != nil || resp.StatusCode() != http.StatusOK || resp.JSON200 == nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		// Emails are stored lowercase, so match the typed prefix
+		// case-insensitively.
+		invites := *resp.JSON200
+		results := make([]string, 0, len(invites))
+		for _, invite := range invites {
+			if strings.HasPrefix(invite.Email, strings.ToLower(toComplete)) {
+				results = append(results, cobra.CompletionWithDesc(invite.Email, string(invite.Role)))
+			}
+		}
+		return results, cobra.ShellCompDirectiveNoFileComp
+	})
+}
+
+// inviteReceivedCompletion completes a received invitation, suggesting the
+// space ID (with the space name as the description) as the first positional
+// argument.
+func inviteReceivedCompletion(app *common.App) cobra.CompletionFunc {
+	return withAppLoad(app, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) > 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		client, _, err := app.GetClient()
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		resp, err := client.ListReceivedInvitesWithResponse(cmd.Context())
+		if err != nil || resp.StatusCode() != http.StatusOK || resp.JSON200 == nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		invitations := *resp.JSON200
+		results := make([]string, 0, len(invitations))
+		for _, invitation := range invitations {
+			if strings.HasPrefix(invitation.SpaceId, toComplete) {
+				results = append(results, cobra.CompletionWithDesc(invitation.SpaceId, invitation.SpaceName))
+			}
+		}
+		return results, cobra.ShellCompDirectiveNoFileComp
+	})
 }
 
 func listDatabases(cmd *cobra.Command, app *common.App) ([]api.DatabaseWithUsage, error) {

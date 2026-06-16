@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -13,20 +14,19 @@ import (
 	"github.com/timescale/ghost/internal/util"
 )
 
-func buildMemberListCmd(app *common.App) *cobra.Command {
+func buildInviteSentCmd(app *common.App) *cobra.Command {
 	var jsonOutput bool
 	var yamlOutput bool
 
 	cmd := &cobra.Command{
-		Use:     "list",
-		Aliases: []string{"ls"},
-		Short:   "List space members",
-		Long:    `List the members of the current space.`,
-		Example: `  # List the members of the current space
-  ghost member list
+		Use:   "sent",
+		Short: "List invites you've sent",
+		Long:  `List the pending invites you've sent for the current space.`,
+		Example: `  # List invites you've sent
+  ghost invite sent
 
   # Output as JSON
-  ghost member list --json`,
+  ghost invite sent --json`,
 		Args:              cobra.NoArgs,
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
@@ -36,9 +36,9 @@ func buildMemberListCmd(app *common.App) *cobra.Command {
 				return err
 			}
 
-			resp, err := client.ListMembersWithResponse(cmd.Context(), api.SpaceId(spaceID))
+			resp, err := client.ListInvitesWithResponse(cmd.Context(), api.SpaceId(spaceID))
 			if err != nil {
-				return fmt.Errorf("failed to list members: %w", err)
+				return fmt.Errorf("failed to list invites: %w", err)
 			}
 			if resp.StatusCode() != http.StatusOK {
 				return common.ExitWithErrorFromStatusCode(resp.StatusCode(), resp.JSONDefault)
@@ -47,15 +47,15 @@ func buildMemberListCmd(app *common.App) *cobra.Command {
 				return errors.New("empty response from API")
 			}
 
-			members := *resp.JSON200
+			invites := *resp.JSON200
 
 			switch {
 			case jsonOutput:
-				return util.SerializeToJSON(cmd.OutOrStdout(), members)
+				return util.SerializeToJSON(cmd.OutOrStdout(), invites)
 			case yamlOutput:
-				return util.SerializeToYAML(cmd.OutOrStdout(), members)
+				return util.SerializeToYAML(cmd.OutOrStdout(), invites)
 			default:
-				return outputMembers(cmd.OutOrStdout(), members)
+				return outputInvites(cmd.OutOrStdout(), invites)
 			}
 		},
 	}
@@ -67,12 +67,12 @@ func buildMemberListCmd(app *common.App) *cobra.Command {
 	return cmd
 }
 
-func outputMembers(w io.Writer, members []api.Member) error {
+func outputInvites(w io.Writer, invites []api.Invite) error {
 	table := common.NewTable(w)
 
-	table.Header("NAME", "EMAIL", "ROLE")
-	for _, m := range members {
-		table.Append(m.Name, m.Email, string(m.Role))
+	table.Header("EMAIL", "ROLE", "STATUS", "INVITED")
+	for _, inv := range invites {
+		table.Append(inv.Email, string(inv.Role), string(inv.Status), inv.CreatedAt.Format(time.RFC3339))
 	}
 	return table.Render()
 }

@@ -82,6 +82,26 @@ func (m *MockClientInterface) EXPECT() *MockClientInterfaceMockRecorder {
 	return m.recorder
 }
 
+// AcceptInvite mocks base method.
+func (m *MockClientInterface) AcceptInvite(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "AcceptInvite", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AcceptInvite indicates an expected call of AcceptInvite.
+func (mr *MockClientInterfaceMockRecorder) AcceptInvite(ctx, spaceId any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AcceptInvite", reflect.TypeOf((*MockClientInterface)(nil).AcceptInvite), varargs...)
+}
+
 // AnalyticsIdentify mocks base method.
 func (m *MockClientInterface) AnalyticsIdentify(ctx context.Context, body api.AnalyticsIdentifyJSONRequestBody, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
 	m.ctrl.T.Helper()
@@ -180,6 +200,26 @@ func (mr *MockClientInterfaceMockRecorder) AuthInfo(ctx any, reqEditors ...any) 
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthInfo", reflect.TypeOf((*MockClientInterface)(nil).AuthInfo), varargs...)
+}
+
+// CancelInvite mocks base method.
+func (m *MockClientInterface) CancelInvite(ctx context.Context, spaceId api.SpaceId, email api.InviteEmail, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId, email}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CancelInvite", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CancelInvite indicates an expected call of CancelInvite.
+func (mr *MockClientInterfaceMockRecorder) CancelInvite(ctx, spaceId, email any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId, email}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelInvite", reflect.TypeOf((*MockClientInterface)(nil).CancelInvite), varargs...)
 }
 
 // CancelPaymentMethodDeletion mocks base method.
@@ -282,6 +322,46 @@ func (mr *MockClientInterfaceMockRecorder) CreateDatabaseWithBody(ctx, spaceId, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDatabaseWithBody", reflect.TypeOf((*MockClientInterface)(nil).CreateDatabaseWithBody), varargs...)
 }
 
+// CreateInvite mocks base method.
+func (m *MockClientInterface) CreateInvite(ctx context.Context, spaceId api.SpaceId, body api.CreateInviteJSONRequestBody, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateInvite", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateInvite indicates an expected call of CreateInvite.
+func (mr *MockClientInterfaceMockRecorder) CreateInvite(ctx, spaceId, body any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateInvite", reflect.TypeOf((*MockClientInterface)(nil).CreateInvite), varargs...)
+}
+
+// CreateInviteWithBody mocks base method.
+func (m *MockClientInterface) CreateInviteWithBody(ctx context.Context, spaceId api.SpaceId, contentType string, body io.Reader, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId, contentType, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateInviteWithBody", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateInviteWithBody indicates an expected call of CreateInviteWithBody.
+func (mr *MockClientInterfaceMockRecorder) CreateInviteWithBody(ctx, spaceId, contentType, body any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId, contentType, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateInviteWithBody", reflect.TypeOf((*MockClientInterface)(nil).CreateInviteWithBody), varargs...)
+}
+
 // CreatePaymentMethodSetup mocks base method.
 func (m *MockClientInterface) CreatePaymentMethodSetup(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
 	m.ctrl.T.Helper()
@@ -360,6 +440,26 @@ func (mr *MockClientInterfaceMockRecorder) DatabaseLogs(ctx, spaceId, databaseRe
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, spaceId, databaseRef, params}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DatabaseLogs", reflect.TypeOf((*MockClientInterface)(nil).DatabaseLogs), varargs...)
+}
+
+// DeclineInvite mocks base method.
+func (m *MockClientInterface) DeclineInvite(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeclineInvite", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeclineInvite indicates an expected call of DeclineInvite.
+func (mr *MockClientInterfaceMockRecorder) DeclineInvite(ctx, spaceId any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeclineInvite", reflect.TypeOf((*MockClientInterface)(nil).DeclineInvite), varargs...)
 }
 
 // DeleteApiKey mocks base method.
@@ -602,6 +702,26 @@ func (mr *MockClientInterfaceMockRecorder) ListDatabases(ctx, spaceId any, reqEd
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDatabases", reflect.TypeOf((*MockClientInterface)(nil).ListDatabases), varargs...)
 }
 
+// ListInvites mocks base method.
+func (m *MockClientInterface) ListInvites(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListInvites", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListInvites indicates an expected call of ListInvites.
+func (mr *MockClientInterfaceMockRecorder) ListInvites(ctx, spaceId any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListInvites", reflect.TypeOf((*MockClientInterface)(nil).ListInvites), varargs...)
+}
+
 // ListInvoices mocks base method.
 func (m *MockClientInterface) ListInvoices(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
 	m.ctrl.T.Helper()
@@ -660,6 +780,26 @@ func (mr *MockClientInterfaceMockRecorder) ListPaymentMethods(ctx, spaceId any, 
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, spaceId}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPaymentMethods", reflect.TypeOf((*MockClientInterface)(nil).ListPaymentMethods), varargs...)
+}
+
+// ListReceivedInvites mocks base method.
+func (m *MockClientInterface) ListReceivedInvites(ctx context.Context, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListReceivedInvites", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListReceivedInvites indicates an expected call of ListReceivedInvites.
+func (mr *MockClientInterfaceMockRecorder) ListReceivedInvites(ctx any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListReceivedInvites", reflect.TypeOf((*MockClientInterface)(nil).ListReceivedInvites), varargs...)
 }
 
 // ListShares mocks base method.
@@ -1186,6 +1326,26 @@ func (m *MockClientWithResponsesInterface) EXPECT() *MockClientWithResponsesInte
 	return m.recorder
 }
 
+// AcceptInviteWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) AcceptInviteWithResponse(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*api.AcceptInviteResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "AcceptInviteWithResponse", varargs...)
+	ret0, _ := ret[0].(*api.AcceptInviteResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AcceptInviteWithResponse indicates an expected call of AcceptInviteWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) AcceptInviteWithResponse(ctx, spaceId any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AcceptInviteWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).AcceptInviteWithResponse), varargs...)
+}
+
 // AnalyticsIdentifyWithBodyWithResponse mocks base method.
 func (m *MockClientWithResponsesInterface) AnalyticsIdentifyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...api.RequestEditorFn) (*api.AnalyticsIdentifyResponse, error) {
 	m.ctrl.T.Helper()
@@ -1284,6 +1444,26 @@ func (mr *MockClientWithResponsesInterfaceMockRecorder) AuthInfoWithResponse(ctx
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthInfoWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).AuthInfoWithResponse), varargs...)
+}
+
+// CancelInviteWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) CancelInviteWithResponse(ctx context.Context, spaceId api.SpaceId, email api.InviteEmail, reqEditors ...api.RequestEditorFn) (*api.CancelInviteResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId, email}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CancelInviteWithResponse", varargs...)
+	ret0, _ := ret[0].(*api.CancelInviteResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CancelInviteWithResponse indicates an expected call of CancelInviteWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) CancelInviteWithResponse(ctx, spaceId, email any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId, email}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelInviteWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).CancelInviteWithResponse), varargs...)
 }
 
 // CancelPaymentMethodDeletionWithResponse mocks base method.
@@ -1386,6 +1566,46 @@ func (mr *MockClientWithResponsesInterfaceMockRecorder) CreateDatabaseWithRespon
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDatabaseWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).CreateDatabaseWithResponse), varargs...)
 }
 
+// CreateInviteWithBodyWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) CreateInviteWithBodyWithResponse(ctx context.Context, spaceId api.SpaceId, contentType string, body io.Reader, reqEditors ...api.RequestEditorFn) (*api.CreateInviteResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId, contentType, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateInviteWithBodyWithResponse", varargs...)
+	ret0, _ := ret[0].(*api.CreateInviteResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateInviteWithBodyWithResponse indicates an expected call of CreateInviteWithBodyWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) CreateInviteWithBodyWithResponse(ctx, spaceId, contentType, body any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId, contentType, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateInviteWithBodyWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).CreateInviteWithBodyWithResponse), varargs...)
+}
+
+// CreateInviteWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) CreateInviteWithResponse(ctx context.Context, spaceId api.SpaceId, body api.CreateInviteJSONRequestBody, reqEditors ...api.RequestEditorFn) (*api.CreateInviteResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateInviteWithResponse", varargs...)
+	ret0, _ := ret[0].(*api.CreateInviteResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateInviteWithResponse indicates an expected call of CreateInviteWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) CreateInviteWithResponse(ctx, spaceId, body any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateInviteWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).CreateInviteWithResponse), varargs...)
+}
+
 // CreatePaymentMethodSetupWithResponse mocks base method.
 func (m *MockClientWithResponsesInterface) CreatePaymentMethodSetupWithResponse(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*api.CreatePaymentMethodSetupResponse, error) {
 	m.ctrl.T.Helper()
@@ -1464,6 +1684,26 @@ func (mr *MockClientWithResponsesInterfaceMockRecorder) DatabaseLogsWithResponse
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, spaceId, databaseRef, params}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DatabaseLogsWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).DatabaseLogsWithResponse), varargs...)
+}
+
+// DeclineInviteWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) DeclineInviteWithResponse(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*api.DeclineInviteResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeclineInviteWithResponse", varargs...)
+	ret0, _ := ret[0].(*api.DeclineInviteResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeclineInviteWithResponse indicates an expected call of DeclineInviteWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) DeclineInviteWithResponse(ctx, spaceId any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeclineInviteWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).DeclineInviteWithResponse), varargs...)
 }
 
 // DeleteApiKeyWithResponse mocks base method.
@@ -1706,6 +1946,26 @@ func (mr *MockClientWithResponsesInterfaceMockRecorder) ListDatabasesWithRespons
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDatabasesWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).ListDatabasesWithResponse), varargs...)
 }
 
+// ListInvitesWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) ListInvitesWithResponse(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*api.ListInvitesResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListInvitesWithResponse", varargs...)
+	ret0, _ := ret[0].(*api.ListInvitesResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListInvitesWithResponse indicates an expected call of ListInvitesWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) ListInvitesWithResponse(ctx, spaceId any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListInvitesWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).ListInvitesWithResponse), varargs...)
+}
+
 // ListInvoicesWithResponse mocks base method.
 func (m *MockClientWithResponsesInterface) ListInvoicesWithResponse(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*api.ListInvoicesResponse, error) {
 	m.ctrl.T.Helper()
@@ -1764,6 +2024,26 @@ func (mr *MockClientWithResponsesInterfaceMockRecorder) ListPaymentMethodsWithRe
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, spaceId}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPaymentMethodsWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).ListPaymentMethodsWithResponse), varargs...)
+}
+
+// ListReceivedInvitesWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) ListReceivedInvitesWithResponse(ctx context.Context, reqEditors ...api.RequestEditorFn) (*api.ListReceivedInvitesResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListReceivedInvitesWithResponse", varargs...)
+	ret0, _ := ret[0].(*api.ListReceivedInvitesResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListReceivedInvitesWithResponse indicates an expected call of ListReceivedInvitesWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) ListReceivedInvitesWithResponse(ctx any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListReceivedInvitesWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).ListReceivedInvitesWithResponse), varargs...)
 }
 
 // ListSharesWithResponse mocks base method.

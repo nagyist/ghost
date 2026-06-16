@@ -259,6 +259,130 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
+  # --- Invites ---
+
+  /spaces/{space_id}/invites:
+    get:
+      operationId: listInvites
+      summary: List sent invites
+      description: |
+        Lists the pending invites that have been sent for a space.
+        Requires user authentication (JWT). API keys cannot manage invites.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: List of pending invites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Invite"
+        default:
+          $ref: "#/components/responses/Error"
+    post:
+      operationId: createInvite
+      summary: Invite a user to a space
+      description: |
+        Invites a user to a space by email address. The invitee accepts the
+        invitation with their own Ghost account.
+        Requires user authentication (JWT). API keys cannot manage invites.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateInviteRequest"
+      responses:
+        "201":
+          description: Invite created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invite"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /spaces/{space_id}/invites/{email}:
+    delete:
+      operationId: cancelInvite
+      summary: Cancel a sent invite
+      description: |
+        Cancels the pending invite sent to the given email address for a space.
+        Requires user authentication (JWT). API keys cannot manage invites.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/InviteEmail"
+      responses:
+        "200":
+          description: Invite cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invite"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /invites:
+    get:
+      operationId: listReceivedInvites
+      summary: List received invites
+      description: |
+        Lists the pending invites the authenticated user has received, across
+        all spaces. Requires user authentication (JWT).
+      responses:
+        "200":
+          description: List of pending received invites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReceivedInvite"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /invites/{space_id}/accept:
+    post:
+      operationId: acceptInvite
+      summary: Accept a received invite
+      description: |
+        Accepts the invite the authenticated user has received to the given
+        space, joining it. Requires user authentication (JWT).
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: Invite accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InviteActionResult"
+        default:
+          $ref: "#/components/responses/Error"
+
+  /invites/{space_id}/decline:
+    post:
+      operationId: declineInvite
+      summary: Decline a received invite
+      description: |
+        Declines the invite the authenticated user has received to the given
+        space. Requires user authentication (JWT).
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: Invite declined
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InviteActionResult"
+        default:
+          $ref: "#/components/responses/Error"
+
   # --- API Keys ---
 
   /spaces/{space_id}/api_keys:
@@ -881,6 +1005,13 @@ components:
       schema:
         type: integer
         format: int64
+    InviteEmail:
+      name: email
+      in: path
+      required: true
+      description: Email address the invite was sent to.
+      schema:
+        type: string
     DatabaseRef:
       name: database_ref
       in: path
@@ -1289,6 +1420,97 @@ components:
       properties:
         role:
           $ref: "#/components/schemas/MemberRole"
+
+    # --- Invites ---
+
+    Invite:
+      type: object
+      description: An invite sent for a space.
+      required:
+        - email
+        - role
+        - status
+        - created_at
+      properties:
+        email:
+          type: string
+          description: Email address the invite was sent to.
+        role:
+          $ref: "#/components/schemas/MemberRole"
+        status:
+          $ref: "#/components/schemas/InviteStatus"
+        created_at:
+          type: string
+          format: date-time
+          description: When the invite was created.
+
+    InviteStatus:
+      type: string
+      description: |
+        Status of a sent invite. `pending` means it's still awaiting a
+        response; `declined` means the invitee declined it. A declined invite
+        still occupies the email's slot for the space (one pending-or-declined
+        invite per email), so it must be cancelled before that email can be
+        re-invited.
+      enum:
+        - pending
+        - declined
+
+    CreateInviteRequest:
+      type: object
+      description: Request to invite a user to a space.
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          description: Email address to invite.
+        role:
+          $ref: "#/components/schemas/MemberRole"
+
+    ReceivedInvite:
+      type: object
+      description: A pending invite the authenticated user has received.
+      required:
+        - space_id
+        - space_name
+        - inviter_email
+        - inviter_name
+        - role
+        - created_at
+      properties:
+        space_id:
+          type: string
+          description: ID of the space the user is invited to.
+        space_name:
+          type: string
+          description: Name of the space the user is invited to.
+        inviter_email:
+          type: string
+          description: Email address of the user who sent the invite.
+        inviter_name:
+          type: string
+          description: Display name of the user who sent the invite.
+        role:
+          $ref: "#/components/schemas/MemberRole"
+        created_at:
+          type: string
+          format: date-time
+          description: When the invite was created.
+
+    InviteActionResult:
+      type: object
+      description: Result of accepting or declining a received invite.
+      required:
+        - space_id
+        - space_name
+      properties:
+        space_id:
+          type: string
+          description: ID of the space the invite was for.
+        space_name:
+          type: string
+          description: Name of the space the invite was for.
 
     # --- API Keys ---
 

@@ -126,12 +126,9 @@ monthly usage.`,
 	cmd.AddCommand(buildInvoiceCmd(app))
 	cmd.AddCommand(buildOveragesCmd(app))
 	cmd.AddCommand(buildServeCmd(app))
-
-	// Experimental commands, hidden until publicly released
-	if app.Experimental {
-		cmd.AddCommand(buildSpaceCmd(app))
-		cmd.AddCommand(buildMemberCmd(app))
-	}
+	cmd.AddCommand(buildSpaceCmd(app))
+	cmd.AddCommand(buildMemberCmd(app))
+	cmd.AddCommand(buildInviteCmd(app))
 
 	wrapCommands(cmd, app, stdoutWriter, stderrWriter)
 

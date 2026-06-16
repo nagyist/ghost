@@ -48,12 +48,14 @@ monthly usage.
 * [ghost fork-dedicated](ghost_fork-dedicated.md)	 - Fork a database as dedicated
 * [ghost id](ghost_id.md)	 - Show the authenticated user or API key
 * [ghost init](ghost_init.md)	 - Interactively configure Ghost
+* [ghost invite](ghost_invite.md)	 - Invite a user to the current space
 * [ghost invoice](ghost_invoice.md)	 - View invoices
 * [ghost list](ghost_list.md)	 - List all databases
 * [ghost login](ghost_login.md)	 - Authenticate with GitHub OAuth
 * [ghost logout](ghost_logout.md)	 - Remove stored credentials
 * [ghost logs](ghost_logs.md)	 - View logs for a database
 * [ghost mcp](ghost_mcp.md)	 - Ghost Model Context Protocol (MCP) server
+* [ghost member](ghost_member.md)	 - Manage space members
 * [ghost overages](ghost_overages.md)	 - Manage compute overages
 * [ghost password](ghost_password.md)	 - Reset the password for a database
 * [ghost pause](ghost_pause.md)	 - Pause a running database
@@ -65,6 +67,7 @@ monthly usage.
 * [ghost schema](ghost_schema.md)	 - Display database schema information
 * [ghost serve](ghost_serve.md)	 - Launch a local web UI for running SQL queries
 * [ghost share](ghost_share.md)	 - Share a database
+* [ghost space](ghost_space.md)	 - Manage spaces
 * [ghost sql](ghost_sql.md)	 - Execute SQL query on a database
 * [ghost tutorial](ghost_tutorial.md)	 - Run an interactive Ghost tutorial
 * [ghost upgrade](ghost_upgrade.md)	 - Upgrade the ghost CLI to the latest version

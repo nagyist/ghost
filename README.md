@@ -76,12 +76,14 @@ ghost tutorial
 | `help` | Help about any command |
 | `id` | Show the authenticated user or API key |
 | `init` | Interactively configure Ghost |
+| `invite` | Invite a user to the current space |
 | `invoice` | View invoices |
 | `list` | List all databases |
 | `logs` | View logs for a database |
 | `login` | Authenticate with GitHub OAuth |
 | `logout` | Remove stored credentials |
 | `mcp` | Ghost Model Context Protocol (MCP) server |
+| `member` | Manage space members |
 | `password` | Reset the password for a database |
 | `serve` | Launch a local web UI for running SQL queries |
 | `pause` | Pause a running database |
@@ -92,6 +94,7 @@ ghost tutorial
 | `resume` | Resume a paused database |
 | `schema` | Display database schema information |
 | `share` | Share a database |
+| `space` | Manage spaces |
 | `sql` | Execute SQL query on a database |
 | `tutorial` | Run an interactive Ghost tutorial |
 | `usage` | Show space usage |
