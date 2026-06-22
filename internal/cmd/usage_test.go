@@ -30,7 +30,7 @@ func TestUsageCmd(t *testing.T) {
 				JSON200: &api.SpaceUsage{
 					ComputeMinutes:      120,
 					FreeComputeMinutes:  6000,
-					ComputeLimitMinutes: new(int64(600)),
+					ComputeLimitMinutes: new(int64(6000)),
 					StorageMib:          512,
 					StorageLimitMib:     1048576,
 				},
@@ -121,7 +121,8 @@ func TestUsageCmd(t *testing.T) {
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.SpaceUsage{
 							ComputeMinutes:      120,
-							ComputeLimitMinutes: new(int64(600)),
+							FreeComputeMinutes:  6000,
+							ComputeLimitMinutes: new(int64(6000)),
 							StorageMib:          512,
 							StorageLimitMib:     1048576,
 						},
@@ -182,7 +183,7 @@ func TestUsageCmd(t *testing.T) {
 			args:  []string{"usage"},
 			setup: successSetup,
 			wantStdout: `Space: Test Space (test-project)
-Compute: 2/10 hours (20%)
+Compute: 2/100 hours (2%)
 Storage: 512MiB/1TiB (0%)
 Databases: 2 (1 running, 1 paused)
 `,
@@ -194,7 +195,7 @@ Databases: 2 (1 running, 1 paused)
 			wantStdout: `{
   "compute_minutes": 120,
   "free_compute_minutes": 6000,
-  "compute_limit_minutes": 600,
+  "compute_limit_minutes": 6000,
   "overages_enabled": false,
   "storage_mib": 512,
   "storage_limit_mib": 1048576,
@@ -211,7 +212,7 @@ Databases: 2 (1 running, 1 paused)
 			name:  "yaml output",
 			args:  []string{"usage", "--yaml"},
 			setup: successSetup,
-			wantStdout: `compute_limit_minutes: 600
+			wantStdout: `compute_limit_minutes: 6000
 compute_minutes: 120
 databases:
   paused: 1
@@ -229,7 +230,7 @@ storage_mib: 512
 			args:  []string{"status"},
 			setup: successSetup,
 			wantStdout: `Space: Test Space (test-project)
-Compute: 2/10 hours (20%)
+Compute: 2/100 hours (2%)
 Storage: 512MiB/1TiB (0%)
 Databases: 2 (1 running, 1 paused)
 `,
@@ -244,7 +245,8 @@ Databases: 2 (1 running, 1 paused)
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.SpaceUsage{
 							ComputeMinutes:      120,
-							ComputeLimitMinutes: new(int64(600)),
+							FreeComputeMinutes:  6000,
+							ComputeLimitMinutes: new(int64(6000)),
 							StorageMib:          512,
 							StorageLimitMib:     1048576,
 							CostToDate:          new(12.34),
@@ -259,7 +261,7 @@ Databases: 2 (1 running, 1 paused)
 					}, nil)
 			},
 			wantStdout: `Space: Test Space (test-project)
-Compute: 2/10 hours (20%)
+Compute: 2/100 hours (2%)
 Storage: 512MiB/1TiB (0%)
 Databases: 1 (1 running)
 Cost: $12.34 so far this cycle ($27.50 estimated total)
@@ -297,6 +299,36 @@ Overages: enabled (billed for compute above 100 free hours)
 `,
 		},
 		{
+			name: "warns when near free compute allowance",
+			args: []string{"usage"},
+			setup: func(m *mock.MockClientWithResponsesInterface) {
+				setupListSpaces(m, testSpaces)
+				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
+					Return(&api.SpaceUsageResponse{
+						HTTPResponse: httpResponse(http.StatusOK),
+						JSON200: &api.SpaceUsage{
+							ComputeMinutes:      5400,
+							FreeComputeMinutes:  6000,
+							ComputeLimitMinutes: new(int64(6000)),
+							StorageMib:          512,
+							StorageLimitMib:     1048576,
+						},
+					}, nil)
+				databases := []api.DatabaseWithUsage{sampleDatabaseWithUsage()}
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+					Return(&api.ListDatabasesResponse{
+						HTTPResponse: httpResponse(http.StatusOK),
+						JSON200:      &databases,
+					}, nil)
+			},
+			wantStdout: `Space: Test Space (test-project)
+Compute: 90/100 hours (90%)
+Storage: 512MiB/1TiB (0%)
+Databases: 1 (1 running)
+`,
+			wantStderr: "\nWarning: you've used 90 of your 100 free compute hours this billing\ncycle. When the free allowance is reached, non-dedicated databases are\nautomatically paused until the next cycle. To raise or remove this limit,\nrun 'ghost overages enable'.\n",
+		},
+		{
 			name: "text output with zero cost is omitted",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
@@ -306,7 +338,8 @@ Overages: enabled (billed for compute above 100 free hours)
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.SpaceUsage{
 							ComputeMinutes:      120,
-							ComputeLimitMinutes: new(int64(600)),
+							FreeComputeMinutes:  6000,
+							ComputeLimitMinutes: new(int64(6000)),
 							StorageMib:          512,
 							StorageLimitMib:     1048576,
 							CostToDate:          new(0.0),
@@ -321,7 +354,7 @@ Overages: enabled (billed for compute above 100 free hours)
 					}, nil)
 			},
 			wantStdout: `Space: Test Space (test-project)
-Compute: 2/10 hours (20%)
+Compute: 2/100 hours (2%)
 Storage: 512MiB/1TiB (0%)
 Databases: 1 (1 running)
 `,
@@ -336,7 +369,8 @@ Databases: 1 (1 running)
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.SpaceUsage{
 							ComputeMinutes:      120,
-							ComputeLimitMinutes: new(int64(600)),
+							FreeComputeMinutes:  6000,
+							ComputeLimitMinutes: new(int64(6000)),
 							StorageMib:          512,
 							StorageLimitMib:     1048576,
 						},
@@ -349,7 +383,7 @@ Databases: 1 (1 running)
 					}, nil)
 			},
 			wantStdout: `Space: test-project
-Compute: 2/10 hours (20%)
+Compute: 2/100 hours (2%)
 Storage: 512MiB/1TiB (0%)
 Databases: 1 (1 running)
 `,

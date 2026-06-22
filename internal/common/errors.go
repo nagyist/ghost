@@ -1,6 +1,11 @@
 package common
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+
+	"github.com/timescale/ghost/internal/api"
+)
 
 // Exit codes as defined in the CLI specification
 const (
@@ -38,6 +43,22 @@ func (e ExitCodeError) Unwrap() error {
 // ExitWithCode returns an error that will cause the program to exit with the specified code
 func ExitWithCode(code int, err error) error {
 	return ExitCodeError{code: code, err: err}
+}
+
+// IsNoPaymentMethod reports whether an API error indicates that a payment
+// method is required for the operation but none is on file.
+func IsNoPaymentMethod(apiErr *api.Error) bool {
+	return apiErr != nil && apiErr.Code != nil && *apiErr.Code == api.ErrorCodeNoPaymentMethod
+}
+
+// NoPaymentMethodError returns a user-friendly error explaining that a payment
+// method is required for the given action, with guidance on how to add one.
+// The action should complete the sentence "a payment method is required to ..."
+// (e.g. "create a dedicated database"). It carries the invalid-parameters exit
+// code, matching the 400 the API returns for this condition.
+func NoPaymentMethodError(action string) error {
+	return ExitWithCode(ExitInvalidParameters,
+		fmt.Errorf("a payment method is required to %s\n\nAdd one with 'ghost payment add', then try again", action))
 }
 
 // ExitWithErrorFromStatusCode maps HTTP status codes to CLI exit codes

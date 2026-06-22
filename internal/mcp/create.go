@@ -114,6 +114,9 @@ func (s *Server) createDatabase(ctx context.Context, args createDatabaseArgs) (c
 
 	// Handle API response
 	if resp.StatusCode() != http.StatusAccepted {
+		if common.IsNoPaymentMethod(resp.JSONDefault) && util.Deref(args.req.Type) == api.DatabaseTypeDedicated {
+			return createDatabaseResult{}, common.NoPaymentMethodError("create a dedicated database")
+		}
 		return createDatabaseResult{}, common.ExitWithErrorFromStatusCode(resp.StatusCode(), resp.JSONDefault)
 	}
 

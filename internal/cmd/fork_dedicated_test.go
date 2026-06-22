@@ -138,6 +138,19 @@ func TestForkDedicatedCmd(t *testing.T) {
 			wantErr: "failed to fork database: connection refused",
 		},
 		{
+			name: "no payment method on fork",
+			args: []string{"fork-dedicated", "abc1234567"},
+			setup: func(m *mock.MockClientWithResponsesInterface) {
+				setupGetSource(m)
+				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-project", "abc1234567", defaultReq).
+					Return(&api.ForkDatabaseResponse{
+						HTTPResponse: httpResponse(http.StatusBadRequest),
+						JSONDefault:  &api.Error{Message: "no valid payment method found", Code: new(api.ErrorCodeNoPaymentMethod)},
+					}, nil)
+			},
+			wantErr: "a payment method is required to fork a dedicated database\n\nAdd one with 'ghost payment add', then try again",
+		},
+		{
 			name: "API error on fork",
 			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {

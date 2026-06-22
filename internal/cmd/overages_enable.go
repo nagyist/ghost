@@ -50,6 +50,24 @@ no-limit mode).`,
 				return err
 			}
 
+			// A payment method must be on file before overages can be enabled.
+			// Check proactively so we can surface clear guidance up front,
+			// before the no-limit billing confirmation prompt below — rather
+			// than only after the user has already confirmed.
+			pmResp, err := client.ListPaymentMethodsWithResponse(cmd.Context(), projectID)
+			if err != nil {
+				return fmt.Errorf("failed to list payment methods: %w", err)
+			}
+			if pmResp.StatusCode() != http.StatusOK {
+				return common.ExitWithErrorFromStatusCode(pmResp.StatusCode(), pmResp.JSONDefault)
+			}
+			if pmResp.JSON200 == nil {
+				return errors.New("empty response from API")
+			}
+			if len(pmResp.JSON200.PaymentMethods) == 0 {
+				return common.NoPaymentMethodError("enable overages")
+			}
+
 			// An invalid --limit (at or below the free-tier allowance) is
 			// rejected server-side, so no client-side validation is needed here.
 			limitSet := cmd.Flags().Changed("limit")
@@ -81,6 +99,12 @@ no-limit mode).`,
 				return fmt.Errorf("failed to enable overages: %w", err)
 			}
 			if resp.StatusCode() != http.StatusNoContent {
+				// Safety net: the payment method may have been removed between
+				// the check above and now, or be present but invalid (the
+				// backend re-verifies). Surface the same clear guidance.
+				if common.IsNoPaymentMethod(resp.JSONDefault) {
+					return common.NoPaymentMethodError("enable overages")
+				}
 				return common.ExitWithErrorFromStatusCode(resp.StatusCode(), resp.JSONDefault)
 			}
 

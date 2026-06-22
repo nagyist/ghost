@@ -46,6 +46,11 @@ const (
 	DatabaseTypeStandard  DatabaseType = "standard"
 )
 
+// Defines values for ErrorCode.
+const (
+	ErrorCodeNoPaymentMethod ErrorCode = "no_payment_method"
+)
+
 // Defines values for InviteStatus.
 const (
 	InviteStatusDeclined InviteStatus = "declined"
@@ -306,9 +311,21 @@ type DedicatedPricing struct {
 
 // Error Standard error response.
 type Error struct {
+	// Code Machine-readable error code identifying a specific, client-actionable
+	// error condition. Clients can match on this to react to specific errors
+	// without parsing the human-readable message. Errors without a recognized
+	// code omit this field.
+	Code *ErrorCode `json:"code,omitempty"`
+
 	// Message Human-readable error message.
 	Message string `json:"message"`
 }
+
+// ErrorCode Machine-readable error code identifying a specific, client-actionable
+// error condition. Clients can match on this to react to specific errors
+// without parsing the human-readable message. Errors without a recognized
+// code omit this field.
+type ErrorCode string
 
 // FeedbackRequest User-submitted feedback or bug report.
 type FeedbackRequest struct {

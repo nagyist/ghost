@@ -58,6 +58,18 @@ func TestCreateDedicatedCmd(t *testing.T) {
 			wantErr: "failed to create database: connection refused",
 		},
 		{
+			name: "no payment method",
+			args: []string{"create-dedicated", "mydb"},
+			setup: func(m *mock.MockClientWithResponsesInterface) {
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
+					Return(&api.CreateDatabaseResponse{
+						HTTPResponse: httpResponse(http.StatusBadRequest),
+						JSONDefault:  &api.Error{Message: "no valid payment method found", Code: new(api.ErrorCodeNoPaymentMethod)},
+					}, nil)
+			},
+			wantErr: "a payment method is required to create a dedicated database\n\nAdd one with 'ghost payment add', then try again",
+		},
+		{
 			name: "API error",
 			args: []string{"create-dedicated", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {

@@ -1054,6 +1054,18 @@ components:
         message:
           type: string
           description: Human-readable error message.
+        code:
+          $ref: "#/components/schemas/ErrorCode"
+
+    ErrorCode:
+      type: string
+      description: |
+        Machine-readable error code identifying a specific, client-actionable
+        error condition. Clients can match on this to react to specific errors
+        without parsing the human-readable message. Errors without a recognized
+        code omit this field.
+      enum:
+        - no_payment_method
 
     StatusResponse:
       type: object

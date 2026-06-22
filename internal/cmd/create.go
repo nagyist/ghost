@@ -125,6 +125,9 @@ func createDatabase(cmd *cobra.Command, app *common.App, args createDatabaseArgs
 
 	// Handle API response
 	if resp.StatusCode() != http.StatusAccepted {
+		if common.IsNoPaymentMethod(resp.JSONDefault) && util.Deref(args.req.Type) == api.DatabaseTypeDedicated {
+			return common.NoPaymentMethodError("create a dedicated database")
+		}
 		return common.ExitWithErrorFromStatusCode(resp.StatusCode(), resp.JSONDefault)
 	}
 

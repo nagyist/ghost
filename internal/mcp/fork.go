@@ -132,6 +132,9 @@ func (s *Server) forkDatabase(ctx context.Context, args forkDatabaseArgs) (forkD
 
 	// Handle API response
 	if forkResp.StatusCode() != http.StatusAccepted {
+		if common.IsNoPaymentMethod(forkResp.JSONDefault) && util.Deref(args.req.Type) == api.DatabaseTypeDedicated {
+			return forkDatabaseResult{}, common.NoPaymentMethodError("fork a dedicated database")
+		}
 		return forkDatabaseResult{}, common.ExitWithErrorFromStatusCode(forkResp.StatusCode(), forkResp.JSONDefault)
 	}
 

@@ -122,6 +122,9 @@ func forkDatabase(cmd *cobra.Command, app *common.App, args forkDatabaseArgs) er
 
 	// Handle API response
 	if forkResp.StatusCode() != http.StatusAccepted {
+		if common.IsNoPaymentMethod(forkResp.JSONDefault) && util.Deref(args.req.Type) == api.DatabaseTypeDedicated {
+			return common.NoPaymentMethodError("fork a dedicated database")
+		}
 		return common.ExitWithErrorFromStatusCode(forkResp.StatusCode(), forkResp.JSONDefault)
 	}
 

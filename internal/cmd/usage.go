@@ -124,6 +124,20 @@ func outputUsage(cmd *cobra.Command, usage common.Usage) {
 		cmd.Printf("Cost: $%.2f so far this cycle ($%.2f estimated total)\n",
 			costToDate, estimatedTotalCost)
 	}
+
+	// Warn when approaching the free compute allowance (and overages are off),
+	// since standard databases auto-pause once it's exhausted. Written to
+	// stderr as advisory output so it doesn't pollute redirected/piped stdout.
+	const warnThreshold = 0.80
+	if !usage.OveragesEnabled && float64(usage.ComputeMinutes) >= warnThreshold*float64(usage.FreeComputeMinutes) {
+		freeHours := float64(usage.FreeComputeMinutes) / 60
+		cmd.PrintErrf(`
+Warning: you've used %g of your %g free compute hours this billing
+cycle. When the free allowance is reached, non-dedicated databases are
+automatically paused until the next cycle. To raise or remove this limit,
+run 'ghost overages enable'.
+`, computeHours, freeHours)
+	}
 }
 
 // formatPercent formats a percentage value, dropping the trailing ".0" for whole numbers.

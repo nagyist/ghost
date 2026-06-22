@@ -49,6 +49,21 @@ func TestCreateCmd(t *testing.T) {
 			wantErr: "internal error",
 		},
 		{
+			// A standard (non-dedicated) create should never show the dedicated
+			// payment-method guidance, even if the API returns the
+			// NoPaymentMethod code — it falls through to the raw error instead.
+			name: "no payment method code on standard create falls through to raw error",
+			args: []string{"create", "mydb"},
+			setup: func(m *mock.MockClientWithResponsesInterface) {
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
+					Return(&api.CreateDatabaseResponse{
+						HTTPResponse: httpResponse(http.StatusBadRequest),
+						JSONDefault:  &api.Error{Message: "no valid payment method found", Code: new(api.ErrorCodeNoPaymentMethod)},
+					}, nil)
+			},
+			wantErr: "no valid payment method found",
+		},
+		{
 			name: "nil response body",
 			args: []string{"create", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {

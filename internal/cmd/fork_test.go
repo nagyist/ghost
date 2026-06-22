@@ -140,6 +140,22 @@ func TestForkCmd(t *testing.T) {
 			wantErr: "internal server error",
 		},
 		{
+			// A standard (non-dedicated) fork should never show the dedicated
+			// payment-method guidance, even if the API returns the
+			// NoPaymentMethod code — it falls through to the raw error instead.
+			name: "no payment method code on standard fork falls through to raw error",
+			args: []string{"fork", "abc1234567"},
+			setup: func(m *mock.MockClientWithResponsesInterface) {
+				setupGetSource(m)
+				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-project", "abc1234567", api.ForkDatabaseRequest{}).
+					Return(&api.ForkDatabaseResponse{
+						HTTPResponse: httpResponse(http.StatusBadRequest),
+						JSONDefault:  &api.Error{Message: "no valid payment method found", Code: new(api.ErrorCodeNoPaymentMethod)},
+					}, nil)
+			},
+			wantErr: "no valid payment method found",
+		},
+		{
 			name: "nil response body on fork",
 			args: []string{"fork", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
