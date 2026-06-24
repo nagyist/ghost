@@ -1,7 +1,7 @@
 #!/bin/sh
-set -ex
+set -e
 
-(cd web && ./bun run check)
+web_output=$(cd web && ./bun --silent run check 2>&1) || { echo "$web_output"; exit 1; }
 ./scripts/build-web.sh
 
 go mod tidy
@@ -10,4 +10,5 @@ go fmt ./...
 go fix -omitzero=false ./...
 go vet ./...
 go tool staticcheck ./...
-go test ./...
+test_output=$(go test ./... 2>&1) || { echo "$test_output"; exit 1; }
+echo ok

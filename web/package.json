@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
     "lint": "biome check",
     "test": "bun test",
-    "check": "./bun i --silent && ./bun run typecheck && ./bun run lint --write && ./bun test"
+    "check": "./bun i --silent && ./bun --silent run typecheck && ./bun --silent run lint --write && ./bun --silent test --only-failures"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
