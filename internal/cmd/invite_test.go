@@ -32,14 +32,11 @@ func TestInviteCmd(t *testing.T) {
 				}, nil)
 		}
 	}
-	setupListSpaces := func(m *mock.MockClientWithResponsesInterface) {
-		spaces := []api.Space{
-			{Id: "test-project", Name: "Test Space"},
-		}
-		m.EXPECT().ListSpacesWithResponse(validCtx).
-			Return(&api.ListSpacesResponse{
+	setupGetSpace := func(m *mock.MockClientWithResponsesInterface) {
+		m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
-				JSON200:      &spaces,
+				JSON200:      &api.SpaceDetail{Id: "test-project", Name: "Test Space"},
 			}, nil)
 	}
 
@@ -127,7 +124,7 @@ func TestInviteCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupCreate(api.MemberRoleDeveloper)(m)
-				setupListSpaces(m)
+				setupGetSpace(m)
 			},
 			wantStdout: wantText,
 		},
@@ -137,7 +134,7 @@ func TestInviteCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupCreate(api.MemberRoleDeveloper)(m)
-				setupListSpaces(m)
+				setupGetSpace(m)
 			},
 			wantStdout: wantText,
 		},
@@ -184,7 +181,7 @@ status: pending
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupCreate(api.MemberRoleAdmin)(m)
-				setupListSpaces(m)
+				setupGetSpace(m)
 			},
 			wantStdout: wantTextAdmin,
 		},

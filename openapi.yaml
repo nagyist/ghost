@@ -127,6 +127,27 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
+  /spaces/{space_id}:
+    get:
+      operationId: getSpace
+      summary: Get a space
+      description: |
+        Returns details about a single space, including the owner and the
+        caller's role. For user JWTs the role and owner are populated; for API
+        keys they are omitted (the members lookup that resolves the owner is not
+        available to API keys).
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: Space details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpaceDetail"
+        default:
+          $ref: "#/components/responses/Error"
+
   /spaces/{space_id}/rename:
     post:
       operationId: renameSpace
@@ -1295,6 +1316,28 @@ components:
           description: Space name.
         role:
           $ref: "#/components/schemas/MemberRole"
+
+    SpaceDetail:
+      type: object
+      description: Detailed information about a single Ghost space.
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          description: Space ID.
+        name:
+          type: string
+          description: Space name.
+        role:
+          allOf:
+            - $ref: "#/components/schemas/MemberRole"
+          description: The caller's role in the space. Populated for user authentication; omitted for API key authentication.
+        owner:
+          allOf:
+            - $ref: "#/components/schemas/Member"
+          description: The space owner. Populated for user authentication; omitted for API key authentication.
 
     CreateSpaceRequest:
       type: object

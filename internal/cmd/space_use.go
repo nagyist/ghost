@@ -8,7 +8,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/timescale/ghost/internal/api"
 	"github.com/timescale/ghost/internal/common"
 )
 
@@ -48,9 +47,12 @@ to see your spaces and their IDs.`,
 				return errors.New("cannot switch spaces when authenticated with an API key; run 'ghost login'")
 			}
 
-			resp, err := client.ListSpacesWithResponse(cmd.Context())
+			resp, err := client.GetSpaceWithResponse(cmd.Context(), spaceID)
 			if err != nil {
-				return fmt.Errorf("failed to list spaces: %w", err)
+				return fmt.Errorf("failed to get space: %w", err)
+			}
+			if resp.StatusCode() == http.StatusNotFound {
+				return fmt.Errorf("space '%s' not found; run 'ghost space list' to see your spaces", spaceID)
 			}
 			if resp.StatusCode() != http.StatusOK {
 				return common.ExitWithErrorFromStatusCode(resp.StatusCode(), resp.JSONDefault)
@@ -58,17 +60,7 @@ to see your spaces and their IDs.`,
 			if resp.JSON200 == nil {
 				return errors.New("empty response from API")
 			}
-
-			var space *api.Space
-			for _, s := range *resp.JSON200 {
-				if s.Id == spaceID {
-					space = &s
-					break
-				}
-			}
-			if space == nil {
-				return fmt.Errorf("space '%s' not found; run 'ghost space list' to see your spaces", spaceID)
-			}
+			space := resp.JSON200
 
 			creds.SpaceID = space.Id
 			if err := cfg.StoreCredentials(creds); err != nil {

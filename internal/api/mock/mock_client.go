@@ -642,6 +642,26 @@ func (mr *MockClientInterfaceMockRecorder) GetPricing(ctx any, reqEditors ...any
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPricing", reflect.TypeOf((*MockClientInterface)(nil).GetPricing), varargs...)
 }
 
+// GetSpace mocks base method.
+func (m *MockClientInterface) GetSpace(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetSpace", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSpace indicates an expected call of GetSpace.
+func (mr *MockClientInterfaceMockRecorder) GetSpace(ctx, spaceId any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpace", reflect.TypeOf((*MockClientInterface)(nil).GetSpace), varargs...)
+}
+
 // Health mocks base method.
 func (m *MockClientInterface) Health(ctx context.Context, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
 	m.ctrl.T.Helper()
@@ -1884,6 +1904,26 @@ func (mr *MockClientWithResponsesInterfaceMockRecorder) GetPricingWithResponse(c
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPricingWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).GetPricingWithResponse), varargs...)
+}
+
+// GetSpaceWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) GetSpaceWithResponse(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*api.GetSpaceResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetSpaceWithResponse", varargs...)
+	ret0, _ := ret[0].(*api.GetSpaceResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSpaceWithResponse indicates an expected call of GetSpaceWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) GetSpaceWithResponse(ctx, spaceId any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpaceWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).GetSpaceWithResponse), varargs...)
 }
 
 // HealthWithResponse mocks base method.

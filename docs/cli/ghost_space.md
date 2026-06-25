@@ -6,21 +6,39 @@ description: "CLI reference for ghost space"
 
 ## ghost space
 
-Manage spaces
+Show or manage spaces
 
 ### Synopsis
 
-Manage Ghost spaces.
+Show or manage Ghost spaces.
 
 A space is a collection of databases with shared usage limits and billing.
-The CLI operates on one space at a time — the current space. Use
-'ghost space list' to see your spaces and 'ghost space use' to switch
-between them.
+The CLI operates on one space at a time — the current space. Running
+'ghost space' with no subcommand shows details about the current space.
+
+```
+ghost space [flags]
+```
+
+### Examples
+
+```
+  # Show the current space
+  ghost space
+
+  # Output as JSON
+  ghost space --json
+
+  # Output as YAML
+  ghost space --yaml
+```
 
 ### Options
 
 ```
   -h, --help   help for space
+      --json   Output in JSON format
+      --yaml   Output in YAML format
 ```
 
 ### Options inherited from parent commands

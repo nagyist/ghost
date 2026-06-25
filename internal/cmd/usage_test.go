@@ -10,20 +10,19 @@ import (
 )
 
 func TestUsageCmd(t *testing.T) {
-	// setupListSpaces mocks the ListSpaces call used to resolve the space
-	// name. AnyTimes allows error-path tests to fail fast on another call
-	// without requiring this one to happen.
-	setupListSpaces := func(m *mock.MockClientWithResponsesInterface, spaces []api.Space) {
-		m.EXPECT().ListSpacesWithResponse(validCtx).
-			Return(&api.ListSpacesResponse{
+	// setupGetSpace mocks the GetSpace call used to resolve the space name.
+	// AnyTimes allows error-path tests to fail fast on another call without
+	// requiring this one to happen.
+	setupGetSpace := func(m *mock.MockClientWithResponsesInterface, id, name string) {
+		m.EXPECT().GetSpaceWithResponse(validCtx, id).
+			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
-				JSON200:      &spaces,
+				JSON200:      &api.SpaceDetail{Id: id, Name: name},
 			}, nil).AnyTimes()
 	}
-	testSpaces := []api.Space{{Id: "test-project", Name: "Test Space"}}
 
 	successSetup := func(m *mock.MockClientWithResponsesInterface) {
-		setupListSpaces(m, testSpaces)
+		setupGetSpace(m, "test-project", "Test Space")
 		m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
 			Return(&api.SpaceUsageResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
@@ -61,7 +60,7 @@ func TestUsageCmd(t *testing.T) {
 			name: "network error on space usage",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupListSpaces(m, testSpaces)
+				setupGetSpace(m, "test-project", "Test Space")
 				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
 					Return(nil, errors.New("connection refused"))
 				databases := []api.DatabaseWithUsage{}
@@ -77,7 +76,7 @@ func TestUsageCmd(t *testing.T) {
 			name: "API error on space usage",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupListSpaces(m, testSpaces)
+				setupGetSpace(m, "test-project", "Test Space")
 				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
@@ -96,7 +95,7 @@ func TestUsageCmd(t *testing.T) {
 			name: "nil space usage response body",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupListSpaces(m, testSpaces)
+				setupGetSpace(m, "test-project", "Test Space")
 				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
@@ -115,7 +114,7 @@ func TestUsageCmd(t *testing.T) {
 			name: "nil list databases response body",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupListSpaces(m, testSpaces)
+				setupGetSpace(m, "test-project", "Test Space")
 				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
@@ -136,10 +135,10 @@ func TestUsageCmd(t *testing.T) {
 			wantErr: "empty response from API",
 		},
 		{
-			name: "network error on list spaces",
+			name: "network error on get space",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListSpacesWithResponse(validCtx).
+				m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
 					Return(nil, errors.New("connection refused"))
 				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
 					Return(&api.SpaceUsageResponse{
@@ -153,14 +152,14 @@ func TestUsageCmd(t *testing.T) {
 						JSON200:      &databases,
 					}, nil).AnyTimes()
 			},
-			wantErr: "failed to list spaces: connection refused",
+			wantErr: "failed to get space: connection refused",
 		},
 		{
-			name: "nil list spaces response body",
+			name: "nil get space response body",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListSpacesWithResponse(validCtx).
-					Return(&api.ListSpacesResponse{
+				m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+					Return(&api.GetSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
 					}, nil)
@@ -239,7 +238,7 @@ Databases: 2 (1 running, 1 paused)
 			name: "text output with cost",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupListSpaces(m, testSpaces)
+				setupGetSpace(m, "test-project", "Test Space")
 				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
@@ -271,7 +270,7 @@ Cost: $12.34 so far this cycle ($27.50 estimated total)
 			name: "text output with overages enabled",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupListSpaces(m, testSpaces)
+				setupGetSpace(m, "test-project", "Test Space")
 				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
@@ -302,7 +301,7 @@ Overages: enabled (billed for compute above 100 free hours)
 			name: "warns when near free compute allowance",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupListSpaces(m, testSpaces)
+				setupGetSpace(m, "test-project", "Test Space")
 				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
@@ -332,7 +331,7 @@ Databases: 1 (1 running)
 			name: "text output with zero cost is omitted",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupListSpaces(m, testSpaces)
+				setupGetSpace(m, "test-project", "Test Space")
 				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
@@ -360,10 +359,10 @@ Databases: 1 (1 running)
 `,
 		},
 		{
-			name: "space not in list falls back to ID only",
+			name: "empty space name falls back to ID only",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupListSpaces(m, []api.Space{{Id: "other-project", Name: "Other Space"}})
+				setupGetSpace(m, "test-project", "")
 				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),

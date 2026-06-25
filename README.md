@@ -94,7 +94,7 @@ ghost tutorial
 | `resume` | Resume a paused database |
 | `schema` | Display database schema information |
 | `share` | Share a database |
-| `space` | Manage spaces |
+| `space` | Show or manage spaces |
 | `sql` | Execute SQL query on a database |
 | `tutorial` | Run an interactive Ghost tutorial |
 | `usage` | Show space usage |

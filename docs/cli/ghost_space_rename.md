@@ -40,4 +40,4 @@ ghost space rename <new-name> [flags]
 
 ### SEE ALSO
 
-* [ghost space](ghost_space.md)	 - Manage spaces
+* [ghost space](ghost_space.md)	 - Show or manage spaces

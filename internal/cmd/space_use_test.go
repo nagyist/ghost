@@ -20,16 +20,21 @@ func TestSpaceUseCmd(t *testing.T) {
 		SpaceID: "test-project",
 	}
 
-	setupListSpaces := func(m *mock.MockClientWithResponsesInterface, spaces []api.Space) {
-		m.EXPECT().ListSpacesWithResponse(validCtx).
-			Return(&api.ListSpacesResponse{
+	// setupGetSpace mocks a successful lookup of the requested space.
+	setupGetSpace := func(m *mock.MockClientWithResponsesInterface, id, name string) {
+		m.EXPECT().GetSpaceWithResponse(validCtx, id).
+			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
-				JSON200:      &spaces,
+				JSON200:      &api.SpaceDetail{Id: id, Name: name},
 			}, nil)
 	}
-	testSpaces := []api.Space{
-		{Id: "test-project", Name: "Test Space"},
-		{Id: "other-proj", Name: "Other Space"},
+	// setupGetSpaceNotFound mocks a 404 for the requested space.
+	setupGetSpaceNotFound := func(m *mock.MockClientWithResponsesInterface, id string) {
+		m.EXPECT().GetSpaceWithResponse(validCtx, id).
+			Return(&api.GetSpaceResponse{
+				HTTPResponse: httpResponse(http.StatusNotFound),
+				JSONDefault:  &api.Error{Message: "space not found"},
+			}, nil)
 	}
 
 	// checkStoredSpaceID verifies the space ID written to the stored credentials.
@@ -75,18 +80,18 @@ func TestSpaceUseCmd(t *testing.T) {
 			args: []string{"space", "use", "other-proj"},
 			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListSpacesWithResponse(validCtx).
+				m.EXPECT().GetSpaceWithResponse(validCtx, "other-proj").
 					Return(nil, errors.New("connection refused"))
 			},
-			wantErr: "failed to list spaces: connection refused",
+			wantErr: "failed to get space: connection refused",
 		},
 		{
 			name: "API error",
 			args: []string{"space", "use", "other-proj"},
 			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListSpacesWithResponse(validCtx).
-					Return(&api.ListSpacesResponse{
+				m.EXPECT().GetSpaceWithResponse(validCtx, "other-proj").
+					Return(&api.GetSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal error"},
 					}, nil)
@@ -98,8 +103,8 @@ func TestSpaceUseCmd(t *testing.T) {
 			args: []string{"space", "use", "other-proj"},
 			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListSpacesWithResponse(validCtx).
-					Return(&api.ListSpacesResponse{
+				m.EXPECT().GetSpaceWithResponse(validCtx, "other-proj").
+					Return(&api.GetSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
 					}, nil)
@@ -111,7 +116,7 @@ func TestSpaceUseCmd(t *testing.T) {
 			args: []string{"space", "use", "nonexistent"},
 			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupListSpaces(m, testSpaces)
+				setupGetSpaceNotFound(m, "nonexistent")
 			},
 			wantErr: "space 'nonexistent' not found; run 'ghost space list' to see your spaces",
 		},
@@ -120,7 +125,7 @@ func TestSpaceUseCmd(t *testing.T) {
 			args: []string{"space", "use", "Other Space"},
 			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupListSpaces(m, testSpaces)
+				setupGetSpaceNotFound(m, "Other Space")
 			},
 			wantErr: "space 'Other Space' not found; run 'ghost space list' to see your spaces",
 		},
@@ -129,7 +134,7 @@ func TestSpaceUseCmd(t *testing.T) {
 			args: []string{"space", "use", "other-proj"},
 			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupListSpaces(m, testSpaces)
+				setupGetSpace(m, "other-proj", "Other Space")
 			},
 			wantStdout: "Switched to space 'Other Space' (other-proj)\n",
 			check:      checkStoredSpaceID("other-proj"),
@@ -139,7 +144,7 @@ func TestSpaceUseCmd(t *testing.T) {
 			args: []string{"space", "switch", "other-proj"},
 			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupListSpaces(m, testSpaces)
+				setupGetSpace(m, "other-proj", "Other Space")
 			},
 			wantStdout: "Switched to space 'Other Space' (other-proj)\n",
 			check:      checkStoredSpaceID("other-proj"),

@@ -135,6 +135,9 @@ type ClientInterface interface {
 
 	CreateSpace(ctx context.Context, body CreateSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetSpace request
+	GetSpace(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListApiKeys request
 	ListApiKeys(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -452,6 +455,18 @@ func (c *Client) CreateSpaceWithBody(ctx context.Context, contentType string, bo
 
 func (c *Client) CreateSpace(ctx context.Context, body CreateSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateSpaceRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetSpace(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetSpaceRequest(c.Server, spaceId)
 	if err != nil {
 		return nil, err
 	}
@@ -1389,6 +1404,40 @@ func NewCreateSpaceRequestWithBody(server string, contentType string, body io.Re
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetSpaceRequest generates requests for GetSpace
+func NewGetSpaceRequest(server string, spaceId SpaceId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -2987,6 +3036,9 @@ type ClientWithResponsesInterface interface {
 
 	CreateSpaceWithResponse(ctx context.Context, body CreateSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateSpaceResponse, error)
 
+	// GetSpaceWithResponse request
+	GetSpaceWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*GetSpaceResponse, error)
+
 	// ListApiKeysWithResponse request
 	ListApiKeysWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListApiKeysResponse, error)
 
@@ -3377,6 +3429,29 @@ func (r CreateSpaceResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateSpaceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetSpaceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SpaceDetail
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r GetSpaceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetSpaceResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -4306,6 +4381,15 @@ func (c *ClientWithResponses) CreateSpaceWithResponse(ctx context.Context, body 
 	return ParseCreateSpaceResponse(rsp)
 }
 
+// GetSpaceWithResponse request returning *GetSpaceResponse
+func (c *ClientWithResponses) GetSpaceWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*GetSpaceResponse, error) {
+	rsp, err := c.GetSpace(ctx, spaceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetSpaceResponse(rsp)
+}
+
 // ListApiKeysWithResponse request returning *ListApiKeysResponse
 func (c *ClientWithResponses) ListApiKeysWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListApiKeysResponse, error) {
 	rsp, err := c.ListApiKeys(ctx, spaceId, reqEditors...)
@@ -5051,6 +5135,39 @@ func ParseCreateSpaceResponse(rsp *http.Response) (*CreateSpaceResponse, error) 
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetSpaceResponse parses an HTTP response from a GetSpaceWithResponse call
+func ParseGetSpaceResponse(rsp *http.Response) (*GetSpaceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetSpaceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SpaceDetail
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error

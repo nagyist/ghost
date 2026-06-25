@@ -67,7 +67,7 @@ monthly usage.
 * [ghost schema](ghost_schema.md)	 - Display database schema information
 * [ghost serve](ghost_serve.md)	 - Launch a local web UI for running SQL queries
 * [ghost share](ghost_share.md)	 - Share a database
-* [ghost space](ghost_space.md)	 - Manage spaces
+* [ghost space](ghost_space.md)	 - Show or manage spaces
 * [ghost sql](ghost_sql.md)	 - Execute SQL query on a database
 * [ghost tutorial](ghost_tutorial.md)	 - Run an interactive Ghost tutorial
 * [ghost upgrade](ghost_upgrade.md)	 - Upgrade the ghost CLI to the latest version

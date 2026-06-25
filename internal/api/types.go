@@ -643,6 +643,21 @@ type Space struct {
 	Role *MemberRole `json:"role,omitempty"`
 }
 
+// SpaceDetail Detailed information about a single Ghost space.
+type SpaceDetail struct {
+	// Id Space ID.
+	Id string `json:"id"`
+
+	// Name Space name.
+	Name string `json:"name"`
+
+	// Owner The space owner. Populated for user authentication; omitted for API key authentication.
+	Owner *Member `json:"owner,omitempty"`
+
+	// Role The caller's role in the space. Populated for user authentication; omitted for API key authentication.
+	Role *MemberRole `json:"role,omitempty"`
+}
+
 // SpaceUsage Space-level usage and cost for the current billing cycle.
 type SpaceUsage struct {
 	// BillingPeriodEnd End of the current billing cycle.

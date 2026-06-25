@@ -83,9 +83,9 @@ func FetchUsage(ctx context.Context, client api.ClientWithResponsesInterface, pr
 	})
 
 	g.Go(func() error {
-		resp, err := client.ListSpacesWithResponse(ctx)
+		resp, err := client.GetSpaceWithResponse(ctx, projectID)
 		if err != nil {
-			return fmt.Errorf("failed to list spaces: %w", err)
+			return fmt.Errorf("failed to get space: %w", err)
 		}
 		if resp.StatusCode() != http.StatusOK {
 			return ExitWithErrorFromStatusCode(resp.StatusCode(), resp.JSONDefault)
@@ -93,12 +93,7 @@ func FetchUsage(ctx context.Context, client api.ClientWithResponsesInterface, pr
 		if resp.JSON200 == nil {
 			return errors.New("empty response from API")
 		}
-		for _, space := range *resp.JSON200 {
-			if space.Id == projectID {
-				spaceName = space.Name
-				break
-			}
-		}
+		spaceName = resp.JSON200.Name
 		return nil
 	})
 

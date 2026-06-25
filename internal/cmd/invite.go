@@ -132,14 +132,9 @@ func outputInviteCreated(cmd *cobra.Command, invite api.Invite, spaceID, spaceNa
 // It returns an empty string if the name can't be resolved, so callers can fall
 // back to showing just the space ID.
 func currentSpaceName(ctx context.Context, client api.ClientWithResponsesInterface, spaceID string) string {
-	resp, err := client.ListSpacesWithResponse(ctx)
+	resp, err := client.GetSpaceWithResponse(ctx, spaceID)
 	if err != nil || resp.StatusCode() != http.StatusOK || resp.JSON200 == nil {
 		return ""
 	}
-	for _, s := range *resp.JSON200 {
-		if s.Id == spaceID {
-			return s.Name
-		}
-	}
-	return ""
+	return resp.JSON200.Name
 }
