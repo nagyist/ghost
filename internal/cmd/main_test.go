@@ -260,7 +260,7 @@ func httpResponse(statusCode int) *http.Response {
 // sampleDatabase returns an api.Database with reasonable defaults.
 // Use overrides to customize specific fields.
 func sampleDatabase(overrides ...func(*api.Database)) api.Database {
-	storageMib := 1024
+	storageMib := int64(1024)
 	db := api.Database{
 		Id:         "abc1234567",
 		Name:       "mydb",
@@ -279,7 +279,7 @@ func sampleDatabase(overrides ...func(*api.Database)) api.Database {
 // sampleDatabaseWithUsage returns an api.DatabaseWithUsage with reasonable defaults.
 // Use overrides to customize specific fields.
 func sampleDatabaseWithUsage(overrides ...func(*api.DatabaseWithUsage)) api.DatabaseWithUsage {
-	storageMib := 1024
+	storageMib := int64(1024)
 	db := api.DatabaseWithUsage{
 		Id:             "abc1234567",
 		Name:           "mydb",

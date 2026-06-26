@@ -21,7 +21,7 @@ type DatabaseListItem struct {
 	Type           api.DatabaseType   `json:"type"`
 	Size           *api.DatabaseSize  `json:"size,omitempty"`
 	Status         api.DatabaseStatus `json:"status"`
-	StorageMib     *int               `json:"storage_mib"`
+	StorageMib     *int64             `json:"storage_mib"`
 	ComputeMinutes *int64             `json:"compute_minutes,omitempty"`
 }
 

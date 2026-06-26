@@ -207,7 +207,7 @@ type ClientInterface interface {
 	ListInvoices(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetInvoice request
-	GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId InvoiceId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListMembers request
 	ListMembers(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -252,7 +252,7 @@ type ClientInterface interface {
 	ListShares(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RevokeShare request
-	RevokeShare(ctx context.Context, spaceId SpaceId, shareToken string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	RevokeShare(ctx context.Context, spaceId SpaceId, shareToken ShareToken, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SpaceStatus request
 	SpaceStatus(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -777,7 +777,7 @@ func (c *Client) ListInvoices(ctx context.Context, spaceId SpaceId, reqEditors .
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+func (c *Client) GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId InvoiceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetInvoiceRequest(c.Server, spaceId, invoiceId)
 	if err != nil {
 		return nil, err
@@ -969,7 +969,7 @@ func (c *Client) ListShares(ctx context.Context, spaceId SpaceId, reqEditors ...
 	return c.Client.Do(req)
 }
 
-func (c *Client) RevokeShare(ctx context.Context, spaceId SpaceId, shareToken string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+func (c *Client) RevokeShare(ctx context.Context, spaceId SpaceId, shareToken ShareToken, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRevokeShareRequest(c.Server, spaceId, shareToken)
 	if err != nil {
 		return nil, err
@@ -2309,7 +2309,7 @@ func NewListInvoicesRequest(server string, spaceId SpaceId) (*http.Request, erro
 }
 
 // NewGetInvoiceRequest generates requests for GetInvoice
-func NewGetInvoiceRequest(server string, spaceId SpaceId, invoiceId string) (*http.Request, error) {
+func NewGetInvoiceRequest(server string, spaceId SpaceId, invoiceId InvoiceId) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -2839,7 +2839,7 @@ func NewListSharesRequest(server string, spaceId SpaceId) (*http.Request, error)
 }
 
 // NewRevokeShareRequest generates requests for RevokeShare
-func NewRevokeShareRequest(server string, spaceId SpaceId, shareToken string) (*http.Request, error) {
+func NewRevokeShareRequest(server string, spaceId SpaceId, shareToken ShareToken) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -3108,7 +3108,7 @@ type ClientWithResponsesInterface interface {
 	ListInvoicesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListInvoicesResponse, error)
 
 	// GetInvoiceWithResponse request
-	GetInvoiceWithResponse(ctx context.Context, spaceId SpaceId, invoiceId string, reqEditors ...RequestEditorFn) (*GetInvoiceResponse, error)
+	GetInvoiceWithResponse(ctx context.Context, spaceId SpaceId, invoiceId InvoiceId, reqEditors ...RequestEditorFn) (*GetInvoiceResponse, error)
 
 	// ListMembersWithResponse request
 	ListMembersWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListMembersResponse, error)
@@ -3153,7 +3153,7 @@ type ClientWithResponsesInterface interface {
 	ListSharesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListSharesResponse, error)
 
 	// RevokeShareWithResponse request
-	RevokeShareWithResponse(ctx context.Context, spaceId SpaceId, shareToken string, reqEditors ...RequestEditorFn) (*RevokeShareResponse, error)
+	RevokeShareWithResponse(ctx context.Context, spaceId SpaceId, shareToken ShareToken, reqEditors ...RequestEditorFn) (*RevokeShareResponse, error)
 
 	// SpaceStatusWithResponse request
 	SpaceStatusWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*SpaceStatusResponse, error)
@@ -4609,7 +4609,7 @@ func (c *ClientWithResponses) ListInvoicesWithResponse(ctx context.Context, spac
 }
 
 // GetInvoiceWithResponse request returning *GetInvoiceResponse
-func (c *ClientWithResponses) GetInvoiceWithResponse(ctx context.Context, spaceId SpaceId, invoiceId string, reqEditors ...RequestEditorFn) (*GetInvoiceResponse, error) {
+func (c *ClientWithResponses) GetInvoiceWithResponse(ctx context.Context, spaceId SpaceId, invoiceId InvoiceId, reqEditors ...RequestEditorFn) (*GetInvoiceResponse, error) {
 	rsp, err := c.GetInvoice(ctx, spaceId, invoiceId, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -4750,7 +4750,7 @@ func (c *ClientWithResponses) ListSharesWithResponse(ctx context.Context, spaceI
 }
 
 // RevokeShareWithResponse request returning *RevokeShareResponse
-func (c *ClientWithResponses) RevokeShareWithResponse(ctx context.Context, spaceId SpaceId, shareToken string, reqEditors ...RequestEditorFn) (*RevokeShareResponse, error) {
+func (c *ClientWithResponses) RevokeShareWithResponse(ctx context.Context, spaceId SpaceId, shareToken ShareToken, reqEditors ...RequestEditorFn) (*RevokeShareResponse, error) {
 	rsp, err := c.RevokeShare(ctx, spaceId, shareToken, reqEditors...)
 	if err != nil {
 		return nil, err

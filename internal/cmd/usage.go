@@ -62,8 +62,7 @@ func buildUsageCmd(app *common.App) *cobra.Command {
 func outputUsage(cmd *cobra.Command, usage common.Usage) {
 	computeHours := float64(usage.ComputeMinutes) / 60
 
-	storageMibInt := int(usage.StorageMib)
-	storageStr := common.FormatStorageSize(&storageMibInt)
+	storageStr := common.FormatStorageSize(new(usage.StorageMib))
 	storagePercent := float64(usage.StorageMib) / float64(usage.StorageLimitMib) * 100
 
 	// Build status breakdown (only non-zero counts, in consistent order)

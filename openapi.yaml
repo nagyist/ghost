@@ -512,7 +512,7 @@ paths:
     get:
       operationId: getDatabase
       summary: Get a database
-      description: Gets a single database by ID.
+      description: Gets a single database by ID or name.
       parameters:
         - $ref: "#/components/parameters/SpaceId"
         - $ref: "#/components/parameters/DatabaseRef"
@@ -760,13 +760,7 @@ paths:
       description: Revokes a shared snapshot, deleting the underlying storage snapshot. The share is identified by its share token.
       parameters:
         - $ref: "#/components/parameters/SpaceId"
-        - name: share_token
-          in: path
-          required: true
-          description: Share token returned from `listShares` or `shareDatabase` (begins with `gs_`).
-          schema:
-            type: string
-            pattern: "^gs_[A-Za-z0-9_-]+$"
+        - $ref: "#/components/parameters/ShareToken"
       responses:
         "200":
           description: Share revoked
@@ -808,12 +802,7 @@ paths:
         Requires a user JWT; API keys are not authorized.
       parameters:
         - $ref: "#/components/parameters/SpaceId"
-        - name: invoice_id
-          in: path
-          required: true
-          description: Invoice ID returned from `listInvoices`.
-          schema:
-            type: string
+        - $ref: "#/components/parameters/InvoiceId"
       responses:
         "200":
           description: Invoice detail
@@ -1054,6 +1043,21 @@ components:
       description: API key prefix (e.g. `gt_...`).
       schema:
         type: string
+    InvoiceId:
+      name: invoice_id
+      in: path
+      required: true
+      description: Invoice ID returned from `listInvoices`.
+      schema:
+        type: string
+    ShareToken:
+      name: share_token
+      in: path
+      required: true
+      description: Share token returned from `listShares` or `shareDatabase` (begins with `gs_`).
+      schema:
+        type: string
+        pattern: "^gs_[A-Za-z0-9_-]+$"
 
   responses:
     Error:
@@ -1290,6 +1294,7 @@ components:
 
     LogoutRequest:
       type: object
+      description: Request to log out by revoking a refresh token.
       required:
         - refreshToken
       properties:
@@ -1341,6 +1346,7 @@ components:
 
     CreateSpaceRequest:
       type: object
+      description: Request to create a new space.
       properties:
         name:
           type: string
@@ -1348,6 +1354,7 @@ components:
 
     RenameSpaceRequest:
       type: object
+      description: Request to rename a space.
       required:
         - name
       properties:
@@ -1471,6 +1478,7 @@ components:
 
     UpdateMemberRoleRequest:
       type: object
+      description: Request to change a member's role within a space.
       required:
         - role
       properties:
@@ -1611,6 +1619,7 @@ components:
 
     CreateApiKeyRequest:
       type: object
+      description: Request to create a new API key in a space.
       required:
         - name
       properties:
@@ -1691,6 +1700,7 @@ components:
           description: PostgreSQL password for the default user. Returned on every GET for authorized callers.
         storage_mib:
           type: integer
+          format: int64
           nullable: true
           description: Current disk usage in MiB. Null if not yet available.
 
@@ -1708,6 +1718,7 @@ components:
 
     CreateDatabaseRequest:
       type: object
+      description: Request to create a new database in a space.
       properties:
         name:
           type: string
@@ -1734,6 +1745,7 @@ components:
 
     RenameDatabaseRequest:
       type: object
+      description: Request to rename a database.
       required:
         - name
       properties:
@@ -1743,6 +1755,7 @@ components:
 
     UpdatePasswordRequest:
       type: object
+      description: Request to reset the database password.
       required:
         - password
       properties:
@@ -1752,6 +1765,7 @@ components:
 
     LogsResponse:
       type: object
+      description: A page of database log entries.
       required:
         - entries
       properties:
@@ -1770,6 +1784,7 @@ components:
 
     LogEntry:
       type: object
+      description: A single database log entry.
       required:
         - timestamp
         - message
@@ -1832,6 +1847,7 @@ components:
 
     InvoicesResponse:
       type: object
+      description: A list of invoices for a space.
       required:
         - invoices
       properties:
@@ -1866,13 +1882,19 @@ components:
           format: double
           description: Invoice total.
         status:
-          type: string
-          enum: [paid, issued, delinquent]
-          description: |
-            Invoice status:
-            - `paid` — invoice has been paid.
-            - `issued` — invoice has been issued and is within its net-terms payment window (not yet paid, not yet delinquent).
-            - `delinquent` — payment has failed and the invoice needs to be resolved by the user.
+          $ref: "#/components/schemas/InvoiceStatus"
+
+    InvoiceStatus:
+      type: string
+      description: |
+        Invoice status:
+        - `paid` — invoice has been paid.
+        - `issued` — invoice has been issued and is within its net-terms payment window (not yet paid, not yet delinquent).
+        - `delinquent` — payment has failed and the invoice needs to be resolved by the user.
+      enum:
+        - paid
+        - issued
+        - delinquent
 
     InvoiceDetail:
       type: object
@@ -1888,6 +1910,7 @@ components:
 
     InvoiceLineItem:
       type: object
+      description: A single line item on an invoice.
       required:
         - product_type
         - quantity
@@ -1952,6 +1975,7 @@ components:
 
     PaymentMethodsResponse:
       type: object
+      description: A list of payment methods on file for a space.
       required:
         - payment_methods
       properties:

@@ -583,7 +583,7 @@ func (mr *MockClientInterfaceMockRecorder) GetDatabase(ctx, spaceId, databaseRef
 }
 
 // GetInvoice mocks base method.
-func (m *MockClientInterface) GetInvoice(ctx context.Context, spaceId api.SpaceId, invoiceId string, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+func (m *MockClientInterface) GetInvoice(ctx context.Context, spaceId api.SpaceId, invoiceId api.InvoiceId, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, spaceId, invoiceId}
 	for _, a := range reqEditors {
@@ -1043,7 +1043,7 @@ func (mr *MockClientInterfaceMockRecorder) ResumeDatabase(ctx, spaceId, database
 }
 
 // RevokeShare mocks base method.
-func (m *MockClientInterface) RevokeShare(ctx context.Context, spaceId api.SpaceId, shareToken string, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+func (m *MockClientInterface) RevokeShare(ctx context.Context, spaceId api.SpaceId, shareToken api.ShareToken, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, spaceId, shareToken}
 	for _, a := range reqEditors {
@@ -1847,7 +1847,7 @@ func (mr *MockClientWithResponsesInterfaceMockRecorder) GetDatabaseWithResponse(
 }
 
 // GetInvoiceWithResponse mocks base method.
-func (m *MockClientWithResponsesInterface) GetInvoiceWithResponse(ctx context.Context, spaceId api.SpaceId, invoiceId string, reqEditors ...api.RequestEditorFn) (*api.GetInvoiceResponse, error) {
+func (m *MockClientWithResponsesInterface) GetInvoiceWithResponse(ctx context.Context, spaceId api.SpaceId, invoiceId api.InvoiceId, reqEditors ...api.RequestEditorFn) (*api.GetInvoiceResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, spaceId, invoiceId}
 	for _, a := range reqEditors {
@@ -2307,7 +2307,7 @@ func (mr *MockClientWithResponsesInterfaceMockRecorder) ResumeDatabaseWithRespon
 }
 
 // RevokeShareWithResponse mocks base method.
-func (m *MockClientWithResponsesInterface) RevokeShareWithResponse(ctx context.Context, spaceId api.SpaceId, shareToken string, reqEditors ...api.RequestEditorFn) (*api.RevokeShareResponse, error) {
+func (m *MockClientWithResponsesInterface) RevokeShareWithResponse(ctx context.Context, spaceId api.SpaceId, shareToken api.ShareToken, reqEditors ...api.RequestEditorFn) (*api.RevokeShareResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, spaceId, shareToken}
 	for _, a := range reqEditors {

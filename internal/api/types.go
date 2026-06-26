@@ -159,13 +159,13 @@ type ComputePrice struct {
 	Size DatabaseSize `json:"size"`
 }
 
-// CreateApiKeyRequest defines model for CreateApiKeyRequest.
+// CreateApiKeyRequest Request to create a new API key in a space.
 type CreateApiKeyRequest struct {
 	// Name User-provided label for the new API key.
 	Name string `json:"name"`
 }
 
-// CreateDatabaseRequest defines model for CreateDatabaseRequest.
+// CreateDatabaseRequest Request to create a new database in a space.
 type CreateDatabaseRequest struct {
 	// Name Name for the new database. Auto-generated if omitted.
 	Name *string `json:"name,omitempty"`
@@ -196,7 +196,7 @@ type CreateInviteRequest struct {
 	Role *MemberRole `json:"role,omitempty"`
 }
 
-// CreateSpaceRequest defines model for CreateSpaceRequest.
+// CreateSpaceRequest Request to create a new space.
 type CreateSpaceRequest struct {
 	// Name Name for the new space. When omitted, the space is named after its owner (e.g. "Jane Doe's space").
 	Name *string `json:"name,omitempty"`
@@ -226,7 +226,7 @@ type Database struct {
 	Status DatabaseStatus `json:"status"`
 
 	// StorageMib Current disk usage in MiB. Null if not yet available.
-	StorageMib *int `json:"storage_mib"`
+	StorageMib *int64 `json:"storage_mib"`
 
 	// Type Database deployment model.
 	// - `standard` — shared-resource databases subject to the space's compute and storage limits.
@@ -293,7 +293,7 @@ type DatabaseWithUsage struct {
 	Status DatabaseStatus `json:"status"`
 
 	// StorageMib Current disk usage in MiB. Null if not yet available.
-	StorageMib *int `json:"storage_mib"`
+	StorageMib *int64 `json:"storage_mib"`
 
 	// Type Database deployment model.
 	// - `standard` — shared-resource databases subject to the space's compute and storage limits.
@@ -424,19 +424,13 @@ type Invoice struct {
 	Total float64 `json:"total"`
 }
 
-// InvoiceStatus Invoice status:
-// - `paid` — invoice has been paid.
-// - `issued` — invoice has been issued and is within its net-terms payment window (not yet paid, not yet delinquent).
-// - `delinquent` — payment has failed and the invoice needs to be resolved by the user.
-type InvoiceStatus string
-
 // InvoiceDetail Line-item breakdown of an invoice.
 type InvoiceDetail struct {
 	// LineItems Line items that make up the invoice.
 	LineItems []InvoiceLineItem `json:"line_items"`
 }
 
-// InvoiceLineItem defines model for InvoiceLineItem.
+// InvoiceLineItem A single line item on an invoice.
 type InvoiceLineItem struct {
 	// DatabaseId Ghost database ID this line item is attributed to, if any.
 	DatabaseId *string `json:"database_id,omitempty"`
@@ -457,13 +451,19 @@ type InvoiceLineItem struct {
 	UnitPrice float64 `json:"unit_price"`
 }
 
-// InvoicesResponse defines model for InvoicesResponse.
+// InvoiceStatus Invoice status:
+// - `paid` — invoice has been paid.
+// - `issued` — invoice has been issued and is within its net-terms payment window (not yet paid, not yet delinquent).
+// - `delinquent` — payment has failed and the invoice needs to be resolved by the user.
+type InvoiceStatus string
+
+// InvoicesResponse A list of invoices for a space.
 type InvoicesResponse struct {
 	// Invoices Recent invoices, most recent first.
 	Invoices []Invoice `json:"invoices"`
 }
 
-// LogEntry defines model for LogEntry.
+// LogEntry A single database log entry.
 type LogEntry struct {
 	// Message Log message text
 	Message string `json:"message"`
@@ -475,13 +475,13 @@ type LogEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// LogoutRequest defines model for LogoutRequest.
+// LogoutRequest Request to log out by revoking a refresh token.
 type LogoutRequest struct {
 	// RefreshToken Refresh token to revoke.
 	RefreshToken string `json:"refreshToken"`
 }
 
-// LogsResponse defines model for LogsResponse.
+// LogsResponse A page of database log entries.
 type LogsResponse struct {
 	// Entries Log entries, most recent first.
 	Entries []LogEntry `json:"entries"`
@@ -545,7 +545,7 @@ type PaymentMethod struct {
 	Primary bool `json:"primary"`
 }
 
-// PaymentMethodsResponse defines model for PaymentMethodsResponse.
+// PaymentMethodsResponse A list of payment methods on file for a space.
 type PaymentMethodsResponse struct {
 	// PaymentMethods Payment methods on file for the space.
 	PaymentMethods []PaymentMethod `json:"payment_methods"`
@@ -596,13 +596,13 @@ type ReceivedInvite struct {
 	SpaceName string `json:"space_name"`
 }
 
-// RenameDatabaseRequest defines model for RenameDatabaseRequest.
+// RenameDatabaseRequest Request to rename a database.
 type RenameDatabaseRequest struct {
 	// Name New name for the database.
 	Name string `json:"name"`
 }
 
-// RenameSpaceRequest defines model for RenameSpaceRequest.
+// RenameSpaceRequest Request to rename a space.
 type RenameSpaceRequest struct {
 	// Name New name for the space.
 	Name string `json:"name"`
@@ -744,7 +744,7 @@ type TrackRequest struct {
 	Properties *map[string]interface{} `json:"properties,omitempty"`
 }
 
-// UpdateMemberRoleRequest defines model for UpdateMemberRoleRequest.
+// UpdateMemberRoleRequest Request to change a member's role within a space.
 type UpdateMemberRoleRequest struct {
 	// Role A member's role within a space. The `owner` role belongs to the user
 	// who created the space; every space has exactly one owner, so `owner`
@@ -769,7 +769,7 @@ type UpdateOverageSettingsRequest struct {
 	Enabled bool `json:"enabled"`
 }
 
-// UpdatePasswordRequest defines model for UpdatePasswordRequest.
+// UpdatePasswordRequest Request to reset the database password.
 type UpdatePasswordRequest struct {
 	// Password New PostgreSQL password for the default user.
 	Password string `json:"password"`
@@ -796,11 +796,17 @@ type DatabaseRef = string
 // InviteEmail defines model for InviteEmail.
 type InviteEmail = string
 
+// InvoiceId defines model for InvoiceId.
+type InvoiceId = string
+
 // MemberUserId defines model for MemberUserId.
 type MemberUserId = int64
 
 // PaymentId defines model for PaymentId.
 type PaymentId = string
+
+// ShareToken defines model for ShareToken.
+type ShareToken = string
 
 // SpaceId defines model for SpaceId.
 type SpaceId = string

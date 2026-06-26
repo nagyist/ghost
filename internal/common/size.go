@@ -5,7 +5,7 @@ import (
 )
 
 // FormatStorageSize formats storage size in MiB or GiB as appropriate
-func FormatStorageSize(storageMib *int) string {
+func FormatStorageSize(storageMib *int64) string {
 	if storageMib == nil {
 		return "-"
 	}
