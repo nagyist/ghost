@@ -280,6 +280,26 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
+  /spaces/{space_id}/leave:
+    post:
+      operationId: leaveSpace
+      summary: Leave a space
+      description: |
+        Removes the authenticated user from the space. Requires user
+        authentication (JWT). API keys cannot leave a space. The space owner
+        cannot leave their own space.
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: Left the space
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveSpaceResult"
+        default:
+          $ref: "#/components/responses/Error"
+
   # --- Invites ---
 
   /spaces/{space_id}/invites:
@@ -1484,6 +1504,20 @@ components:
       properties:
         role:
           $ref: "#/components/schemas/MemberRole"
+
+    LeaveSpaceResult:
+      type: object
+      description: Result of leaving a space.
+      required:
+        - space_id
+        - space_name
+      properties:
+        space_id:
+          type: string
+          description: ID of the space the user left.
+        space_name:
+          type: string
+          description: Name of the space the user left.
 
     # --- Invites ---
 

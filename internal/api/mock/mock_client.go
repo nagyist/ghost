@@ -682,6 +682,26 @@ func (mr *MockClientInterfaceMockRecorder) Health(ctx any, reqEditors ...any) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Health", reflect.TypeOf((*MockClientInterface)(nil).Health), varargs...)
 }
 
+// LeaveSpace mocks base method.
+func (m *MockClientInterface) LeaveSpace(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "LeaveSpace", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LeaveSpace indicates an expected call of LeaveSpace.
+func (mr *MockClientInterfaceMockRecorder) LeaveSpace(ctx, spaceId any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LeaveSpace", reflect.TypeOf((*MockClientInterface)(nil).LeaveSpace), varargs...)
+}
+
 // ListApiKeys mocks base method.
 func (m *MockClientInterface) ListApiKeys(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*http.Response, error) {
 	m.ctrl.T.Helper()
@@ -1944,6 +1964,26 @@ func (mr *MockClientWithResponsesInterfaceMockRecorder) HealthWithResponse(ctx a
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HealthWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).HealthWithResponse), varargs...)
+}
+
+// LeaveSpaceWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) LeaveSpaceWithResponse(ctx context.Context, spaceId api.SpaceId, reqEditors ...api.RequestEditorFn) (*api.LeaveSpaceResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, spaceId}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "LeaveSpaceWithResponse", varargs...)
+	ret0, _ := ret[0].(*api.LeaveSpaceResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LeaveSpaceWithResponse indicates an expected call of LeaveSpaceWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) LeaveSpaceWithResponse(ctx, spaceId any, reqEditors ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, spaceId}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LeaveSpaceWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).LeaveSpaceWithResponse), varargs...)
 }
 
 // ListApiKeysWithResponse mocks base method.

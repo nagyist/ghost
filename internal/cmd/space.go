@@ -72,6 +72,7 @@ The CLI operates on one space at a time — the current space. Running
 	cmd.AddCommand(buildSpaceListCmd(app))
 	cmd.AddCommand(buildSpaceUseCmd(app))
 	cmd.AddCommand(buildSpaceRenameCmd(app))
+	cmd.AddCommand(buildSpaceLeaveCmd(app))
 
 	return cmd
 }

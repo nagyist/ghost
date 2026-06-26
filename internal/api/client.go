@@ -209,6 +209,9 @@ type ClientInterface interface {
 	// GetInvoice request
 	GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId InvoiceId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// LeaveSpace request
+	LeaveSpace(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListMembers request
 	ListMembers(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -779,6 +782,18 @@ func (c *Client) ListInvoices(ctx context.Context, spaceId SpaceId, reqEditors .
 
 func (c *Client) GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId InvoiceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetInvoiceRequest(c.Server, spaceId, invoiceId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) LeaveSpace(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewLeaveSpaceRequest(c.Server, spaceId)
 	if err != nil {
 		return nil, err
 	}
@@ -2349,6 +2364,40 @@ func NewGetInvoiceRequest(server string, spaceId SpaceId, invoiceId InvoiceId) (
 	return req, nil
 }
 
+// NewLeaveSpaceRequest generates requests for LeaveSpace
+func NewLeaveSpaceRequest(server string, spaceId SpaceId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/spaces/%s/leave", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListMembersRequest generates requests for ListMembers
 func NewListMembersRequest(server string, spaceId SpaceId) (*http.Request, error) {
 	var err error
@@ -3109,6 +3158,9 @@ type ClientWithResponsesInterface interface {
 
 	// GetInvoiceWithResponse request
 	GetInvoiceWithResponse(ctx context.Context, spaceId SpaceId, invoiceId InvoiceId, reqEditors ...RequestEditorFn) (*GetInvoiceResponse, error)
+
+	// LeaveSpaceWithResponse request
+	LeaveSpaceWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*LeaveSpaceResponse, error)
 
 	// ListMembersWithResponse request
 	ListMembersWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListMembersResponse, error)
@@ -3892,6 +3944,29 @@ func (r GetInvoiceResponse) StatusCode() int {
 	return 0
 }
 
+type LeaveSpaceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *LeaveSpaceResult
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r LeaveSpaceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r LeaveSpaceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListMembersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -4615,6 +4690,15 @@ func (c *ClientWithResponses) GetInvoiceWithResponse(ctx context.Context, spaceI
 		return nil, err
 	}
 	return ParseGetInvoiceResponse(rsp)
+}
+
+// LeaveSpaceWithResponse request returning *LeaveSpaceResponse
+func (c *ClientWithResponses) LeaveSpaceWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*LeaveSpaceResponse, error) {
+	rsp, err := c.LeaveSpace(ctx, spaceId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseLeaveSpaceResponse(rsp)
 }
 
 // ListMembersWithResponse request returning *ListMembersResponse
@@ -5770,6 +5854,39 @@ func ParseGetInvoiceResponse(rsp *http.Response) (*GetInvoiceResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest InvoiceDetail
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseLeaveSpaceResponse parses an HTTP response from a LeaveSpaceWithResponse call
+func ParseLeaveSpaceResponse(rsp *http.Response) (*LeaveSpaceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &LeaveSpaceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest LeaveSpaceResult
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

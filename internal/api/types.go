@@ -463,6 +463,15 @@ type InvoicesResponse struct {
 	Invoices []Invoice `json:"invoices"`
 }
 
+// LeaveSpaceResult Result of leaving a space.
+type LeaveSpaceResult struct {
+	// SpaceId ID of the space the user left.
+	SpaceId string `json:"space_id"`
+
+	// SpaceName Name of the space the user left.
+	SpaceName string `json:"space_name"`
+}
+
 // LogEntry A single database log entry.
 type LogEntry struct {
 	// Message Log message text
