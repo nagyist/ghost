@@ -272,6 +272,18 @@ defer cancel()
 - **Pre-allocate slices when the length is known.** Use `make([]T, len(source))` with index assignment rather than `make([]T, 0)` with `append`, which may resize the backing array multiple times.
 - **Construct output/result types at the end.** Build intermediate data (slices, computed values) first, then construct and return the struct as the final step. Avoid creating a struct early and mutating it over the course of the function.
 - **Use `new()` for pointer-to-expression values.** As of Go 1.26, `new()` accepts an expression (not just a type) and returns a pointer to a new variable initialized with that expression's value. Use `new("value")`, `new(42)`, or `new(someFunc())` instead of declaring a variable first. This is cleaner and avoids polluting the scope with single-use variables. For example: `api.CreateDatabaseRequest{Name: new("mydb")}` instead of `name := "mydb"; api.CreateDatabaseRequest{Name: &name}`. This also works with type conversions: `new(api.DatabaseSize("2x"))`.
+- **Use multi-line struct literals when initializing more than one field.** Put each field on its own line, with a trailing comma after the last field. Only collapse a struct literal onto a single line when it sets zero or one field. For example:
+
+  ```go
+  // Two or more fields: one per line.
+  api.CreateDatabaseRequest{
+      Name: new("mydb"),
+      Size: new(api.DatabaseSize("2x")),
+  }
+
+  // Single field: a one-line literal is fine.
+  api.CreateDatabaseRequest{Name: new("mydb")}
+  ```
 
 ## API Response Handling
 
