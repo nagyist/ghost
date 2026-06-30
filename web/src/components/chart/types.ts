@@ -8,7 +8,12 @@ export interface ChartColumn {
 }
 
 export interface ChartData {
-  rows: Record<string, unknown>[];
+  // Values are typed as `any` (not `unknown`) so chart configs can use a column
+  // directly as ECharts axis data or in arithmetic without a type error on
+  // every access. This must stay in sync with the ambient `ChartData` fed to
+  // Monaco in monacoChartSetup.ts, which is what governs editor diagnostics.
+  // biome-ignore lint/suspicious/noExplicitAny: intentional, see comment above.
+  rows: Record<string, any>[];
   columns: ChartColumn[];
 }
 
@@ -16,4 +21,4 @@ export interface ChartData {
 // the rendered chart, or the chart config editor. Defined here (free of any
 // component imports) so non-UI modules like the store can reference it without
 // pulling in React components.
-export type ResultView = 'table' | 'chart' | 'editor';
+export type ResultView = 'table' | 'chart' | 'chart_editor';

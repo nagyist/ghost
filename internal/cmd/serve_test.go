@@ -39,9 +39,14 @@ func TestServeCmd(t *testing.T) {
 			wantErr: "authentication required: no credentials found",
 		},
 		{
-			name:          "port already in use returns bind error",
-			preBindHost:   "127.0.0.1",
-			args:          []string{"serve", "--no-open", "--port", "%PORT%"},
+			name:        "port already in use returns bind error",
+			preBindHost: "127.0.0.1",
+			// Pin --host to the same IP literal we pre-bound. The default
+			// host is "localhost", which resolves to both 127.0.0.1 and ::1;
+			// Go would fall back to binding [::1]:PORT when 127.0.0.1:PORT is
+			// taken, so the server would start instead of failing. Binding the
+			// IP literal directly forces the expected bind conflict.
+			args:          []string{"serve", "--no-open", "--host", "127.0.0.1", "--port", "%PORT%"},
 			wantErrPrefix: "listen on 127.0.0.1:",
 		},
 		{
@@ -53,7 +58,13 @@ func TestServeCmd(t *testing.T) {
 		},
 		{
 			name: "no-open skips browser",
-			args: []string{"serve", "--no-open"},
+			// Pin the host to an IP literal: this case relies on a
+			// pre-cancelled context to make Start return immediately, but a
+			// hostname like "localhost" forces a DNS lookup that honors the
+			// context and fails before the listener is created. An IP literal
+			// skips the resolver, so the listen succeeds and the cancelled
+			// context instead unblocks the post-Start select.
+			args: []string{"serve", "--no-open", "--host", "127.0.0.1"},
 			opts: func(t *testing.T) []runOption {
 				// Cancel the context before runCommand executes so srv.Serve
 				// returns immediately instead of blocking on a real listener.

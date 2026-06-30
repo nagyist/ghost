@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import '@timescale/popsql-query-widget-cdn/index.css';
 
+import { AgentStatusBanner } from './agent/AgentStatusBanner';
+import { DisconnectedBanner } from './agent/DisconnectedBanner';
+import { useAgentBridge } from './agent/useAgentBridge';
 import { QueryPanel } from './components/QueryPanel';
 import { SchemaPane } from './components/SchemaPane';
 import { SplitPane } from './components/SplitPane';
@@ -9,6 +12,7 @@ import { type PersistedState, useServeStore } from './store';
 interface Bootstrap {
   projectId: string;
   version: string;
+  readOnly: boolean;
 }
 
 interface Database {
@@ -29,6 +33,10 @@ async function fetchJSON<T>(path: string): Promise<T> {
 }
 
 const READY_STATUSES = new Set(['ready', 'running']);
+
+// Stable empty array so useAgentBridge doesn't see a new reference each render
+// before the database list loads.
+const emptyDatabases: Database[] = [];
 
 function pickDefaultDatabaseId(databases: Database[]): string | null {
   if (databases.length === 1) return databases[0]?.id ?? null;
@@ -88,21 +96,42 @@ function ReadyApp({ bootstrap }: ReadyAppProps) {
     queryFn: async () => {
       const { databases } =
         await fetchJSON<DatabasesResponse>('/api/databases');
-      if (!useServeStore.getState().selectedDatabaseId) {
+      const selectedId = useServeStore.getState().selectedDatabaseId;
+      if (!selectedId) {
         const defaultId = pickDefaultDatabaseId(databases);
         if (defaultId)
           useServeStore.getState().setSelectedDatabaseId(defaultId);
+      } else if (!databases.some((db) => db.id === selectedId)) {
+        // The selection doesn't match any database id. It may be a name passed
+        // via the ?db= URL parameter (e.g. ?db=weather-data); now that the list
+        // has loaded, resolve it to the canonical id so the selector matches and
+        // the URL is normalized. If it matches neither id nor name, leave it as
+        // is — the backend will surface an invalid ref when a query runs.
+        const byName = databases.find((db) => db.name === selectedId);
+        if (byName) useServeStore.getState().setSelectedDatabaseId(byName.id);
       }
       return databases;
     },
     refetchInterval: 10_000,
   });
 
+  // Connect to the agent bridge so MCP tools can drive this UI. The database
+  // list is passed so the dispatcher can resolve a name-or-id ref to an id.
+  useAgentBridge(databases.data ?? emptyDatabases);
+
   const selected = databases.data?.find((db) => db.id === selectedId) ?? null;
   const selectedIsReady = selected && READY_STATUSES.has(selected.status);
+  // Mount the query panel as soon as a database is selected, even before the
+  // database list has loaded (or if the id isn't in the list yet). This lets
+  // agent-driven queries run immediately without waiting for /api/databases:
+  // the panel only needs the id, and the backend validates it when the query
+  // runs. Fall back to the id as the display name until the list resolves.
+  const activeDatabase =
+    selected ?? (selectedId ? { id: selectedId, name: selectedId } : null);
 
   return (
     <div className="flex h-full flex-col">
+      <DisconnectedBanner />
       <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2">
         <div className="flex items-center gap-3">
           <button
@@ -119,8 +148,30 @@ function ReadyApp({ bootstrap }: ReadyAppProps) {
           <div className="font-mono text-lg font-semibold tracking-tight">
             ghost
           </div>
+          {bootstrap.readOnly ? (
+            <span
+              className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700"
+              title="Read-only mode is enabled. Queries run through this UI cannot modify the database."
+            >
+              <svg
+                className="h-3 w-3"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              Read-only
+            </span>
+          ) : null}
         </div>
         <div className="flex items-center gap-2 text-sm">
+          <AgentStatusBanner />
           {databases.isError ? (
             <span className="text-red-600">Failed to load databases</span>
           ) : (
@@ -160,15 +211,15 @@ function ReadyApp({ bootstrap }: ReadyAppProps) {
           }
           right={
             <div className="flex flex-auto flex-col overflow-hidden p-4">
-              {!selected ? (
+              {!activeDatabase ? (
                 <div className="text-slate-500">
                   Select a database to run queries.
                 </div>
               ) : (
                 <QueryPanel
                   projectId={bootstrap.projectId}
-                  databaseId={selected.id}
-                  databaseName={selected.name}
+                  databaseId={activeDatabase.id}
+                  databaseName={activeDatabase.name}
                   query={editorSql}
                   onQueryChange={setEditorSql}
                   editorHeight={editorHeight}

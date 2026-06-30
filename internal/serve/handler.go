@@ -23,12 +23,17 @@ type HandlerConfig struct {
 	App    *common.App
 	Store  *Store
 	Logger *slog.Logger
+	// Bridge is the optional agent communication channel. When non-nil, the
+	// agent SSE/respond/activate endpoints are served, letting MCP tools drive
+	// this UI. It is nil for a plain `ghost serve` (no MCP-driven control).
+	Bridge *Bridge
 }
 
 type Handler struct {
 	app    *common.App
 	store  *Store
 	logger *slog.Logger
+	bridge *Bridge
 }
 
 func NewHandler(config HandlerConfig) *Handler {
@@ -36,6 +41,7 @@ func NewHandler(config HandlerConfig) *Handler {
 		app:    config.App,
 		store:  config.Store,
 		logger: config.Logger,
+		bridge: config.Bridge,
 	}
 }
 
@@ -111,6 +117,22 @@ func (h *Handler) Handler() http.Handler {
 		validateRequest(),
 	)
 
+	router.GET("/api/agent/events",
+		h.agentEventsHandler,
+	)
+	router.POST("/api/agent/respond",
+		h.agentRespondHandler,
+		contentTypeJSON(),
+		unmarshalRequest[AgentRespondRequest](),
+		validateRequest(),
+	)
+	router.POST("/api/agent/activate",
+		h.agentActivateHandler,
+		contentTypeJSON(),
+		unmarshalRequest[AgentActivateRequest](),
+		validateRequest(),
+	)
+
 	router.Handler(http.MethodGet, "/debug/*path", h.debugHandlers())
 
 	// Unmatched routes fall through to the embedded SPA assets (with index.html
@@ -139,13 +161,17 @@ func (h *Handler) healthHandler(w http.ResponseWriter, r *http.Request) {
 type GetBootstrapResponse struct {
 	ProjectID string `json:"projectId"`
 	Version   string `json:"version"`
+	// ReadOnly reflects the read_only config option. When true, queries run by
+	// this server use an immutable read-only connection, so the UI surfaces a
+	// read-only indicator to the user.
+	ReadOnly bool `json:"readOnly"`
 }
 
 func (h *Handler) bootstrapHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	logger := log.FromContext(ctx)
 
-	_, projectID, err := h.loadClient(ctx)
+	cfg, _, projectID, err := h.loadClient(ctx)
 	if err != nil {
 		logger.Warn("Error loading client", slog.Any("error", err))
 		writeError(w, http.StatusUnauthorized, err, logger)
@@ -156,6 +182,7 @@ func (h *Handler) bootstrapHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, GetBootstrapResponse{
 		ProjectID: projectID,
 		Version:   config.Version,
+		ReadOnly:  cfg.ReadOnly,
 	}, logger)
 }
 
@@ -176,7 +203,7 @@ func (h *Handler) databasesHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	logger := log.FromContext(ctx)
 
-	client, projectID, err := h.loadClient(ctx)
+	_, client, projectID, err := h.loadClient(ctx)
 	if err != nil {
 		logger.Warn("Error loading client", slog.Any("error", err))
 		writeError(w, http.StatusUnauthorized, err, logger)
@@ -231,7 +258,7 @@ func (h *Handler) schemaHandler(w http.ResponseWriter, r *http.Request) {
 	includeDefinitions := boolQueryParamFromContext(ctx, "definitions")
 	includeComments := boolQueryParamFromContext(ctx, "comments")
 
-	client, projectID, err := h.loadClient(ctx)
+	_, client, projectID, err := h.loadClient(ctx)
 	if err != nil {
 		logger.Warn("Error loading client", slog.Any("error", err))
 		writeError(w, http.StatusUnauthorized, err, logger)
@@ -293,6 +320,10 @@ type State struct {
 	// QueryHistory is the list of previously run queries, newest first. Each PUT
 	// replaces it wholesale; the web client owns dedup and capping.
 	QueryHistory []QueryHistoryEntry `json:"queryHistory,omitempty"`
+	// ChartConfigHistory is the list of previously used chart configs, newest
+	// first. Like QueryHistory, each PUT replaces it wholesale; the web client
+	// owns dedup and capping.
+	ChartConfigHistory []ChartConfigHistoryEntry `json:"chartConfigHistory,omitempty"`
 }
 
 // QueryRun records a single execution of a query: when it completed (epoch
@@ -310,6 +341,14 @@ type QueryHistoryEntry struct {
 	Timestamp      int64      `json:"ts"`
 	Success        bool       `json:"success"`
 	AdditionalRuns []QueryRun `json:"additionalRuns,omitempty"`
+}
+
+// ChartConfigHistoryEntry is one entry in the chart config history: the full
+// chart config source and when it was last recorded (epoch milliseconds). The
+// web client owns dedup (identical configs are promoted, not duplicated).
+type ChartConfigHistoryEntry struct {
+	Config    string `json:"config"`
+	Timestamp int64  `json:"ts"`
 }
 
 // GetStateResponse is the response body of the GET /api/state endpoint.
@@ -750,22 +789,26 @@ func (h *Handler) methodNotAllowedHandler(w http.ResponseWriter, r *http.Request
 }
 
 // loadClient reloads credentials from disk (refreshing the OAuth token if
-// needed) and returns an API client bound to the active project. Called per
-// request so a long-running server doesn't keep using a stale token after it
-// expires.
-func (h *Handler) loadClient(ctx context.Context) (ghostapi.ClientWithResponsesInterface, string, error) {
-	_, client, projectID, err := h.app.Load(ctx)
+// needed) and returns the config plus an API client bound to the active
+// project, all from a single atomic snapshot. Called per request so a
+// long-running server doesn't keep using a stale token after it expires.
+// Returning the config alongside the client (rather than having callers call
+// app.GetConfig() separately) ensures the config and client/project always
+// come from the same snapshot, so a concurrent reload can't pair one request's
+// client/project with another snapshot's config (e.g. ReadOnly).
+func (h *Handler) loadClient(ctx context.Context) (*config.Config, ghostapi.ClientWithResponsesInterface, string, error) {
+	cfg, client, projectID, err := h.app.Load(ctx)
 	if err != nil {
-		return nil, "", err
+		return nil, nil, "", err
 	}
 	if client == nil {
 		_, _, clientErr := h.app.GetClient()
 		if clientErr != nil {
-			return nil, "", clientErr
+			return nil, nil, "", clientErr
 		}
-		return nil, "", errors.New("authentication required")
+		return nil, nil, "", errors.New("authentication required")
 	}
-	return client, projectID, nil
+	return cfg, client, projectID, nil
 }
 
 // defaultRole matches the role used by `ghost sql` / `ghost connect` / etc.
@@ -779,7 +822,7 @@ const defaultRole = "tsdbadmin"
 // authoritative; the request's projectId is accepted for compatibility but not
 // used for routing.
 func (h *Handler) connectionStringForService(ctx context.Context, serviceID string) (string, error) {
-	client, projectID, err := h.loadClient(ctx)
+	cfg, client, projectID, err := h.loadClient(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -811,10 +854,16 @@ func (h *Handler) connectionStringForService(ctx context.Context, serviceID stri
 		return "", connectErr("retrieving password: %v", err)
 	}
 
+	// Honor the read-only config option (e.g. an MCP server started with
+	// read_only: true): build the DSN with the immutable read-only connection
+	// GUC so queries run through this in-process server can't write, matching
+	// the server-side `ghost sql` / ghost_sql path. Without this, visualized
+	// MCP queries would bypass read-only enforcement.
 	connStr, err := common.BuildConnectionString(common.ConnectionStringArgs{
 		Database: database,
 		Role:     defaultRole,
 		Password: password,
+		ReadOnly: cfg.ReadOnly,
 	})
 	if err != nil {
 		return "", connectErr("building connection string: %v", err)
