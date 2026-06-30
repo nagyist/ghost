@@ -98,10 +98,14 @@ func refreshTokenIfNeeded(ctx context.Context, cfg *config.Config, token *oauth2
 	newToken, err := tokenSource.Token()
 	if err != nil {
 		// If the refresh token is expired or revoked, the server
-		// returns "invalid_grant". Treat this as a "not logged in"
-		// error so the user is prompted to log in again.
+		// returns "invalid_grant". The token will never work again, so
+		// clear the stored credentials to avoid futile refresh attempts
+		// on subsequent invocations, and prompt the user to log in again.
 		if re, ok := errors.AsType[*oauth2.RetrieveError](err); ok && re.ErrorCode == "invalid_grant" {
-			return nil, errors.New("authentication required: session expired")
+			// Best-effort: even if clearing the stored credentials fails, the
+			// session is expired and the user needs to log in again.
+			_ = cfg.RemoveCredentials()
+			return nil, errors.New("login session expired, please run 'ghost login' to log in again")
 		}
 		return nil, fmt.Errorf("failed to refresh token: %w", err)
 	}
