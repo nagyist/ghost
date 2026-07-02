@@ -13,6 +13,7 @@ interface Bootstrap {
   projectId: string;
   version: string;
   readOnly: boolean;
+  uiQueryHistoryLimit: number;
 }
 
 interface Database {
@@ -48,7 +49,22 @@ function pickDefaultDatabaseId(databases: Database[]): string | null {
 export function App() {
   const bootstrap = useQuery({
     queryKey: ['bootstrap'],
-    queryFn: () => fetchJSON<Bootstrap>('/api/bootstrap'),
+    queryFn: async () => {
+      const data = await fetchJSON<Bootstrap>('/api/bootstrap');
+      // Apply the in-memory query-history retention limit from the server
+      // config (ui_query_history_limit) as soon as bootstrap resolves. No runs
+      // can exist yet — the query panel doesn't mount until bootstrap has
+      // resolved — so this only sets the limit; there's nothing to evict.
+      // Only override the client default (DEFAULT_QUERY_HISTORY_LIMIT) when the
+      // server sends a usable value: a hand-edited config file bypasses the
+      // CLI's positive-int validation, and an older backend may omit the field
+      // entirely (arriving as undefined) — in both cases keep the default
+      // rather than disabling query history with a 0/negative limit.
+      if (data.uiQueryHistoryLimit > 0) {
+        useServeStore.getState().setQueryHistoryLimit(data.uiQueryHistoryLimit);
+      }
+      return data;
+    },
   });
   const persistedState = useQuery({
     queryKey: ['state'],
