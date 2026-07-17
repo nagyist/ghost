@@ -19,6 +19,7 @@ import (
 func buildMCPGetCmd(app *common.App) *cobra.Command {
 	var jsonOutput bool
 	var yamlOutput bool
+	var functionTools bool
 
 	cmd := &cobra.Command{
 		Use:     "get <name>",
@@ -42,8 +43,10 @@ func buildMCPGetCmd(app *common.App) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			capabilityName := args[0]
 
-			// Create MCP server
-			server, err := mcp.NewServer(cmd.Context(), app, nil)
+			// Create MCP server (see functionToolsMode for the --function-tools gating).
+			server, err := mcp.NewServer(cmd.Context(), app, mcp.Options{
+				FunctionTools: functionToolsMode(app, functionTools),
+			})
 			if err != nil {
 				return fmt.Errorf("failed to create MCP server: %w", err)
 			}
@@ -92,6 +95,7 @@ func buildMCPGetCmd(app *common.App) *cobra.Command {
 	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output in JSON format")
 	cmd.Flags().BoolVar(&yamlOutput, "yaml", false, "Output in YAML format")
 	cmd.MarkFlagsMutuallyExclusive("json", "yaml")
+	addFunctionToolsFlag(cmd, app, &functionTools)
 
 	return cmd
 }

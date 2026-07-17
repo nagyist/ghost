@@ -17,6 +17,8 @@ import (
 
 // buildMCPStartCmd creates the start subcommand with transport options
 func buildMCPStartCmd(app *common.App) *cobra.Command {
+	var serveRef string
+
 	cmd := &cobra.Command{
 		Use:   "start",
 		Short: "Start the Ghost MCP server",
@@ -34,9 +36,11 @@ func buildMCPStartCmd(app *common.App) *cobra.Command {
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Default behavior when no subcommand is specified - use stdio
-			return startStdioServer(cmd, app)
+			return startStdioServer(cmd, app, serveRef)
 		},
 	}
+
+	addServeFlag(cmd, app, &serveRef)
 
 	// Add transport subcommands
 	cmd.AddCommand(buildMCPStdioCmd(app))
@@ -45,9 +49,28 @@ func buildMCPStartCmd(app *common.App) *cobra.Command {
 	return cmd
 }
 
+// addServeFlag registers the --serve flag, which puts the server in the
+// stripped consumer serving mode: expose only a single database's generated
+// function tools, with no management or Ghost tools. The flag is registered
+// on `mcp start` and on each transport subcommand individually (sharing one
+// destination) rather than as a persistent flag, so it appears as a regular
+// flag in each command's help text instead of under "Global Flags". Like the
+// rest of the function-tool feature, it is experimental.
+func addServeFlag(cmd *cobra.Command, app *common.App, serveRef *string) {
+	if !app.Experimental {
+		return
+	}
+	cmd.Flags().StringVar(serveRef, "serve", "", "Serve only the named database's custom function tools (no other Ghost tools)")
+	if err := cmd.RegisterFlagCompletionFunc("serve", databaseCompletion(app)); err != nil {
+		cobra.CompErrorln(err.Error())
+	}
+}
+
 // buildMCPStdioCmd creates the stdio subcommand
 func buildMCPStdioCmd(app *common.App) *cobra.Command {
-	return &cobra.Command{
+	var serveRef string
+
+	cmd := &cobra.Command{
 		Use:   "stdio",
 		Short: "Start MCP server with stdio transport",
 		Long:  `Start the MCP server using standard input/output transport.`,
@@ -57,15 +80,20 @@ func buildMCPStdioCmd(app *common.App) *cobra.Command {
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return startStdioServer(cmd, app)
+			return startStdioServer(cmd, app, serveRef)
 		},
 	}
+
+	addServeFlag(cmd, app, &serveRef)
+
+	return cmd
 }
 
 // buildMCPHTTPCmd creates the http subcommand with port/host flags
 func buildMCPHTTPCmd(app *common.App) *cobra.Command {
 	var httpPort int
 	var httpHost string
+	var serveRef string
 
 	cmd := &cobra.Command{
 		Use:   "http",
@@ -87,7 +115,7 @@ func buildMCPHTTPCmd(app *common.App) *cobra.Command {
 		SilenceUsage:      true,
 		SilenceErrors:     true, // HTTP server uses slog for all output, including errors
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return startHTTPServer(cmd, app, httpHost, httpPort)
+			return startHTTPServer(cmd, app, httpHost, httpPort, serveRef)
 		},
 	}
 
@@ -95,15 +123,37 @@ func buildMCPHTTPCmd(app *common.App) *cobra.Command {
 	cmd.Flags().IntVar(&httpPort, "port", 8080, "Port to run HTTP server on")
 	cmd.Flags().StringVar(&httpHost, "host", "localhost", "Host to bind to")
 
+	addServeFlag(cmd, app, &serveRef)
+
 	return cmd
 }
 
+// newMCPServer creates the MCP server for a `mcp start` transport, choosing
+// between the stripped consumer serving mode (see addServeFlag) and the
+// regular authoring server based on whether serveRef is set. local is
+// unconditional true for stdio: it's always a local, single-user session,
+// and serving mode registers no browser-backed tools regardless.
+func newMCPServer(ctx context.Context, app *common.App, logger *slog.Logger, serveRef string, local bool) (*mcp.Server, error) {
+	if serveRef != "" {
+		return mcp.NewFunctionToolsServer(ctx, app, logger, serveRef)
+	}
+	functionTools := mcp.FunctionToolsDisabled
+	if app.Experimental {
+		functionTools = mcp.FunctionToolsEnabled
+	}
+	return mcp.NewServer(ctx, app, mcp.Options{
+		Logger:        logger,
+		Local:         local,
+		FunctionTools: functionTools,
+	})
+}
+
 // startStdioServer starts the MCP server with stdio transport
-func startStdioServer(cmd *cobra.Command, app *common.App) error {
+func startStdioServer(cmd *cobra.Command, app *common.App, serveRef string) error {
 	ctx := cmd.Context()
-	// Create MCP server. Local (stdio) mode enables the browser-backed
-	// visualization tools, since we can open a browser on the user's machine.
-	server, err := mcp.NewServerWithOptions(ctx, app, log.New(cmd.ErrOrStderr()), mcp.Options{Local: true})
+	logger := log.New(cmd.ErrOrStderr())
+
+	server, err := newMCPServer(ctx, app, logger, serveRef, true)
 	if err != nil {
 		return fmt.Errorf("failed to create MCP server: %w", err)
 	}
@@ -122,12 +172,11 @@ func startStdioServer(cmd *cobra.Command, app *common.App) error {
 }
 
 // startHTTPServer starts the MCP server with HTTP transport
-func startHTTPServer(cmd *cobra.Command, app *common.App, host string, port int) error {
+func startHTTPServer(cmd *cobra.Command, app *common.App, host string, port int, serveRef string) error {
 	ctx := cmd.Context()
 	logger := log.New(cmd.ErrOrStderr())
 
-	// Create MCP server
-	server, err := mcp.NewServer(ctx, app, logger)
+	server, err := newMCPServer(ctx, app, logger, serveRef, false)
 	if err != nil {
 		logger.Error("failed to create MCP server", slog.String("error", err.Error()))
 		return fmt.Errorf("failed to create MCP server: %w", err)

@@ -10,6 +10,7 @@
   - **`internal/config/`** - Configuration management. Handles config file loading (via Viper), credential storage (keyring with file fallback), and version checking.
   - **`internal/common/`** - Shared business logic used across commands and MCP tools. Includes API client initialization, database connection/schema/query utilities, error handling with exit codes, and version update checks.
   - **`internal/mcp/`** - Model Context Protocol (MCP) server. Exposes Ghost database operations as MCP tools for AI/LLM integration, plus a documentation search proxy. Each MCP tool lives in its own file, named to match the tool (e.g. `ghost_usage` → `usage.go`). Helper files like `util.go`, `errors.go`, and `proxy.go` contain shared utilities. In local (stdio) mode the server can also drive a live web UI for visualization via the browser controller (`browser.go`) and the `ghost_visualize` (`visualize.go`) and `ghost_ui_state` (`ui_state.go`) tools (see [Web UI & MCP Agent Bridge](#web-ui--mcp-agent-bridge)).
+  - **`internal/mcp/function/`** - Custom MCP function tools (experimental, gated behind `GHOST_EXPERIMENTAL`): Postgres functions marked with an `@mcp` comment become typed MCP tools, introspected straight from the database catalog. Contains the pg_proc/pg_type introspection (`introspect.go`, `types.go`), JSON Schema generation, call construction, and execution (`tools.go`, `scan.go`), and the `Manager` (`manager.go`, which also handles tool-name normalization/deduplication) that registers generated tools on the MCP server and backs the `ghost_mcp_tool_refresh` management tool in `internal/mcp`. See [Custom MCP Function Tools](#custom-mcp-function-tools) below.
   - **`internal/serve/`** - Local web UI for `ghost serve` (and the MCP server's in-process visualization UI). Embeds a Vite/React SPA (from `web/dist`) via `//go:embed` (`assets.go`) and runs a small in-process HTTP server (`server.go`). Serves the support endpoints the UI needs — `/api/bootstrap` (config dump), `/api/databases` (read-only database list), `/api/state` (GET/PUT of persisted UI state), `/health`, and the SPA asset handler — plus the query endpoints the SQL query client calls: `/api/createSession`, `/api/sessionEvents`, `/api/closeSession`, `/api/executeQuery`, `/api/executeSessionQuery`, `/api/arrowResults`, `/api/cancelQuery`. Queries run in-process: each request resolves the target database's connection (via the API client + stored password) into a DSN, opens a Postgres session (`session.go`, `driver/`), executes the query, and streams results as newline-delimited JSON status plus an Apache Arrow IPC stream (`writer/`). The DSN honors the `read_only` config option (the immutable read-only connection GUC), so queries run through this server — including MCP-driven visualizations — can't bypass read-only mode; `/api/bootstrap` reports `readOnly` so the UI can surface a read-only indicator. Sessions and in-progress runs are tracked in an in-memory `Store` (`store.go`). Request/response types live in `api/`. The agent channel that lets MCP tools drive the UI (`agent.go`, `agent_handler.go`) is described in [Web UI & MCP Agent Bridge](#web-ui--mcp-agent-bridge).
   - **`internal/analytics/`** - Analytics event tracking with sensitive data redaction for flags, positional arguments, and MCP inputs.
   - **`internal/log/`** - Small `slog` helper package for the long-running backend commands (`ghost serve`, `ghost mcp`): `log.New` builds the stderr logger, and `NewContext`/`FromContext` thread a request-scoped logger through the context. `ErrLevel` picks debug vs error level based on context cancellation.
@@ -43,6 +44,23 @@ The bridge tracks all connected tabs with exactly one active: the first tab to c
 ## Build & Test
 
 After editing Go code, run `./check` from the repo root. It runs `go install`, `go fmt`, `go mod tidy`, `go fix`, `go vet`, `staticcheck`, and `go test` in one shot.
+
+## Custom MCP Function Tools
+
+Experimental (gated behind `GHOST_EXPERIMENTAL`): every Ghost database can define custom MCP tools by marking Postgres functions with an `@mcp` comment — the first line of the `COMMENT ON FUNCTION` text is `@mcp`, and the remaining lines become the tool's description. Because the definition lives in the database itself, tools are shared across the space and travel with forks and shares.
+
+Key mechanics (see `internal/mcp/function`):
+
+- **Catalog introspection**: a tool's input/output schema is derived entirely from the Postgres catalog (`pg_proc`/`pg_type`) — argument names, types, defaults, nullability, return shape, enum values, and volatility. No SQL parsing is involved.
+- **Skipped functions**: functions that can't be cleanly represented as a tool (e.g. procedures, aggregate/window functions, polymorphic or `VARIADIC "any"` arguments) are skipped with a logged warning rather than failing, so one exotic function never takes down the rest of the tool surface.
+- **VARIADIC arguments**: a `VARIADIC` argument is exposed as an array parameter and passed through with the `VARIADIC` keyword. Because PostgreSQL forbids omitting arguments under named notation for a variadic call, a variadic function's tool is always called positionally (omitted defaults must be trailing).
+- **Overloaded functions**: same-named `@mcp` functions each become their own tool, distinguished by a de-duplication suffix.
+- **Tool naming**: a tool's name joins the normalized database name and function name with `__` (`billing__get_user`), truncating and de-duplicating as needed. The function's own Postgres schema plays no part in the name.
+- **Two serving modes**: an authoring mode used by the main `ghost mcp` server, which exposes every database's function tools alongside the standard Ghost tools and management tooling; and a stripped consumer mode (`ghost mcp start --serve <database_ref>`) that exposes *only* one database's generated tools, unprefixed, with no other Ghost tools.
+- **Refresh**: function tools change via DDL, not management tools, so `ghost_mcp_tool_refresh` re-introspects a database on demand and swaps its registered tools; otherwise changes are picked up on the next server start.
+- **Annotations**: the read-only hint comes from the function's own volatility declaration (`IMMUTABLE`/`STABLE` = read-only).
+- **Analytics**: generated tool calls are tracked under the single event `Call function MCP tool` with the tool name as a property, never one event per user-defined tool name.
+- **Read-only**: generated function tools deliberately ignore the `read_only` config option (marking a function `@mcp` is an intentional act; the volatility-derived annotations tell clients which tools write).
 
 ## Testing
 
@@ -103,6 +121,10 @@ The typical workflow for API changes is:
 ## Database References (`ref` vs `id`)
 
 Database-scoped API endpoints accept either an ID or a name, so the path parameter is `database_ref` (generated as `api.DatabaseRef`). Use `databaseRef` for variables holding user input that could be either form; reserve `databaseID` for values resolved from `database.Id` on an API response.
+
+## Space ID Naming (`spaceID`, not `projectID`)
+
+Ghost-facing code always refers to Tiger Cloud "projects" as "spaces". Name variables holding the current space's ID `spaceID`, not `projectID`, even though some older code still uses `projectID`. Don't mass-rename existing code (or the `config.Credentials.ProjectID` struct field) unless asked.
 
 ## Command Patterns
 

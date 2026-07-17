@@ -239,8 +239,15 @@ func mcpCapabilityCompletion(app *common.App) cobra.CompletionFunc {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
 
-		// Create MCP server to get capabilities
-		server, err := mcp.NewServer(cmd.Context(), app, nil)
+		// Create MCP server to get capabilities. Never connects to any
+		// databases, so ManagementOnly rather than Enabled.
+		functionTools := mcp.FunctionToolsDisabled
+		if app.Experimental {
+			functionTools = mcp.FunctionToolsManagementOnly
+		}
+		server, err := mcp.NewServer(cmd.Context(), app, mcp.Options{
+			FunctionTools: functionTools,
+		})
 		if err != nil {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}

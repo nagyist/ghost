@@ -14,6 +14,7 @@ import (
 	"github.com/timescale/ghost/internal/analytics"
 	"github.com/timescale/ghost/internal/common"
 	"github.com/timescale/ghost/internal/config"
+	"github.com/timescale/ghost/internal/mcp/function"
 )
 
 const (
@@ -31,31 +32,65 @@ type Server struct {
 	// tools. Non-nil only in local (stdio) mode, where opening a browser makes
 	// sense; nil for the remote HTTP transport.
 	browser *browserController
+	// functionManager owns the generated function tools (MCP tools defined
+	// by @mcp-marked Postgres functions in each database). Nil when the
+	// feature is unavailable (not experimental and not serving).
+	functionManager *function.Manager
 }
+
+// FunctionToolsMode selects how much of the generated function-tool feature
+// (see internal/mcp/function) a [Server] turns on. This package has no
+// knowledge of GHOST_EXPERIMENTAL: gating the feature on it is entirely the
+// caller's responsibility (internal/cmd), which just picks the mode.
+//
+// This only covers the regular (authoring) server; the stripped consumer
+// serving mode is a wholly separate constructor, [NewFunctionToolsServer].
+type FunctionToolsMode int
+
+const (
+	// FunctionToolsDisabled turns the feature off entirely: no Manager, no
+	// ghost_mcp_tool_refresh tool, no generated tools.
+	FunctionToolsDisabled FunctionToolsMode = iota
+	// FunctionToolsManagementOnly registers the function-tool Manager and
+	// the ghost_mcp_tool_refresh management tool, without connecting to any
+	// database or registering any generated tools. Used by callers that
+	// only enumerate capabilities (`ghost mcp list`/`get`, shell
+	// completion), which must not connect to any databases, so their
+	// listings stay accurate when the feature is enabled.
+	FunctionToolsManagementOnly
+	// FunctionToolsEnabled additionally introspects and registers the
+	// generated function tools of every database in the space at
+	// construction. Set by `ghost mcp start` (without --serve).
+	FunctionToolsEnabled
+)
 
 // Options configures optional [Server] behavior.
 type Options struct {
+	// Logger receives the server's structured log output. Nil discards it.
+	Logger *slog.Logger
 	// Local indicates the server is running in local (stdio) mode, where it can
 	// open a browser on the user's machine. Enables the visualize/chart/
 	// ui_state tools backed by an in-process web UI.
 	Local bool
+	// FunctionTools selects the function-tool feature's mode; see
+	// [FunctionToolsMode].
+	FunctionTools FunctionToolsMode
 }
 
-// NewServer creates a new Ghost MCP server instance
-func NewServer(ctx context.Context, app *common.App, logger *slog.Logger) (*Server, error) {
-	return NewServerWithOptions(ctx, app, logger, Options{})
-}
-
-// NewServerWithOptions creates a new Ghost MCP server instance with the given
-// [Options].
-func NewServerWithOptions(ctx context.Context, app *common.App, logger *slog.Logger, opts Options) (*Server, error) {
-	logger = ensureLogger(logger)
+// NewServer creates a new Ghost MCP server instance with the given [Options].
+func NewServer(ctx context.Context, app *common.App, opts Options) (*Server, error) {
+	logger := ensureLogger(opts.Logger)
 	instructions := "Ghost provides tools for creating, managing, and querying fully-managed PostgreSQL databases. " +
 		"Use it to provision new databases, fork existing ones for isolation and testing migrations, share database copies with other users, pause and resume instances, execute SQL queries, inspect schemas, and manage credentials. " +
 		"It also provides access to PostgreSQL, TimescaleDB, and PostGIS documentation through semantic and keyword search, " +
 		"plus skills with best-practice guidance for working with Postgres: schema and table design (data types, indexing, constraints, JSONB, partitioning), TimescaleDB hypertables for time-series data, pgvector embeddings for semantic search and RAG, hybrid BM25 + vector search, and PostGIS spatial data. " +
 		"Consult these skills when designing schemas or setting up Postgres features like time-series, vector, or full-text search. " +
 		"A free monthly compute allowance is included (shared across your space; databases auto-pause when it's reached), so creating and forking databases for experimentation is low-risk."
+
+	// Describe the function-tool feature when it is enabled (experimental).
+	if app.Experimental {
+		instructions += functionToolsInstructions
+	}
 
 	// Append a directive to the instructions when an update is available, so
 	// the agent proactively surfaces the outdated CLI to the user. Runs
@@ -97,7 +132,7 @@ func NewServerWithOptions(ctx context.Context, app *common.App, logger *slog.Log
 	}
 
 	// Register all tools (including proxied docs tools)
-	server.registerTools(ctx)
+	server.registerTools(ctx, opts)
 
 	// Add analytics tracking middleware
 	server.mcpServer.AddReceivingMiddleware(server.analyticsMiddleware)
@@ -126,8 +161,9 @@ func (s *Server) HTTPHandler() http.Handler {
 	})
 }
 
-// registerTools registers all available MCP tools
-func (s *Server) registerTools(ctx context.Context) {
+// registerTools registers all available MCP tools, per opts.FunctionTools
+// (see [FunctionToolsMode]).
+func (s *Server) registerTools(ctx context.Context, opts Options) {
 	// Register remote docs MCP server proxy
 	s.registerDocsProxy(ctx)
 
@@ -164,6 +200,12 @@ func (s *Server) registerTools(ctx context.Context) {
 		mcp.AddTool(s.mcpServer, newVisualizeTool(), s.handleVisualize)
 		mcp.AddTool(s.mcpServer, newUIStateTool(), s.handleUIState)
 	}
+
+	// Register the function-tool management tools and, when requested, the
+	// generated function tools themselves.
+	if opts.FunctionTools != FunctionToolsDisabled {
+		s.registerFunctionTools(ctx, opts.FunctionTools == FunctionToolsEnabled)
+	}
 }
 
 // analyticsMiddleware tracks analytics for all MCP requests
@@ -196,11 +238,21 @@ func (s *Server) analyticsMiddleware(next mcp.MethodHandler) mcp.MethodHandler {
 					}
 				}
 
-				a.Track(fmt.Sprintf("Call %s tool", r.Params.Name),
+				// Generated function tool names are user-defined and
+				// unbounded, so their calls are all tracked under a single
+				// event name with the tool name as a property — never one
+				// event key per generated tool.
+				event := fmt.Sprintf("Call %s tool", r.Params.Name)
+				options := []analytics.Option{
 					analytics.Map(args),
 					analytics.Property("elapsed_seconds", time.Since(start).Seconds()),
 					analytics.Error(toolErr),
-				)
+				}
+				if s.functionManager != nil && s.functionManager.IsFunctionTool(r.Params.Name) {
+					event = "Call function MCP tool"
+					options = append(options, analytics.Property("tool_name", r.Params.Name))
+				}
+				a.Track(event, options...)
 			}()
 		case *mcp.ReadResourceRequest:
 			defer func() {
@@ -238,6 +290,11 @@ func (s *Server) Close() error {
 	// Close docs proxy connection
 	if err := s.docsProxyClient.Close(); err != nil {
 		errs = append(errs, fmt.Errorf("failed to close docs proxy client: %w", err))
+	}
+
+	// Release the function-tool connection pools, if the feature was enabled.
+	if s.functionManager != nil {
+		s.functionManager.Close()
 	}
 
 	return errors.Join(errs...)
