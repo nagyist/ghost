@@ -19,7 +19,7 @@ func TestInviteSentCmd(t *testing.T) {
 			{Email: "bob@example.com", Role: api.MemberRoleDeveloper, Status: api.InviteStatusPending, CreatedAt: createdAt},
 			{Email: "carol@example.com", Role: api.MemberRoleViewer, Status: api.InviteStatusDeclined, CreatedAt: createdAt},
 		}
-		m.EXPECT().ListInvitesWithResponse(validCtx, "test-project").
+		m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 			Return(&api.ListInvitesResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &invites,
@@ -42,7 +42,7 @@ func TestInviteSentCmd(t *testing.T) {
 			args: []string{"invite", "sent"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListInvitesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to list invites: connection refused",
@@ -52,7 +52,7 @@ func TestInviteSentCmd(t *testing.T) {
 			args: []string{"invite", "sent"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListInvitesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvitesResponse{
 						HTTPResponse: httpResponse(http.StatusForbidden),
 						JSONDefault:  &api.Error{Message: "only the space owner or an admin can manage invites"},
@@ -65,7 +65,7 @@ func TestInviteSentCmd(t *testing.T) {
 			args: []string{"invite", "sent"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListInvitesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvitesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,

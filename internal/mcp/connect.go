@@ -53,13 +53,13 @@ func newConnectTool() *mcp.Tool {
 }
 
 func (s *Server) handleConnect(ctx context.Context, req *mcp.CallToolRequest, input ConnectInput) (*mcp.CallToolResult, ConnectOutput, error) {
-	client, projectID, err := s.app.GetClient()
+	client, spaceID, err := s.app.GetClient()
 	if err != nil {
 		return nil, ConnectOutput{}, err
 	}
 
 	// Fetch database details
-	resp, err := client.GetDatabaseWithResponse(ctx, projectID, input.Ref)
+	resp, err := client.GetDatabaseWithResponse(ctx, spaceID, input.Ref)
 	if err != nil {
 		return nil, ConnectOutput{}, fmt.Errorf("failed to get database: %w", err)
 	}

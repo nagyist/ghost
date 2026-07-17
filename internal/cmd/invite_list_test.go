@@ -18,7 +18,7 @@ func TestInviteListCmd(t *testing.T) {
 		invites := []api.Invite{
 			{Email: "bob@example.com", Role: api.MemberRoleDeveloper, Status: api.InviteStatusPending, CreatedAt: createdAt},
 		}
-		m.EXPECT().ListInvitesWithResponse(validCtx, "test-project").
+		m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 			Return(&api.ListInvitesResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &invites,
@@ -43,15 +43,15 @@ func TestInviteListCmd(t *testing.T) {
 	}
 
 	setupSpaces := func(m *mock.MockClientWithResponsesInterface) {
-		m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+		m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
-				JSON200:      &api.SpaceDetail{Id: "test-project", Name: "Test Space"},
+				JSON200:      &api.SpaceDetail{Id: "test-space", Name: "Test Space"},
 			}, nil)
 	}
 	setupSentEmpty := func(m *mock.MockClientWithResponsesInterface) {
 		invites := []api.Invite{}
-		m.EXPECT().ListInvitesWithResponse(validCtx, "test-project").
+		m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 			Return(&api.ListInvitesResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &invites,
@@ -80,7 +80,7 @@ func TestInviteListCmd(t *testing.T) {
 		setupSpaces(m)
 	}
 
-	sentTable := "Sent for Test Space (test-project)\n" +
+	sentTable := "Sent for Test Space (test-space)\n" +
 		"EMAIL            ROLE       STATUS   INVITED               \n" +
 		"bob@example.com  developer  pending  2026-01-02T15:04:05Z  \n"
 	receivedTable := "Received\n" +
@@ -100,7 +100,7 @@ func TestInviteListCmd(t *testing.T) {
 			args: []string{"invite", "list"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListInvitesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 				setupReceived(m)
 			},
@@ -111,7 +111,7 @@ func TestInviteListCmd(t *testing.T) {
 			args: []string{"invite", "list"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListInvitesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvitesResponse{
 						HTTPResponse: httpResponse(http.StatusForbidden),
 						JSONDefault:  &api.Error{Message: "only the space owner or an admin can manage invites"},
@@ -125,7 +125,7 @@ func TestInviteListCmd(t *testing.T) {
 			args: []string{"invite", "list"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListInvitesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvitesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,

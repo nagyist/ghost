@@ -17,23 +17,23 @@ func TestSpaceLeaveCmd(t *testing.T) {
 
 	tokenCreds := config.Credentials{
 		Token:   &oauth2.Token{AccessToken: "test-token"},
-		SpaceID: "test-project",
+		SpaceID: "test-space",
 	}
 
 	// setupGetSpace mocks the current-space lookup used for the prompt/messages.
 	setupGetSpace := func(m *mock.MockClientWithResponsesInterface) {
-		m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+		m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
-				JSON200:      &api.SpaceDetail{Id: "test-project", Name: "Test Space"},
+				JSON200:      &api.SpaceDetail{Id: "test-space", Name: "Test Space"},
 			}, nil)
 	}
 	// setupLeave mocks a successful leave of the current space.
 	setupLeave := func(m *mock.MockClientWithResponsesInterface) {
-		m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceId("test-project")).
+		m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceId("test-space")).
 			Return(&api.LeaveSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
-				JSON200:      &api.LeaveSpaceResult{SpaceId: "test-project", SpaceName: "Test Space"},
+				JSON200:      &api.LeaveSpaceResult{SpaceId: "test-space", SpaceName: "Test Space"},
 			}, nil)
 	}
 	// setupListOwned mocks the post-leave space list, returning the user's owned
@@ -70,7 +70,7 @@ func TestSpaceLeaveCmd(t *testing.T) {
 			args: []string{"space", "leave", "--confirm"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+				m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to get space: connection refused",
@@ -80,7 +80,7 @@ func TestSpaceLeaveCmd(t *testing.T) {
 			args: []string{"space", "leave", "--confirm"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+				m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 					Return(&api.GetSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusForbidden),
 						JSONDefault:  &api.Error{Message: "user authentication required"},
@@ -93,7 +93,7 @@ func TestSpaceLeaveCmd(t *testing.T) {
 			args: []string{"space", "leave", "--confirm"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+				m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 					Return(&api.GetSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -113,7 +113,7 @@ func TestSpaceLeaveCmd(t *testing.T) {
 			args:       []string{"space", "leave"},
 			opts:       []runOption{experimental, withStdin("n\n"), withIsTerminal(true)},
 			setup:      setupGetSpace,
-			wantStderr: "Leave space 'Test Space' (test-project)? [y/N] ",
+			wantStderr: "Leave space 'Test Space' (test-space)? [y/N] ",
 			wantStdout: "Leave operation cancelled.\n",
 		},
 		{
@@ -122,7 +122,7 @@ func TestSpaceLeaveCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpace(m)
-				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceId("test-project")).
+				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceId("test-space")).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to leave space: connection refused",
@@ -133,7 +133,7 @@ func TestSpaceLeaveCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpace(m)
-				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceId("test-project")).
+				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceId("test-space")).
 					Return(&api.LeaveSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusBadRequest),
 						JSONDefault:  &api.Error{Message: "the space owner cannot leave their own space"},
@@ -147,7 +147,7 @@ func TestSpaceLeaveCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpace(m)
-				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceId("test-project")).
+				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceId("test-space")).
 					Return(&api.LeaveSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -165,7 +165,7 @@ func TestSpaceLeaveCmd(t *testing.T) {
 				m.EXPECT().ListSpacesWithResponse(validCtx).
 					Return(nil, errors.New("connection refused"))
 			},
-			wantStdout: "Left space 'Test Space' (test-project)\n" +
+			wantStdout: "Left space 'Test Space' (test-space)\n" +
 				"Run 'ghost space use <id>' to select a space for subsequent commands.\n",
 		},
 		{
@@ -177,8 +177,8 @@ func TestSpaceLeaveCmd(t *testing.T) {
 				setupLeave(m)
 				setupListOwned(m)
 			},
-			wantStderr: "Leave space 'Test Space' (test-project)? [y/N] ",
-			wantStdout: "Left space 'Test Space' (test-project)\n" +
+			wantStderr: "Leave space 'Test Space' (test-space)? [y/N] ",
+			wantStdout: "Left space 'Test Space' (test-space)\n" +
 				"Switched to space 'My Space' (home-proj)\n",
 			check: checkStoredSpaceID("home-proj"),
 		},
@@ -191,7 +191,7 @@ func TestSpaceLeaveCmd(t *testing.T) {
 				setupLeave(m)
 				setupListOwned(m)
 			},
-			wantStdout: "Left space 'Test Space' (test-project)\n" +
+			wantStdout: "Left space 'Test Space' (test-space)\n" +
 				"Switched to space 'My Space' (home-proj)\n",
 			check: checkStoredSpaceID("home-proj"),
 		},

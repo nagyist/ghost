@@ -48,12 +48,12 @@ func newShareListTool() *mcp.Tool {
 }
 
 func (s *Server) handleShareList(ctx context.Context, req *mcp.CallToolRequest, input ShareListInput) (*mcp.CallToolResult, ShareListOutput, error) {
-	cfg, client, projectID, err := s.app.GetAll()
+	cfg, client, spaceID, err := s.app.GetAll()
 	if err != nil {
 		return nil, ShareListOutput{}, err
 	}
 
-	resp, err := client.ListSharesWithResponse(ctx, projectID)
+	resp, err := client.ListSharesWithResponse(ctx, spaceID)
 	if err != nil {
 		return nil, ShareListOutput{}, fmt.Errorf("failed to list shares: %w", err)
 	}

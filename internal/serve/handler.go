@@ -159,6 +159,8 @@ func (h *Handler) healthHandler(w http.ResponseWriter, r *http.Request) {
 
 // GetBootstrapResponse is the response body of the GET /api/bootstrap endpoint.
 type GetBootstrapResponse struct {
+	// ProjectID keeps the legacy "projectId" JSON key (rather than a space-based
+	// name) for backwards-compatibility with the local web UI that consumes it.
 	ProjectID string `json:"projectId"`
 	Version   string `json:"version"`
 	// ReadOnly reflects the read_only config option. When true, queries run by
@@ -175,7 +177,7 @@ func (h *Handler) bootstrapHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	logger := log.FromContext(ctx)
 
-	cfg, _, projectID, err := h.loadClient(ctx)
+	cfg, _, spaceID, err := h.loadClient(ctx)
 	if err != nil {
 		logger.Warn("Error loading client", slog.Any("error", err))
 		writeError(w, http.StatusUnauthorized, err, logger)
@@ -184,7 +186,7 @@ func (h *Handler) bootstrapHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Cache-Control", "no-store")
 	writeJSON(w, http.StatusOK, GetBootstrapResponse{
-		ProjectID:           projectID,
+		ProjectID:           spaceID,
 		Version:             config.Version,
 		ReadOnly:            cfg.ReadOnly,
 		UIQueryHistoryLimit: cfg.UIQueryHistoryLimit,
@@ -208,14 +210,14 @@ func (h *Handler) databasesHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	logger := log.FromContext(ctx)
 
-	_, client, projectID, err := h.loadClient(ctx)
+	_, client, spaceID, err := h.loadClient(ctx)
 	if err != nil {
 		logger.Warn("Error loading client", slog.Any("error", err))
 		writeError(w, http.StatusUnauthorized, err, logger)
 		return
 	}
 
-	resp, err := client.ListDatabasesWithResponse(ctx, projectID)
+	resp, err := client.ListDatabasesWithResponse(ctx, spaceID)
 	if err != nil {
 		logger.Error("Error listing databases", slog.Any("error", err))
 		writeError(w, http.StatusBadGateway, fmt.Errorf("failed to list databases: %w", err), logger)
@@ -263,7 +265,7 @@ func (h *Handler) schemaHandler(w http.ResponseWriter, r *http.Request) {
 	includeDefinitions := boolQueryParamFromContext(ctx, "definitions")
 	includeComments := boolQueryParamFromContext(ctx, "comments")
 
-	_, client, projectID, err := h.loadClient(ctx)
+	_, client, spaceID, err := h.loadClient(ctx)
 	if err != nil {
 		logger.Warn("Error loading client", slog.Any("error", err))
 		writeError(w, http.StatusUnauthorized, err, logger)
@@ -272,7 +274,7 @@ func (h *Handler) schemaHandler(w http.ResponseWriter, r *http.Request) {
 
 	schema, err := common.FetchDatabaseSchema(ctx, common.FetchDatabaseSchemaArgs{
 		Client:             client,
-		ProjectID:          projectID,
+		SpaceID:            spaceID,
 		DatabaseRef:        databaseRef,
 		Schema:             schemaName,
 		IncludeInternal:    includeInternal,
@@ -389,9 +391,11 @@ func (h *Handler) saveStateHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// ServiceRequest holds the fields common to every query endpoint: the project
+// ServiceRequest holds the fields common to every query endpoint: the space
 // and database ("service") the request targets.
 type ServiceRequest struct {
+	// ProjectID keeps the legacy "projectId" JSON key (rather than a space-based
+	// name) for backwards-compatibility with the local web UI that sends it.
 	ProjectID string `json:"projectId"`
 	ServiceID string `json:"serviceId"`
 }
@@ -789,14 +793,14 @@ func (h *Handler) methodNotAllowedHandler(w http.ResponseWriter, r *http.Request
 
 // loadClient reloads credentials from disk (refreshing the OAuth token if
 // needed) and returns the config plus an API client bound to the active
-// project, all from a single atomic snapshot. Called per request so a
+// space, all from a single atomic snapshot. Called per request so a
 // long-running server doesn't keep using a stale token after it expires.
 // Returning the config alongside the client (rather than having callers call
-// app.GetConfig() separately) ensures the config and client/project always
+// app.GetConfig() separately) ensures the config and client/space always
 // come from the same snapshot, so a concurrent reload can't pair one request's
-// client/project with another snapshot's config (e.g. ReadOnly).
+// client/space with another snapshot's config (e.g. ReadOnly).
 func (h *Handler) loadClient(ctx context.Context) (*config.Config, ghostapi.ClientWithResponsesInterface, string, error) {
-	cfg, client, projectID, err := h.app.Load(ctx)
+	cfg, client, spaceID, err := h.app.Load(ctx)
 	if err != nil {
 		return nil, nil, "", err
 	}
@@ -807,7 +811,7 @@ func (h *Handler) loadClient(ctx context.Context) (*config.Config, ghostapi.Clie
 		}
 		return nil, nil, "", errors.New("authentication required")
 	}
-	return cfg, client, projectID, nil
+	return cfg, client, spaceID, nil
 }
 
 // defaultRole matches the role used by `ghost sql` / `ghost connect` / etc.
@@ -817,16 +821,16 @@ const defaultRole = "tsdbadmin"
 // service (a database ref): it fetches the ghost-api database, retrieves the
 // password for the default role, and builds a Postgres connection string (DSN).
 // Connection failures are returned as an [api.NormalizedError], so callers can
-// route the error through handleNewSessionError. The active project is
+// route the error through handleNewSessionError. The active space is
 // authoritative; the request's projectId is accepted for compatibility but not
 // used for routing.
 func (h *Handler) connectionStringForService(ctx context.Context, serviceID string) (string, error) {
-	cfg, client, projectID, err := h.loadClient(ctx)
+	cfg, client, spaceID, err := h.loadClient(ctx)
 	if err != nil {
 		return "", err
 	}
 
-	resp, err := client.GetDatabaseWithResponse(ctx, projectID, serviceID)
+	resp, err := client.GetDatabaseWithResponse(ctx, spaceID, serviceID)
 	if err != nil {
 		return "", connectErr("fetching database: %v", err)
 	}

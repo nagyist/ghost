@@ -24,7 +24,7 @@ func buildPauseCmd(app *common.App) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			databaseRef := args[0]
 
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
@@ -32,7 +32,7 @@ func buildPauseCmd(app *common.App) *cobra.Command {
 			// Make the pause request
 			resp, err := client.PauseDatabaseWithResponse(
 				cmd.Context(),
-				api.SpaceId(projectID),
+				api.SpaceId(spaceID),
 				api.DatabaseRef(databaseRef),
 			)
 			if err != nil {

@@ -89,7 +89,7 @@ The share URL can be handed to anyone — they don't need access to this space. 
 }
 
 func (s *Server) handleShare(ctx context.Context, req *mcp.CallToolRequest, input ShareInput) (*mcp.CallToolResult, ShareOutput, error) {
-	cfg, client, projectID, err := s.app.GetAll()
+	cfg, client, spaceID, err := s.app.GetAll()
 	if err != nil {
 		return nil, ShareOutput{}, err
 	}
@@ -104,7 +104,7 @@ func (s *Server) handleShare(ctx context.Context, req *mcp.CallToolRequest, inpu
 	}
 
 	// Fetch source database to check readiness (sharing snapshots the DB)
-	getResp, err := client.GetDatabaseWithResponse(ctx, projectID, input.Ref)
+	getResp, err := client.GetDatabaseWithResponse(ctx, spaceID, input.Ref)
 	if err != nil {
 		return nil, ShareOutput{}, fmt.Errorf("failed to get database details: %w", err)
 	}
@@ -120,7 +120,7 @@ func (s *Server) handleShare(ctx context.Context, req *mcp.CallToolRequest, inpu
 		return nil, ShareOutput{}, handleDatabaseError(err)
 	}
 
-	resp, err := client.ShareDatabaseWithResponse(ctx, projectID, database.Id, api.ShareDatabaseJSONRequestBody{
+	resp, err := client.ShareDatabaseWithResponse(ctx, spaceID, database.Id, api.ShareDatabaseJSONRequestBody{
 		ExpiresAt: expiresAt,
 	})
 	if err != nil {

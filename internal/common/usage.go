@@ -45,7 +45,7 @@ type Usage struct {
 }
 
 // FetchUsage fetches space usage and database counts from the API.
-func FetchUsage(ctx context.Context, client api.ClientWithResponsesInterface, projectID string) (Usage, error) {
+func FetchUsage(ctx context.Context, client api.ClientWithResponsesInterface, spaceID string) (Usage, error) {
 	var spaceUsage *api.SpaceUsage
 	var databases []api.DatabaseWithUsage
 	var spaceName string
@@ -53,7 +53,7 @@ func FetchUsage(ctx context.Context, client api.ClientWithResponsesInterface, pr
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
-		resp, err := client.SpaceUsageWithResponse(ctx, projectID)
+		resp, err := client.SpaceUsageWithResponse(ctx, spaceID)
 		if err != nil {
 			return fmt.Errorf("failed to get space usage: %w", err)
 		}
@@ -68,7 +68,7 @@ func FetchUsage(ctx context.Context, client api.ClientWithResponsesInterface, pr
 	})
 
 	g.Go(func() error {
-		resp, err := client.ListDatabasesWithResponse(ctx, projectID)
+		resp, err := client.ListDatabasesWithResponse(ctx, spaceID)
 		if err != nil {
 			return fmt.Errorf("failed to list databases: %w", err)
 		}
@@ -83,7 +83,7 @@ func FetchUsage(ctx context.Context, client api.ClientWithResponsesInterface, pr
 	})
 
 	g.Go(func() error {
-		resp, err := client.GetSpaceWithResponse(ctx, projectID)
+		resp, err := client.GetSpaceWithResponse(ctx, spaceID)
 		if err != nil {
 			return fmt.Errorf("failed to get space: %w", err)
 		}
@@ -142,7 +142,7 @@ func FetchUsage(ctx context.Context, client api.ClientWithResponsesInterface, pr
 		EstimatedTotalCost:  spaceUsage.EstimatedTotalCost,
 		BillingPeriodStart:  spaceUsage.BillingPeriodStart,
 		BillingPeriodEnd:    spaceUsage.BillingPeriodEnd,
-		SpaceID:             projectID,
+		SpaceID:             spaceID,
 		SpaceName:           spaceName,
 	}, nil
 }

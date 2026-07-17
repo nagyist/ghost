@@ -174,8 +174,8 @@ func wrapCommands(cmd *cobra.Command, app *common.App, stdoutWriter, stderrWrite
 			// Track analytics
 			start := time.Now()
 			defer func() {
-				cfg, client, projectID := app.TryGetAll()
-				a := analytics.New(cfg, client, projectID)
+				cfg, client, spaceID := app.TryGetAll()
+				a := analytics.New(cfg, client, spaceID)
 				a.Track(fmt.Sprintf("Run %s", c.CommandPath()),
 					analytics.Args(c.CommandPath(), args),
 					analytics.Property("elapsed_seconds", time.Since(start).Seconds()),

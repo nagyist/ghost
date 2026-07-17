@@ -12,7 +12,7 @@ import (
 func TestApiKeyCreateCmd(t *testing.T) {
 	setupCreate := func(name string) func(m *mock.MockClientWithResponsesInterface) {
 		return func(m *mock.MockClientWithResponsesInterface) {
-			m.EXPECT().CreateApiKeyWithResponse(validCtx, "test-project", api.CreateApiKeyJSONRequestBody{Name: name}).
+			m.EXPECT().CreateApiKeyWithResponse(validCtx, "test-space", api.CreateApiKeyJSONRequestBody{Name: name}).
 				Return(&api.CreateApiKeyResponse{
 					HTTPResponse: httpResponse(http.StatusCreated),
 					JSON201:      &api.ApiKeyCredentials{ApiKey: "gt_test_key_123"},
@@ -39,7 +39,7 @@ func TestApiKeyCreateCmd(t *testing.T) {
 			name: "network error on create",
 			args: []string{"api-key", "create", "--name", "CI Key"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateApiKeyWithResponse(validCtx, "test-project", api.CreateApiKeyJSONRequestBody{Name: "CI Key"}).
+				m.EXPECT().CreateApiKeyWithResponse(validCtx, "test-space", api.CreateApiKeyJSONRequestBody{Name: "CI Key"}).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to create API key: connection refused",
@@ -48,7 +48,7 @@ func TestApiKeyCreateCmd(t *testing.T) {
 			name: "API error on create",
 			args: []string{"api-key", "create", "--name", "CI Key"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateApiKeyWithResponse(validCtx, "test-project", api.CreateApiKeyJSONRequestBody{Name: "CI Key"}).
+				m.EXPECT().CreateApiKeyWithResponse(validCtx, "test-space", api.CreateApiKeyJSONRequestBody{Name: "CI Key"}).
 					Return(&api.CreateApiKeyResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal error"},
@@ -60,7 +60,7 @@ func TestApiKeyCreateCmd(t *testing.T) {
 			name: "nil response body on create",
 			args: []string{"api-key", "create", "--name", "CI Key"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateApiKeyWithResponse(validCtx, "test-project", api.CreateApiKeyJSONRequestBody{Name: "CI Key"}).
+				m.EXPECT().CreateApiKeyWithResponse(validCtx, "test-space", api.CreateApiKeyJSONRequestBody{Name: "CI Key"}).
 					Return(&api.CreateApiKeyResponse{
 						HTTPResponse: httpResponse(http.StatusCreated),
 						JSON201:      nil,

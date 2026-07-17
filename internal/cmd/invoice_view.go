@@ -42,12 +42,12 @@ The invoice ID is the opaque ID from 'ghost invoice list'.`,
 		ValidArgsFunction: invoiceIDCompletion(app),
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
 
-			resp, err := client.GetInvoiceWithResponse(cmd.Context(), projectID, args[0])
+			resp, err := client.GetInvoiceWithResponse(cmd.Context(), spaceID, args[0])
 			if err != nil {
 				return fmt.Errorf("failed to get invoice: %w", err)
 			}

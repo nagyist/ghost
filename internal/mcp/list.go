@@ -67,13 +67,13 @@ func newListTool() *mcp.Tool {
 }
 
 func (s *Server) handleList(ctx context.Context, req *mcp.CallToolRequest, input ListInput) (*mcp.CallToolResult, ListOutput, error) {
-	client, projectID, err := s.app.GetClient()
+	client, spaceID, err := s.app.GetClient()
 	if err != nil {
 		return nil, ListOutput{}, err
 	}
 
 	// Make API call to list databases
-	resp, err := client.ListDatabasesWithResponse(ctx, projectID)
+	resp, err := client.ListDatabasesWithResponse(ctx, spaceID)
 	if err != nil {
 		return nil, ListOutput{}, fmt.Errorf("failed to list databases: %w", err)
 	}

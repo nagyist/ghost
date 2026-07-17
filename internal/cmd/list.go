@@ -46,13 +46,13 @@ func buildListCmd(app *common.App) *cobra.Command {
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
 
 			// Make API call to list databases
-			resp, err := client.ListDatabasesWithResponse(cmd.Context(), projectID)
+			resp, err := client.ListDatabasesWithResponse(cmd.Context(), spaceID)
 			if err != nil {
 				return fmt.Errorf("failed to list databases: %w", err)
 			}

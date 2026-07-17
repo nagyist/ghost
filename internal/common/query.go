@@ -36,7 +36,7 @@ type QueryResult struct {
 // ExecuteQueryArgs contains arguments for query execution.
 type ExecuteQueryArgs struct {
 	Client      api.ClientWithResponsesInterface
-	ProjectID   string
+	SpaceID     string
 	DatabaseRef string
 	Query       string
 	Role        string
@@ -56,7 +56,7 @@ type ExecuteQueryArgs struct {
 // require a real database connection.
 var ExecuteQuery = func(ctx context.Context, args ExecuteQueryArgs) (*QueryResult, error) {
 	// Fetch database details
-	database, err := fetchDatabase(ctx, args.Client, args.ProjectID, args.DatabaseRef)
+	database, err := fetchDatabase(ctx, args.Client, args.SpaceID, args.DatabaseRef)
 	if err != nil {
 		return nil, err
 	}
@@ -88,8 +88,8 @@ var ExecuteQuery = func(ctx context.Context, args ExecuteQueryArgs) (*QueryResul
 }
 
 // fetchDatabase retrieves the database details from the API.
-func fetchDatabase(ctx context.Context, client api.ClientWithResponsesInterface, projectID, databaseRef string) (api.Database, error) {
-	resp, err := client.GetDatabaseWithResponse(ctx, projectID, databaseRef)
+func fetchDatabase(ctx context.Context, client api.ClientWithResponsesInterface, spaceID, databaseRef string) (api.Database, error) {
+	resp, err := client.GetDatabaseWithResponse(ctx, spaceID, databaseRef)
 	if err != nil {
 		return api.Database{}, fmt.Errorf("failed to get database: %w", err)
 	}

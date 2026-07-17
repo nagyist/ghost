@@ -17,7 +17,7 @@ func TestInviteAcceptCmd(t *testing.T) {
 
 	tokenCreds := config.Credentials{
 		Token:   &oauth2.Token{AccessToken: "test-token"},
-		SpaceID: "test-project",
+		SpaceID: "test-space",
 	}
 
 	setupAccept := func(m *mock.MockClientWithResponsesInterface) {

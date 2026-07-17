@@ -80,13 +80,13 @@ in their own space from the shared snapshot.`,
 }
 
 func runShareCreate(cmd *cobra.Command, app *common.App, databaseRef string, expiresAt *time.Time, jsonOutput, yamlOutput bool) error {
-	cfg, client, projectID, err := app.GetAll()
+	cfg, client, spaceID, err := app.GetAll()
 	if err != nil {
 		return err
 	}
 
 	// Fetch source database to check readiness (sharing snapshots the DB)
-	getResp, err := client.GetDatabaseWithResponse(cmd.Context(), projectID, databaseRef)
+	getResp, err := client.GetDatabaseWithResponse(cmd.Context(), spaceID, databaseRef)
 	if err != nil {
 		return fmt.Errorf("failed to get database details: %w", err)
 	}
@@ -102,7 +102,7 @@ func runShareCreate(cmd *cobra.Command, app *common.App, databaseRef string, exp
 		return handleDatabaseError(err, database.Id)
 	}
 
-	resp, err := client.ShareDatabaseWithResponse(cmd.Context(), projectID, database.Id, api.ShareDatabaseJSONRequestBody{
+	resp, err := client.ShareDatabaseWithResponse(cmd.Context(), spaceID, database.Id, api.ShareDatabaseJSONRequestBody{
 		ExpiresAt: expiresAt,
 	})
 	if err != nil {

@@ -29,7 +29,7 @@ func buildApiKeyDeleteCmd(app *common.App) *cobra.Command {
 		ValidArgsFunction: apiKeyPrefixCompletion(app),
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
@@ -52,7 +52,7 @@ func buildApiKeyDeleteCmd(app *common.App) *cobra.Command {
 				}
 			}
 
-			resp, err := client.DeleteApiKeyWithResponse(cmd.Context(), projectID, prefix)
+			resp, err := client.DeleteApiKeyWithResponse(cmd.Context(), spaceID, prefix)
 			if err != nil {
 				return fmt.Errorf("failed to delete API key: %w", err)
 			}

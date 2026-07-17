@@ -62,7 +62,7 @@ func newResumeTool() *mcp.Tool {
 }
 
 func (s *Server) handleResume(ctx context.Context, req *mcp.CallToolRequest, input ResumeInput) (*mcp.CallToolResult, ResumeOutput, error) {
-	client, projectID, err := s.app.GetClient()
+	client, spaceID, err := s.app.GetClient()
 	if err != nil {
 		return nil, ResumeOutput{}, err
 	}
@@ -70,7 +70,7 @@ func (s *Server) handleResume(ctx context.Context, req *mcp.CallToolRequest, inp
 	// Make the start request
 	resp, err := client.ResumeDatabaseWithResponse(
 		ctx,
-		api.SpaceId(projectID),
+		api.SpaceId(spaceID),
 		api.DatabaseRef(input.Ref),
 	)
 	if err != nil {
@@ -108,7 +108,7 @@ func (s *Server) handleResume(ctx context.Context, req *mcp.CallToolRequest, inp
 	if input.Wait {
 		if err := common.WaitForDatabase(ctx, common.WaitForDatabaseArgs{
 			Client:      client,
-			ProjectID:   projectID,
+			SpaceID:     spaceID,
 			DatabaseRef: database.Id,
 		}); err != nil {
 			return nil, ResumeOutput{}, err

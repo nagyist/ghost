@@ -36,12 +36,12 @@ Returns the most recent invoices.`,
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
 
-			resp, err := client.ListInvoicesWithResponse(cmd.Context(), projectID)
+			resp, err := client.ListInvoicesWithResponse(cmd.Context(), spaceID)
 			if err != nil {
 				return fmt.Errorf("failed to list invoices: %w", err)
 			}

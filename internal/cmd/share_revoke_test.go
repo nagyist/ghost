@@ -24,7 +24,7 @@ func TestShareRevokeCmd(t *testing.T) {
 
 	setupRevokeSuccess := func(m *mock.MockClientWithResponsesInterface) {
 		r := revoked
-		m.EXPECT().RevokeShareWithResponse(validCtx, "test-project", "tok_xyz").
+		m.EXPECT().RevokeShareWithResponse(validCtx, "test-space", "tok_xyz").
 			Return(&api.RevokeShareResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &r,
@@ -42,7 +42,7 @@ func TestShareRevokeCmd(t *testing.T) {
 			name: "network error on revoke",
 			args: []string{"share", "revoke", "tok_xyz"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().RevokeShareWithResponse(validCtx, "test-project", "tok_xyz").
+				m.EXPECT().RevokeShareWithResponse(validCtx, "test-space", "tok_xyz").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to revoke share: connection refused",
@@ -51,7 +51,7 @@ func TestShareRevokeCmd(t *testing.T) {
 			name: "token not found",
 			args: []string{"share", "revoke", "tok_unknown"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().RevokeShareWithResponse(validCtx, "test-project", "tok_unknown").
+				m.EXPECT().RevokeShareWithResponse(validCtx, "test-space", "tok_unknown").
 					Return(&api.RevokeShareResponse{
 						HTTPResponse: httpResponse(http.StatusNotFound),
 						JSONDefault:  &api.Error{Message: "share not found"},
@@ -63,7 +63,7 @@ func TestShareRevokeCmd(t *testing.T) {
 			name: "API error on revoke",
 			args: []string{"share", "revoke", "tok_xyz"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().RevokeShareWithResponse(validCtx, "test-project", "tok_xyz").
+				m.EXPECT().RevokeShareWithResponse(validCtx, "test-space", "tok_xyz").
 					Return(&api.RevokeShareResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal server error"},
@@ -75,7 +75,7 @@ func TestShareRevokeCmd(t *testing.T) {
 			name: "nil response body on revoke",
 			args: []string{"share", "revoke", "tok_xyz"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().RevokeShareWithResponse(validCtx, "test-project", "tok_xyz").
+				m.EXPECT().RevokeShareWithResponse(validCtx, "test-space", "tok_xyz").
 					Return(&api.RevokeShareResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,

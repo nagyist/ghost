@@ -30,19 +30,19 @@ func TestTutorialCmd(t *testing.T) {
 		})
 
 		// Step 1: ghost create tutorial-test --wait
-		m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("tutorial-test")}).
+		m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", api.CreateDatabaseRequest{Name: new("tutorial-test")}).
 			Return(&api.CreateDatabaseResponse{
 				HTTPResponse: httpResponse(http.StatusAccepted),
 				JSON202:      &originalDatabase,
 			}, nil)
 
 		// Step 4: ghost fork tutorial-test tutorial-test-fork --wait
-		m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "tutorial-test").
+		m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "tutorial-test").
 			Return(&api.GetDatabaseResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &originalDatabase,
 			}, nil)
-		m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-project", "orig1234567", api.ForkDatabaseRequest{Name: new("tutorial-test-fork")}).
+		m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-space", "orig1234567", api.ForkDatabaseRequest{Name: new("tutorial-test-fork")}).
 			Return(&api.ForkDatabaseResponse{
 				HTTPResponse: httpResponse(http.StatusAccepted),
 				JSON202:      &forkDatabase,
@@ -50,21 +50,21 @@ func TestTutorialCmd(t *testing.T) {
 
 		if includeDeletes {
 			// Step 7a: ghost delete tutorial-test-fork --confirm
-			m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "tutorial-test-fork").
+			m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "tutorial-test-fork").
 				Return(&api.GetDatabaseResponse{
 					HTTPResponse: httpResponse(http.StatusOK),
 					JSON200:      &forkDatabase,
 				}, nil)
-			m.EXPECT().DeleteDatabaseWithResponse(validCtx, "test-project", "fork1234567").
+			m.EXPECT().DeleteDatabaseWithResponse(validCtx, "test-space", "fork1234567").
 				Return(&api.DeleteDatabaseResponse{HTTPResponse: httpResponse(http.StatusAccepted)}, nil)
 
 			// Step 7b: ghost delete tutorial-test --confirm
-			m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "tutorial-test").
+			m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "tutorial-test").
 				Return(&api.GetDatabaseResponse{
 					HTTPResponse: httpResponse(http.StatusOK),
 					JSON200:      &originalDatabase,
 				}, nil)
-			m.EXPECT().DeleteDatabaseWithResponse(validCtx, "test-project", "orig1234567").
+			m.EXPECT().DeleteDatabaseWithResponse(validCtx, "test-space", "orig1234567").
 				Return(&api.DeleteDatabaseResponse{HTTPResponse: httpResponse(http.StatusAccepted)}, nil)
 		}
 	}
@@ -199,19 +199,19 @@ func TestTutorialCmd(t *testing.T) {
 			db.Password = &password
 		})
 
-		m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("tutorial-test")}).
+		m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", api.CreateDatabaseRequest{Name: new("tutorial-test")}).
 			Return(&api.CreateDatabaseResponse{
 				HTTPResponse: httpResponse(http.StatusAccepted),
 				JSON202:      &originalDatabase,
 			}, nil)
 
 		if includeCleanupDelete {
-			m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "tutorial-test").
+			m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "tutorial-test").
 				Return(&api.GetDatabaseResponse{
 					HTTPResponse: httpResponse(http.StatusOK),
 					JSON200:      &originalDatabase,
 				}, nil)
-			m.EXPECT().DeleteDatabaseWithResponse(validCtx, "test-project", "orig1234567").
+			m.EXPECT().DeleteDatabaseWithResponse(validCtx, "test-space", "orig1234567").
 				Return(&api.DeleteDatabaseResponse{HTTPResponse: httpResponse(http.StatusAccepted)}, nil)
 		}
 	}

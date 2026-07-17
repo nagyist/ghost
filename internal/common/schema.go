@@ -230,7 +230,7 @@ type ForeignTableInfo struct {
 // FetchDatabaseSchemaArgs are the arguments to FetchDatabaseSchema.
 type FetchDatabaseSchemaArgs struct {
 	Client      api.ClientWithResponsesInterface
-	ProjectID   string
+	SpaceID     string
 	DatabaseRef string
 	// Schema, if non-empty, limits the fetch to a single namespace.
 	Schema string
@@ -1111,7 +1111,7 @@ ORDER BY n.nspname, c.relname`,
 // IncludeDefinitions=true, and object comments are omitted unless
 // IncludeComments=true.
 func FetchDatabaseSchema(ctx context.Context, args FetchDatabaseSchemaArgs) (*DatabaseSchema, error) {
-	database, err := fetchDatabase(ctx, args.Client, args.ProjectID, args.DatabaseRef)
+	database, err := fetchDatabase(ctx, args.Client, args.SpaceID, args.DatabaseRef)
 	if err != nil {
 		return nil, err
 	}

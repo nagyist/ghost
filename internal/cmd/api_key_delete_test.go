@@ -11,7 +11,7 @@ import (
 
 func TestApiKeyDeleteCmd(t *testing.T) {
 	setupDelete := func(m *mock.MockClientWithResponsesInterface) {
-		m.EXPECT().DeleteApiKeyWithResponse(validCtx, "test-project", "gt_abc").
+		m.EXPECT().DeleteApiKeyWithResponse(validCtx, "test-space", "gt_abc").
 			Return(&api.DeleteApiKeyResponse{
 				HTTPResponse: httpResponse(http.StatusNoContent),
 			}, nil)
@@ -42,7 +42,7 @@ func TestApiKeyDeleteCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"api-key", "delete", "gt_abc", "--confirm"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().DeleteApiKeyWithResponse(validCtx, "test-project", "gt_abc").
+				m.EXPECT().DeleteApiKeyWithResponse(validCtx, "test-space", "gt_abc").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to delete API key: connection refused",
@@ -51,7 +51,7 @@ func TestApiKeyDeleteCmd(t *testing.T) {
 			name: "API error",
 			args: []string{"api-key", "delete", "gt_abc", "--confirm"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().DeleteApiKeyWithResponse(validCtx, "test-project", "gt_abc").
+				m.EXPECT().DeleteApiKeyWithResponse(validCtx, "test-space", "gt_abc").
 					Return(&api.DeleteApiKeyResponse{
 						HTTPResponse: httpResponse(http.StatusNotFound),
 						JSONDefault:  &api.Error{Message: "API key not found"},

@@ -31,19 +31,19 @@ var ignore = []string{
 }
 
 type Analytics struct {
-	config    *config.Config
-	projectID string
-	client    api.ClientWithResponsesInterface
+	config  *config.Config
+	spaceID string
+	client  api.ClientWithResponsesInterface
 }
 
 // New initializes a new [Analytics] instance. The [config.Config] parameters
 // is required, but the others are optional. Analytics won't be sent if the
 // client is nil.
-func New(cfg *config.Config, client api.ClientWithResponsesInterface, projectID string) *Analytics {
+func New(cfg *config.Config, client api.ClientWithResponsesInterface, spaceID string) *Analytics {
 	return &Analytics{
-		config:    cfg,
-		projectID: projectID,
-		client:    client,
+		config:  cfg,
+		spaceID: spaceID,
+		client:  client,
 	}
 }
 
@@ -141,7 +141,7 @@ func Error(err error) Option {
 }
 
 // Identify associates the provided properties with the user for the sake of
-// analytics. It automatically includes common properties like ProjectID. The
+// analytics. It automatically includes common properties like SpaceID. The
 // identification is only sent if the client is initialized and analytics are
 // enabled in the config, otherwise it is skipped.
 func (a *Analytics) Identify(options ...Option) {
@@ -153,8 +153,10 @@ func (a *Analytics) Identify(options ...Option) {
 
 	// Merge in default/common properties, overwriting user-provided properties
 	// if there's a conflict (we always want these properties to be accurate)
-	if a.projectID != "" {
-		properties["project_id"] = a.projectID
+	if a.spaceID != "" {
+		// The analytics event property keeps the legacy "project_id" key
+		// (despite the Go name being spaceID) for backwards-compatibility.
+		properties["project_id"] = a.spaceID
 	}
 
 	// Check if analytics is disabled
@@ -181,7 +183,7 @@ func (a *Analytics) Identify(options ...Option) {
 }
 
 // Track sends an analytics event with the provided event name and properties.
-// It automatically includes common properties like ProjectID, OS, and
+// It automatically includes common properties like SpaceID, OS, and
 // architecture. Events are only sent if the client is initialized and
 // analytics are enabled in the config, otherwise they are skipped.
 func (a *Analytics) Track(event string, options ...Option) {
@@ -199,8 +201,10 @@ func (a *Analytics) Track(event string, options ...Option) {
 		"os":            runtime.GOOS,
 		"arch":          runtime.GOARCH,
 	})
-	if a.projectID != "" {
-		properties["project_id"] = a.projectID
+	if a.spaceID != "" {
+		// The analytics event property keeps the legacy "project_id" key
+		// (despite the Go name being spaceID) for backwards-compatibility.
+		properties["project_id"] = a.spaceID
 	}
 
 	// Check if analytics is disabled

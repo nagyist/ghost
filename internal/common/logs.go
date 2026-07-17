@@ -14,7 +14,7 @@ import (
 
 type FetchLogsArgs struct {
 	Client      api.ClientWithResponsesInterface
-	ProjectID   string
+	SpaceID     string
 	DatabaseRef string
 	Tail        int
 	Until       time.Time
@@ -52,7 +52,7 @@ func FetchLogs(ctx context.Context, args FetchLogsArgs) ([]string, error) {
 
 	var logs []string
 	for {
-		resp, err := args.Client.DatabaseLogsWithResponse(ctx, args.ProjectID, args.DatabaseRef, params)
+		resp, err := args.Client.DatabaseLogsWithResponse(ctx, args.SpaceID, args.DatabaseRef, params)
 		if err != nil {
 			return nil, fmt.Errorf("failed to fetch logs: %w", err)
 		}

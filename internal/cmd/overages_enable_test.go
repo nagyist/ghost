@@ -13,7 +13,7 @@ func TestOveragesEnableCmd(t *testing.T) {
 	// setupHasPayment mocks a payment method on file so the proactive check
 	// passes and execution proceeds to the overages update.
 	setupHasPayment := func(m *mock.MockClientWithResponsesInterface) {
-		m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-project").
+		m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-space").
 			Return(&api.ListPaymentMethodsResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200: &api.PaymentMethodsResponse{
@@ -23,7 +23,7 @@ func TestOveragesEnableCmd(t *testing.T) {
 	}
 
 	setupUpdate := func(m *mock.MockClientWithResponsesInterface, req api.UpdateOverageSettingsRequest) {
-		m.EXPECT().UpdateOveragesWithResponse(validCtx, "test-project", req).
+		m.EXPECT().UpdateOveragesWithResponse(validCtx, "test-space", req).
 			Return(&api.UpdateOveragesResponse{
 				HTTPResponse: httpResponse(http.StatusNoContent),
 			}, nil)
@@ -42,7 +42,7 @@ func TestOveragesEnableCmd(t *testing.T) {
 			name: "network error listing payment methods",
 			args: []string{"overages", "enable", "--limit", "200"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-project").
+				m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to list payment methods: connection refused",
@@ -51,7 +51,7 @@ func TestOveragesEnableCmd(t *testing.T) {
 			name: "API error listing payment methods",
 			args: []string{"overages", "enable", "--limit", "200"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-project").
+				m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-space").
 					Return(&api.ListPaymentMethodsResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal server error"},
@@ -63,7 +63,7 @@ func TestOveragesEnableCmd(t *testing.T) {
 			name: "no payment method on file",
 			args: []string{"overages", "enable", "--limit", "200"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-project").
+				m.EXPECT().ListPaymentMethodsWithResponse(validCtx, "test-space").
 					Return(&api.ListPaymentMethodsResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &api.PaymentMethodsResponse{PaymentMethods: nil},
@@ -76,7 +76,7 @@ func TestOveragesEnableCmd(t *testing.T) {
 			args: []string{"overages", "enable", "--limit", "200"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupHasPayment(m)
-				m.EXPECT().UpdateOveragesWithResponse(validCtx, "test-project", api.UpdateOverageSettingsRequest{
+				m.EXPECT().UpdateOveragesWithResponse(validCtx, "test-space", api.UpdateOverageSettingsRequest{
 					Enabled:             true,
 					ComputeLimitMinutes: new(int64(12000)),
 				}).Return(nil, errors.New("connection refused"))
@@ -88,7 +88,7 @@ func TestOveragesEnableCmd(t *testing.T) {
 			args: []string{"overages", "enable", "--limit", "200"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupHasPayment(m)
-				m.EXPECT().UpdateOveragesWithResponse(validCtx, "test-project", api.UpdateOverageSettingsRequest{
+				m.EXPECT().UpdateOveragesWithResponse(validCtx, "test-space", api.UpdateOverageSettingsRequest{
 					Enabled:             true,
 					ComputeLimitMinutes: new(int64(12000)),
 				}).Return(&api.UpdateOveragesResponse{
@@ -103,7 +103,7 @@ func TestOveragesEnableCmd(t *testing.T) {
 			args: []string{"overages", "enable", "--limit", "200"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupHasPayment(m)
-				m.EXPECT().UpdateOveragesWithResponse(validCtx, "test-project", api.UpdateOverageSettingsRequest{
+				m.EXPECT().UpdateOveragesWithResponse(validCtx, "test-space", api.UpdateOverageSettingsRequest{
 					Enabled:             true,
 					ComputeLimitMinutes: new(int64(12000)),
 				}).Return(&api.UpdateOveragesResponse{

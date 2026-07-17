@@ -11,7 +11,7 @@ import (
 
 func TestOveragesDisableCmd(t *testing.T) {
 	setupDisable := func(m *mock.MockClientWithResponsesInterface) {
-		m.EXPECT().UpdateOveragesWithResponse(validCtx, "test-project", api.UpdateOverageSettingsRequest{
+		m.EXPECT().UpdateOveragesWithResponse(validCtx, "test-space", api.UpdateOverageSettingsRequest{
 			Enabled: false,
 		}).Return(&api.UpdateOveragesResponse{
 			HTTPResponse: httpResponse(http.StatusNoContent),
@@ -43,7 +43,7 @@ func TestOveragesDisableCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"overages", "disable", "--confirm"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().UpdateOveragesWithResponse(validCtx, "test-project", api.UpdateOverageSettingsRequest{
+				m.EXPECT().UpdateOveragesWithResponse(validCtx, "test-space", api.UpdateOverageSettingsRequest{
 					Enabled: false,
 				}).Return(nil, errors.New("connection refused"))
 			},
@@ -53,7 +53,7 @@ func TestOveragesDisableCmd(t *testing.T) {
 			name: "API error",
 			args: []string{"overages", "disable", "--confirm"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().UpdateOveragesWithResponse(validCtx, "test-project", api.UpdateOverageSettingsRequest{
+				m.EXPECT().UpdateOveragesWithResponse(validCtx, "test-space", api.UpdateOverageSettingsRequest{
 					Enabled: false,
 				}).Return(&api.UpdateOveragesResponse{
 					HTTPResponse: httpResponse(http.StatusBadRequest),

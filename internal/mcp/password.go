@@ -66,7 +66,7 @@ func newPasswordTool() *mcp.Tool {
 }
 
 func (s *Server) handlePassword(ctx context.Context, req *mcp.CallToolRequest, input PasswordInput) (*mcp.CallToolResult, PasswordOutput, error) {
-	cfg, client, projectID, err := s.app.GetAll()
+	cfg, client, spaceID, err := s.app.GetAll()
 	if err != nil {
 		return nil, PasswordOutput{}, err
 	}
@@ -76,7 +76,7 @@ func (s *Server) handlePassword(ctx context.Context, req *mcp.CallToolRequest, i
 	}
 
 	// Fetch database details
-	getResp, err := client.GetDatabaseWithResponse(ctx, projectID, input.Ref)
+	getResp, err := client.GetDatabaseWithResponse(ctx, spaceID, input.Ref)
 	if err != nil {
 		return nil, PasswordOutput{}, fmt.Errorf("failed to get database details: %w", err)
 	}
@@ -106,7 +106,7 @@ func (s *Server) handlePassword(ctx context.Context, req *mcp.CallToolRequest, i
 
 	// Update the password via API
 	updateReq := api.UpdatePasswordRequest{Password: password}
-	resp, err := client.UpdatePasswordWithResponse(ctx, projectID, database.Id, updateReq)
+	resp, err := client.UpdatePasswordWithResponse(ctx, spaceID, database.Id, updateReq)
 	if err != nil {
 		return nil, PasswordOutput{}, fmt.Errorf("failed to update password: %w", err)
 	}

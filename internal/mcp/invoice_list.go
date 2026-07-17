@@ -64,12 +64,12 @@ func newInvoiceListTool() *mcp.Tool {
 }
 
 func (s *Server) handleInvoiceList(ctx context.Context, req *mcp.CallToolRequest, input InvoiceListInput) (*mcp.CallToolResult, InvoiceListOutput, error) {
-	client, projectID, err := s.app.GetClient()
+	client, spaceID, err := s.app.GetClient()
 	if err != nil {
 		return nil, InvoiceListOutput{}, err
 	}
 
-	resp, err := client.ListInvoicesWithResponse(ctx, projectID)
+	resp, err := client.ListInvoicesWithResponse(ctx, spaceID)
 	if err != nil {
 		return nil, InvoiceListOutput{}, fmt.Errorf("failed to list invoices: %w", err)
 	}

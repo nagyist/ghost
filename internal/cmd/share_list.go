@@ -26,12 +26,12 @@ func buildShareListCmd(app *common.App) *cobra.Command {
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, client, projectID, err := app.GetAll()
+			cfg, client, spaceID, err := app.GetAll()
 			if err != nil {
 				return err
 			}
 
-			resp, err := client.ListSharesWithResponse(cmd.Context(), projectID)
+			resp, err := client.ListSharesWithResponse(cmd.Context(), spaceID)
 			if err != nil {
 				return fmt.Errorf("failed to list shares: %w", err)
 			}

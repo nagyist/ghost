@@ -56,14 +56,14 @@ func newLogsTool() *mcp.Tool {
 }
 
 func (s *Server) handleLogs(ctx context.Context, req *mcp.CallToolRequest, input LogsInput) (*mcp.CallToolResult, LogsOutput, error) {
-	client, projectID, err := s.app.GetClient()
+	client, spaceID, err := s.app.GetClient()
 	if err != nil {
 		return nil, LogsOutput{}, err
 	}
 
 	logs, err := common.FetchLogs(ctx, common.FetchLogsArgs{
 		Client:      client,
-		ProjectID:   projectID,
+		SpaceID:     spaceID,
 		DatabaseRef: input.Ref,
 		Tail:        input.Tail,
 		Until:       input.Until,

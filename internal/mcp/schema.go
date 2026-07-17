@@ -49,14 +49,14 @@ func newSchemaTool() *mcp.Tool {
 }
 
 func (s *Server) handleSchema(ctx context.Context, req *mcp.CallToolRequest, input SchemaInput) (*mcp.CallToolResult, any, error) {
-	client, projectID, err := s.app.GetClient()
+	client, spaceID, err := s.app.GetClient()
 	if err != nil {
 		return nil, nil, err
 	}
 
 	schema, err := common.FetchDatabaseSchema(ctx, common.FetchDatabaseSchemaArgs{
 		Client:             client,
-		ProjectID:          projectID,
+		SpaceID:            spaceID,
 		DatabaseRef:        input.Ref,
 		Schema:             input.SchemaName,
 		IncludeInternal:    input.Internal,

@@ -34,7 +34,7 @@ func newTestApp(t *testing.T, clientErr error) *common.App {
 		if clientErr != nil {
 			return nil, "", clientErr
 		}
-		return mock.NewMockClientWithResponsesInterface(nil), "test-project", nil
+		return mock.NewMockClientWithResponsesInterface(nil), "test-space", nil
 	})
 	if _, _, _, err := app.Load(context.Background()); err != nil {
 		t.Fatalf("loading app: %v", err)

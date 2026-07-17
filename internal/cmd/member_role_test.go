@@ -17,7 +17,7 @@ func TestMemberRoleCmd(t *testing.T) {
 			{UserId: 101, Name: "Alice Smith", Email: "alice@example.com", Role: api.MemberRoleOwner},
 			{UserId: 102, Name: "Bob Jones", Email: "bob@example.com", Role: api.MemberRoleDeveloper},
 		}
-		m.EXPECT().ListMembersWithResponse(validCtx, "test-project").
+		m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 			Return(&api.ListMembersResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &members,
@@ -26,7 +26,7 @@ func TestMemberRoleCmd(t *testing.T) {
 	setupUpdate := func(role api.MemberRole) func(m *mock.MockClientWithResponsesInterface) {
 		return func(m *mock.MockClientWithResponsesInterface) {
 			updated := api.Member{UserId: 102, Name: "Bob Jones", Email: "bob@example.com", Role: role}
-			m.EXPECT().UpdateMemberRoleWithResponse(validCtx, "test-project", int64(102), api.UpdateMemberRoleRequest{Role: role}).
+			m.EXPECT().UpdateMemberRoleWithResponse(validCtx, "test-space", int64(102), api.UpdateMemberRoleRequest{Role: role}).
 				Return(&api.UpdateMemberRoleResponse{
 					HTTPResponse: httpResponse(http.StatusOK),
 					JSON200:      &updated,
@@ -58,7 +58,7 @@ func TestMemberRoleCmd(t *testing.T) {
 			args: []string{"member", "role", "bob@example.com", "admin"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListMembersWithResponse(validCtx, "test-project").
+				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to list members: connection refused",
@@ -68,7 +68,7 @@ func TestMemberRoleCmd(t *testing.T) {
 			args: []string{"member", "role", "bob@example.com", "admin"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListMembersWithResponse(validCtx, "test-project").
+				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(&api.ListMembersResponse{
 						HTTPResponse: httpResponse(http.StatusForbidden),
 						JSONDefault:  &api.Error{Message: "this endpoint requires user authentication"},
@@ -81,7 +81,7 @@ func TestMemberRoleCmd(t *testing.T) {
 			args: []string{"member", "role", "bob@example.com", "admin"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListMembersWithResponse(validCtx, "test-project").
+				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(&api.ListMembersResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -102,7 +102,7 @@ func TestMemberRoleCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
-				m.EXPECT().UpdateMemberRoleWithResponse(validCtx, "test-project", int64(102), api.UpdateMemberRoleRequest{Role: api.MemberRoleAdmin}).
+				m.EXPECT().UpdateMemberRoleWithResponse(validCtx, "test-space", int64(102), api.UpdateMemberRoleRequest{Role: api.MemberRoleAdmin}).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to update member role: connection refused",
@@ -113,7 +113,7 @@ func TestMemberRoleCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
-				m.EXPECT().UpdateMemberRoleWithResponse(validCtx, "test-project", int64(102), api.UpdateMemberRoleRequest{Role: api.MemberRoleDeveloper}).
+				m.EXPECT().UpdateMemberRoleWithResponse(validCtx, "test-space", int64(102), api.UpdateMemberRoleRequest{Role: api.MemberRoleDeveloper}).
 					Return(&api.UpdateMemberRoleResponse{
 						HTTPResponse: httpResponse(http.StatusConflict),
 						JSONDefault:  &api.Error{Message: "user already has the developer role"},
@@ -127,7 +127,7 @@ func TestMemberRoleCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
-				m.EXPECT().UpdateMemberRoleWithResponse(validCtx, "test-project", int64(102), api.UpdateMemberRoleRequest{Role: api.MemberRoleAdmin}).
+				m.EXPECT().UpdateMemberRoleWithResponse(validCtx, "test-space", int64(102), api.UpdateMemberRoleRequest{Role: api.MemberRoleAdmin}).
 					Return(&api.UpdateMemberRoleResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,

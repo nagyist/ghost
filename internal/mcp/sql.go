@@ -60,7 +60,7 @@ func newSQLTool() *mcp.Tool {
 }
 
 func (s *Server) handleSQL(ctx context.Context, req *mcp.CallToolRequest, input SQLInput) (*mcp.CallToolResult, SQLOutput, error) {
-	cfg, client, projectID, err := s.app.GetAll()
+	cfg, client, spaceID, err := s.app.GetAll()
 	if err != nil {
 		return nil, SQLOutput{}, err
 	}
@@ -81,7 +81,7 @@ func (s *Server) handleSQL(ctx context.Context, req *mcp.CallToolRequest, input 
 	// Execute the query
 	result, err := common.ExecuteQuery(ctx, common.ExecuteQueryArgs{
 		Client:      client,
-		ProjectID:   projectID,
+		SpaceID:     spaceID,
 		DatabaseRef: input.Ref,
 		Query:       query,
 		Role:        "tsdbadmin",

@@ -16,7 +16,7 @@ func TestInviteCancelCmd(t *testing.T) {
 
 	setupCancel := func(m *mock.MockClientWithResponsesInterface) {
 		cancelled := api.Invite{Email: "bob@example.com", Role: api.MemberRoleDeveloper, CreatedAt: createdAt}
-		m.EXPECT().CancelInviteWithResponse(validCtx, "test-project", api.InviteEmail("bob@example.com")).
+		m.EXPECT().CancelInviteWithResponse(validCtx, "test-space", api.InviteEmail("bob@example.com")).
 			Return(&api.CancelInviteResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &cancelled,
@@ -48,7 +48,7 @@ func TestInviteCancelCmd(t *testing.T) {
 			args: []string{"invite", "cancel", "bob@example.com", "--confirm"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CancelInviteWithResponse(validCtx, "test-project", api.InviteEmail("bob@example.com")).
+				m.EXPECT().CancelInviteWithResponse(validCtx, "test-space", api.InviteEmail("bob@example.com")).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to cancel invite: connection refused",
@@ -58,7 +58,7 @@ func TestInviteCancelCmd(t *testing.T) {
 			args: []string{"invite", "cancel", "dave@example.com", "--confirm"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CancelInviteWithResponse(validCtx, "test-project", api.InviteEmail("dave@example.com")).
+				m.EXPECT().CancelInviteWithResponse(validCtx, "test-space", api.InviteEmail("dave@example.com")).
 					Return(&api.CancelInviteResponse{
 						HTTPResponse: httpResponse(http.StatusNotFound),
 						JSONDefault:  &api.Error{Message: "no pending invite to that email was found for this space"},
@@ -71,7 +71,7 @@ func TestInviteCancelCmd(t *testing.T) {
 			args: []string{"invite", "cancel", "bob@example.com", "--confirm"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CancelInviteWithResponse(validCtx, "test-project", api.InviteEmail("bob@example.com")).
+				m.EXPECT().CancelInviteWithResponse(validCtx, "test-space", api.InviteEmail("bob@example.com")).
 					Return(&api.CancelInviteResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,

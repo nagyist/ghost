@@ -60,7 +60,7 @@ func newDeleteTool() *mcp.Tool {
 }
 
 func (s *Server) handleDelete(ctx context.Context, req *mcp.CallToolRequest, input DeleteInput) (*mcp.CallToolResult, DeleteOutput, error) {
-	cfg, client, projectID, err := s.app.GetAll()
+	cfg, client, spaceID, err := s.app.GetAll()
 	if err != nil {
 		return nil, DeleteOutput{}, err
 	}
@@ -70,7 +70,7 @@ func (s *Server) handleDelete(ctx context.Context, req *mcp.CallToolRequest, inp
 	}
 
 	// Fetch database details to get the name
-	getResp, err := client.GetDatabaseWithResponse(ctx, projectID, input.Ref)
+	getResp, err := client.GetDatabaseWithResponse(ctx, spaceID, input.Ref)
 	if err != nil {
 		return nil, DeleteOutput{}, fmt.Errorf("failed to get database details: %w", err)
 	}
@@ -87,7 +87,7 @@ func (s *Server) handleDelete(ctx context.Context, req *mcp.CallToolRequest, inp
 	// Make the delete request using the resolved ID (no confirmation prompt for MCP - agents handle this)
 	resp, err := client.DeleteDatabaseWithResponse(
 		ctx,
-		api.SpaceId(projectID),
+		api.SpaceId(spaceID),
 		api.DatabaseRef(database.Id),
 	)
 	if err != nil {

@@ -24,12 +24,12 @@ func buildShareRevokeCmd(app *common.App) *cobra.Command {
 		ValidArgsFunction: shareTokenCompletion(app),
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, client, projectID, err := app.GetAll()
+			cfg, client, spaceID, err := app.GetAll()
 			if err != nil {
 				return err
 			}
 
-			resp, err := client.RevokeShareWithResponse(cmd.Context(), projectID, args[0])
+			resp, err := client.RevokeShareWithResponse(cmd.Context(), spaceID, args[0])
 			if err != nil {
 				return fmt.Errorf("failed to revoke share: %w", err)
 			}

@@ -68,12 +68,12 @@ func newInvoiceTool() *mcp.Tool {
 }
 
 func (s *Server) handleInvoice(ctx context.Context, req *mcp.CallToolRequest, input InvoiceInput) (*mcp.CallToolResult, InvoiceOutput, error) {
-	client, projectID, err := s.app.GetClient()
+	client, spaceID, err := s.app.GetClient()
 	if err != nil {
 		return nil, InvoiceOutput{}, err
 	}
 
-	resp, err := client.GetInvoiceWithResponse(ctx, projectID, input.InvoiceID)
+	resp, err := client.GetInvoiceWithResponse(ctx, spaceID, input.InvoiceID)
 	if err != nil {
 		return nil, InvoiceOutput{}, fmt.Errorf("failed to get invoice: %w", err)
 	}

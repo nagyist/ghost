@@ -21,7 +21,7 @@ func TestPauseCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"pause", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().PauseDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().PauseDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to pause database: connection refused",
@@ -30,7 +30,7 @@ func TestPauseCmd(t *testing.T) {
 			name: "API error",
 			args: []string{"pause", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().PauseDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().PauseDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.PauseDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusNotFound),
 						JSONDefault:  &api.Error{Message: "database not found"},
@@ -42,7 +42,7 @@ func TestPauseCmd(t *testing.T) {
 			name: "nil response body",
 			args: []string{"pause", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().PauseDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().PauseDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.PauseDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      nil,
@@ -55,7 +55,7 @@ func TestPauseCmd(t *testing.T) {
 			args: []string{"pause", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				db := sampleDatabase()
-				m.EXPECT().PauseDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().PauseDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.PauseDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &db,

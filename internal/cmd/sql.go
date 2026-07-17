@@ -61,7 +61,7 @@ all statements that return rows will be displayed.`,
 				return errors.New("query cannot be empty")
 			}
 
-			cfg, client, projectID, err := app.GetAll()
+			cfg, client, spaceID, err := app.GetAll()
 			if err != nil {
 				return err
 			}
@@ -69,7 +69,7 @@ all statements that return rows will be displayed.`,
 			// Execute the query
 			result, err := common.ExecuteQuery(cmd.Context(), common.ExecuteQueryArgs{
 				Client:      client,
-				ProjectID:   projectID,
+				SpaceID:     spaceID,
 				DatabaseRef: databaseRef,
 				Query:       query,
 				Role:        "tsdbadmin",

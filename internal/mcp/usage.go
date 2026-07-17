@@ -67,12 +67,12 @@ func newUsageTool() *mcp.Tool {
 }
 
 func (s *Server) handleUsage(ctx context.Context, req *mcp.CallToolRequest, input UsageInput) (*mcp.CallToolResult, UsageOutput, error) {
-	client, projectID, err := s.app.GetClient()
+	client, spaceID, err := s.app.GetClient()
 	if err != nil {
 		return nil, UsageOutput{}, err
 	}
 
-	usage, err := common.FetchUsage(ctx, client, projectID)
+	usage, err := common.FetchUsage(ctx, client, spaceID)
 	if err != nil {
 		return nil, UsageOutput{}, err
 	}

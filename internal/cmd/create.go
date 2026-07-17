@@ -112,13 +112,13 @@ type DatabaseCreateOutput struct {
 }
 
 func createDatabase(cmd *cobra.Command, app *common.App, args createDatabaseArgs) error {
-	client, projectID, err := app.GetClient()
+	client, spaceID, err := app.GetClient()
 	if err != nil {
 		return err
 	}
 
 	// Make API call to create database
-	resp, err := client.CreateDatabaseWithResponse(cmd.Context(), projectID, args.req)
+	resp, err := client.CreateDatabaseWithResponse(cmd.Context(), spaceID, args.req)
 	if err != nil {
 		return fmt.Errorf("failed to create database: %w", err)
 	}
@@ -188,7 +188,7 @@ func createDatabase(cmd *cobra.Command, app *common.App, args createDatabaseArgs
 
 	return common.WaitForDatabaseWithProgress(cmd.Context(), cmd.InOrStdin(), cmd.ErrOrStderr(), common.WaitForDatabaseArgs{
 		Client:      client,
-		ProjectID:   projectID,
+		SpaceID:     spaceID,
 		DatabaseRef: database.Id,
 	})
 }

@@ -78,7 +78,7 @@ func NewManager(app *common.App, server *mcp.Server, logger *slog.Logger, prefix
 // LoadAll is a startup-only snapshot: it assumes no databases are loaded
 // yet, and unlike Load it never reloads an existing service.
 func (m *Manager) LoadAll(ctx context.Context) {
-	client, projectID, err := m.app.GetClient()
+	client, spaceID, err := m.app.GetClient()
 	if err != nil {
 		m.logger.Warn("Skipping function tool registration (API client unavailable)",
 			slog.Any("error", err),
@@ -86,7 +86,7 @@ func (m *Manager) LoadAll(ctx context.Context) {
 		return
 	}
 
-	databases, err := listDatabases(ctx, client, projectID)
+	databases, err := listDatabases(ctx, client, spaceID)
 	if err != nil {
 		m.logger.Warn("Skipping function tool registration (failed to list databases)",
 			slog.Any("error", err),
@@ -149,12 +149,12 @@ func (m *Manager) Load(ctx context.Context, databaseRef string) ([]string, error
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	client, projectID, err := m.app.GetClient()
+	client, spaceID, err := m.app.GetClient()
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := client.GetDatabaseWithResponse(ctx, projectID, databaseRef)
+	resp, err := client.GetDatabaseWithResponse(ctx, spaceID, databaseRef)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get database: %w", err)
 	}
@@ -341,8 +341,8 @@ func (m *Manager) swapServiceTools(svc *service, tools []tool) {
 }
 
 // listDatabases retrieves every database in the space.
-func listDatabases(ctx context.Context, client api.ClientWithResponsesInterface, projectID string) ([]api.Database, error) {
-	resp, err := client.ListDatabasesWithResponse(ctx, projectID)
+func listDatabases(ctx context.Context, client api.ClientWithResponsesInterface, spaceID string) ([]api.Database, error) {
+	resp, err := client.ListDatabasesWithResponse(ctx, spaceID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list databases: %w", err)
 	}

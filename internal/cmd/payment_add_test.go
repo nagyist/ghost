@@ -21,7 +21,7 @@ func TestPaymentAddCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"payment", "add"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreatePaymentMethodSetupWithResponse(validCtx, "test-project").
+				m.EXPECT().CreatePaymentMethodSetupWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to create payment setup: connection refused",
@@ -30,7 +30,7 @@ func TestPaymentAddCmd(t *testing.T) {
 			name: "API error",
 			args: []string{"payment", "add"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreatePaymentMethodSetupWithResponse(validCtx, "test-project").
+				m.EXPECT().CreatePaymentMethodSetupWithResponse(validCtx, "test-space").
 					Return(&api.CreatePaymentMethodSetupResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal error"},
@@ -42,7 +42,7 @@ func TestPaymentAddCmd(t *testing.T) {
 			name: "nil response body",
 			args: []string{"payment", "add"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreatePaymentMethodSetupWithResponse(validCtx, "test-project").
+				m.EXPECT().CreatePaymentMethodSetupWithResponse(validCtx, "test-space").
 					Return(&api.CreatePaymentMethodSetupResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -55,7 +55,7 @@ func TestPaymentAddCmd(t *testing.T) {
 			args: []string{"payment", "add"},
 			opts: []runOption{withOpenBrowser(func(string) error { return nil })},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreatePaymentMethodSetupWithResponse(validCtx, "test-project").
+				m.EXPECT().CreatePaymentMethodSetupWithResponse(validCtx, "test-space").
 					Return(&api.CreatePaymentMethodSetupResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &api.PaymentSetupResponse{PaymentUrl: "/pay/123"},
@@ -68,7 +68,7 @@ func TestPaymentAddCmd(t *testing.T) {
 			name: "browser fails to open",
 			args: []string{"payment", "add"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreatePaymentMethodSetupWithResponse(validCtx, "test-project").
+				m.EXPECT().CreatePaymentMethodSetupWithResponse(validCtx, "test-space").
 					Return(&api.CreatePaymentMethodSetupResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &api.PaymentSetupResponse{PaymentUrl: "/pay/123"},

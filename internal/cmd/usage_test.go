@@ -22,8 +22,8 @@ func TestUsageCmd(t *testing.T) {
 	}
 
 	successSetup := func(m *mock.MockClientWithResponsesInterface) {
-		setupGetSpace(m, "test-project", "Test Space")
-		m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
+		setupGetSpace(m, "test-space", "Test Space")
+		m.EXPECT().SpaceUsageWithResponse(validCtx, "test-space").
 			Return(&api.SpaceUsageResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200: &api.SpaceUsage{
@@ -42,7 +42,7 @@ func TestUsageCmd(t *testing.T) {
 				db.Status = api.DatabaseStatusPaused
 			}),
 		}
-		m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+		m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 			Return(&api.ListDatabasesResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &databases,
@@ -60,11 +60,11 @@ func TestUsageCmd(t *testing.T) {
 			name: "network error on space usage",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupGetSpace(m, "test-project", "Test Space")
-				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
+				setupGetSpace(m, "test-space", "Test Space")
+				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 				databases := []api.DatabaseWithUsage{}
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &databases,
@@ -76,14 +76,14 @@ func TestUsageCmd(t *testing.T) {
 			name: "API error on space usage",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupGetSpace(m, "test-project", "Test Space")
-				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
+				setupGetSpace(m, "test-space", "Test Space")
+				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-space").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal error"},
 					}, nil)
 				databases := []api.DatabaseWithUsage{}
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &databases,
@@ -95,14 +95,14 @@ func TestUsageCmd(t *testing.T) {
 			name: "nil space usage response body",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupGetSpace(m, "test-project", "Test Space")
-				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
+				setupGetSpace(m, "test-space", "Test Space")
+				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-space").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
 					}, nil)
 				databases := []api.DatabaseWithUsage{}
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &databases,
@@ -114,8 +114,8 @@ func TestUsageCmd(t *testing.T) {
 			name: "nil list databases response body",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupGetSpace(m, "test-project", "Test Space")
-				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
+				setupGetSpace(m, "test-space", "Test Space")
+				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-space").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.SpaceUsage{
@@ -126,7 +126,7 @@ func TestUsageCmd(t *testing.T) {
 							StorageLimitMib:     1048576,
 						},
 					}, nil).AnyTimes()
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -138,15 +138,15 @@ func TestUsageCmd(t *testing.T) {
 			name: "network error on get space",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+				m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
-				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
+				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-space").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &api.SpaceUsage{},
 					}, nil).AnyTimes()
 				databases := []api.DatabaseWithUsage{}
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &databases,
@@ -158,18 +158,18 @@ func TestUsageCmd(t *testing.T) {
 			name: "nil get space response body",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+				m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 					Return(&api.GetSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
 					}, nil)
-				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
+				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-space").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &api.SpaceUsage{},
 					}, nil).AnyTimes()
 				databases := []api.DatabaseWithUsage{}
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &databases,
@@ -181,7 +181,7 @@ func TestUsageCmd(t *testing.T) {
 			name:  "text output",
 			args:  []string{"usage"},
 			setup: successSetup,
-			wantStdout: `Space: Test Space (test-project)
+			wantStdout: `Space: Test Space (test-space)
 Compute: 2/100 hours (2%)
 Storage: 512MiB/1TiB (0%)
 Databases: 2 (1 running, 1 paused)
@@ -202,7 +202,7 @@ Databases: 2 (1 running, 1 paused)
     "running": 1,
     "paused": 1
   },
-  "space_id": "test-project",
+  "space_id": "test-space",
   "space_name": "Test Space"
 }
 `,
@@ -218,7 +218,7 @@ databases:
   running: 1
 free_compute_minutes: 6000
 overages_enabled: false
-space_id: test-project
+space_id: test-space
 space_name: Test Space
 storage_limit_mib: 1.048576e+06
 storage_mib: 512
@@ -228,7 +228,7 @@ storage_mib: 512
 			name:  "status alias",
 			args:  []string{"status"},
 			setup: successSetup,
-			wantStdout: `Space: Test Space (test-project)
+			wantStdout: `Space: Test Space (test-space)
 Compute: 2/100 hours (2%)
 Storage: 512MiB/1TiB (0%)
 Databases: 2 (1 running, 1 paused)
@@ -238,8 +238,8 @@ Databases: 2 (1 running, 1 paused)
 			name: "text output with cost",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupGetSpace(m, "test-project", "Test Space")
-				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
+				setupGetSpace(m, "test-space", "Test Space")
+				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-space").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.SpaceUsage{
@@ -253,13 +253,13 @@ Databases: 2 (1 running, 1 paused)
 						},
 					}, nil)
 				databases := []api.DatabaseWithUsage{sampleDatabaseWithUsage()}
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &databases,
 					}, nil)
 			},
-			wantStdout: `Space: Test Space (test-project)
+			wantStdout: `Space: Test Space (test-space)
 Compute: 2/100 hours (2%)
 Storage: 512MiB/1TiB (0%)
 Databases: 1 (1 running)
@@ -270,8 +270,8 @@ Cost: $12.34 so far this cycle ($27.50 estimated total)
 			name: "text output with overages enabled",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupGetSpace(m, "test-project", "Test Space")
-				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
+				setupGetSpace(m, "test-space", "Test Space")
+				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-space").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.SpaceUsage{
@@ -284,13 +284,13 @@ Cost: $12.34 so far this cycle ($27.50 estimated total)
 						},
 					}, nil)
 				databases := []api.DatabaseWithUsage{sampleDatabaseWithUsage()}
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &databases,
 					}, nil)
 			},
-			wantStdout: `Space: Test Space (test-project)
+			wantStdout: `Space: Test Space (test-space)
 Compute: 2/200 hours (1%)
 Storage: 512MiB/1TiB (0%)
 Databases: 1 (1 running)
@@ -301,8 +301,8 @@ Overages: enabled (billed for compute above 100 free hours)
 			name: "warns when near free compute allowance",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupGetSpace(m, "test-project", "Test Space")
-				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
+				setupGetSpace(m, "test-space", "Test Space")
+				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-space").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.SpaceUsage{
@@ -314,13 +314,13 @@ Overages: enabled (billed for compute above 100 free hours)
 						},
 					}, nil)
 				databases := []api.DatabaseWithUsage{sampleDatabaseWithUsage()}
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &databases,
 					}, nil)
 			},
-			wantStdout: `Space: Test Space (test-project)
+			wantStdout: `Space: Test Space (test-space)
 Compute: 90/100 hours (90%)
 Storage: 512MiB/1TiB (0%)
 Databases: 1 (1 running)
@@ -331,8 +331,8 @@ Databases: 1 (1 running)
 			name: "text output with zero cost is omitted",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupGetSpace(m, "test-project", "Test Space")
-				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
+				setupGetSpace(m, "test-space", "Test Space")
+				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-space").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.SpaceUsage{
@@ -346,13 +346,13 @@ Databases: 1 (1 running)
 						},
 					}, nil)
 				databases := []api.DatabaseWithUsage{sampleDatabaseWithUsage()}
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &databases,
 					}, nil)
 			},
-			wantStdout: `Space: Test Space (test-project)
+			wantStdout: `Space: Test Space (test-space)
 Compute: 2/100 hours (2%)
 Storage: 512MiB/1TiB (0%)
 Databases: 1 (1 running)
@@ -362,8 +362,8 @@ Databases: 1 (1 running)
 			name: "empty space name falls back to ID only",
 			args: []string{"usage"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				setupGetSpace(m, "test-project", "")
-				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-project").
+				setupGetSpace(m, "test-space", "")
+				m.EXPECT().SpaceUsageWithResponse(validCtx, "test-space").
 					Return(&api.SpaceUsageResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.SpaceUsage{
@@ -375,13 +375,13 @@ Databases: 1 (1 running)
 						},
 					}, nil)
 				databases := []api.DatabaseWithUsage{sampleDatabaseWithUsage()}
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &databases,
 					}, nil)
 			},
-			wantStdout: `Space: test-project
+			wantStdout: `Space: test-space
 Compute: 2/100 hours (2%)
 Storage: 512MiB/1TiB (0%)
 Databases: 1 (1 running)

@@ -26,8 +26,8 @@ const defaultRowLimit = 50
 // selects the database by id and reflects it in the URL) read database.Id;
 // callers that connect to the database can also run common.CheckReady on the
 // returned value before proceeding.
-func resolveDatabase(ctx context.Context, client api.ClientWithResponsesInterface, projectID, databaseRef string) (api.Database, error) {
-	resp, err := client.GetDatabaseWithResponse(ctx, projectID, databaseRef)
+func resolveDatabase(ctx context.Context, client api.ClientWithResponsesInterface, spaceID, databaseRef string) (api.Database, error) {
+	resp, err := client.GetDatabaseWithResponse(ctx, spaceID, databaseRef)
 	if err != nil {
 		return api.Database{}, fmt.Errorf("failed to get database: %w", err)
 	}

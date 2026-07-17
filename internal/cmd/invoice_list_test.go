@@ -43,7 +43,7 @@ func TestInvoiceListCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"invoice", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 			},
 			opts:    []runOption{experimental},
@@ -53,7 +53,7 @@ func TestInvoiceListCmd(t *testing.T) {
 			name: "API error",
 			args: []string{"invoice", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvoicesResponse{
 						HTTPResponse: httpResponse(http.StatusForbidden),
 						JSONDefault:  &api.Error{Message: "this endpoint requires user authentication"},
@@ -66,7 +66,7 @@ func TestInvoiceListCmd(t *testing.T) {
 			name: "nil response body",
 			args: []string{"invoice", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvoicesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -79,7 +79,7 @@ func TestInvoiceListCmd(t *testing.T) {
 			name: "empty list",
 			args: []string{"invoice", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvoicesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &api.InvoicesResponse{Invoices: []api.Invoice{}},
@@ -92,7 +92,7 @@ func TestInvoiceListCmd(t *testing.T) {
 			name: "text output",
 			args: []string{"invoice", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvoicesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &invoices,
@@ -105,7 +105,7 @@ func TestInvoiceListCmd(t *testing.T) {
 			name: "json output",
 			args: []string{"invoice", "list", "--json"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvoicesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &invoices,
@@ -134,7 +134,7 @@ func TestInvoiceListCmd(t *testing.T) {
 			name: "yaml output",
 			args: []string{"invoice", "list", "--yaml"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvoicesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &invoices,
@@ -157,7 +157,7 @@ func TestInvoiceListCmd(t *testing.T) {
 			name: "ls alias",
 			args: []string{"invoice", "ls"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvoicesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &invoices,

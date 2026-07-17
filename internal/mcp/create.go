@@ -100,14 +100,14 @@ type createDatabaseResult struct {
 
 // createDatabase is a shared helper for ghost_create and ghost_create_dedicated.
 func (s *Server) createDatabase(ctx context.Context, args createDatabaseArgs) (createDatabaseResult, error) {
-	client, projectID, err := s.app.GetClient()
+	client, spaceID, err := s.app.GetClient()
 	if err != nil {
 		return createDatabaseResult{}, err
 	}
 
 	// Make API call to create database
-	// API defaults all values based on Ghost project plan type
-	resp, err := client.CreateDatabaseWithResponse(ctx, projectID, args.req)
+	// API defaults all values based on Ghost space plan type
+	resp, err := client.CreateDatabaseWithResponse(ctx, spaceID, args.req)
 	if err != nil {
 		return createDatabaseResult{}, fmt.Errorf("failed to create database: %w", err)
 	}
@@ -150,7 +150,7 @@ func (s *Server) createDatabase(ctx context.Context, args createDatabaseArgs) (c
 	if args.wait {
 		if err := common.WaitForDatabase(ctx, common.WaitForDatabaseArgs{
 			Client:      client,
-			ProjectID:   projectID,
+			SpaceID:     spaceID,
 			DatabaseRef: databaseID,
 		}); err != nil {
 			return createDatabaseResult{}, err

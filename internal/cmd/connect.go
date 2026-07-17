@@ -31,13 +31,13 @@ Includes the password from ~/.pgpass if available.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			databaseRef := args[0]
 
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
 
 			// Fetch database details
-			resp, err := client.GetDatabaseWithResponse(cmd.Context(), projectID, databaseRef)
+			resp, err := client.GetDatabaseWithResponse(cmd.Context(), spaceID, databaseRef)
 			if err != nil {
 				return fmt.Errorf("failed to get database: %w", err)
 			}

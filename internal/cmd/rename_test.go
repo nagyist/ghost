@@ -12,7 +12,7 @@ import (
 func TestRenameCmd(t *testing.T) {
 	setupGet := func(m *mock.MockClientWithResponsesInterface) {
 		db := sampleDatabase()
-		m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+		m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 			Return(&api.GetDatabaseResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &db,
@@ -30,7 +30,7 @@ func TestRenameCmd(t *testing.T) {
 			name: "network error on get",
 			args: []string{"rename", "abc1234567", "new-name"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to get database details: connection refused",
@@ -39,7 +39,7 @@ func TestRenameCmd(t *testing.T) {
 			name: "API error on get",
 			args: []string{"rename", "abc1234567", "new-name"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusNotFound),
 						JSONDefault:  &api.Error{Message: "database not found"},
@@ -51,7 +51,7 @@ func TestRenameCmd(t *testing.T) {
 			name: "nil response body on get",
 			args: []string{"rename", "abc1234567", "new-name"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -64,7 +64,7 @@ func TestRenameCmd(t *testing.T) {
 			args: []string{"rename", "abc1234567", "new-name"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
-				m.EXPECT().RenameDatabaseWithResponse(validCtx, "test-project", "abc1234567", api.RenameDatabaseRequest{Name: "new-name"}).
+				m.EXPECT().RenameDatabaseWithResponse(validCtx, "test-space", "abc1234567", api.RenameDatabaseRequest{Name: "new-name"}).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to rename database: connection refused",
@@ -74,7 +74,7 @@ func TestRenameCmd(t *testing.T) {
 			args: []string{"rename", "abc1234567", "new-name"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
-				m.EXPECT().RenameDatabaseWithResponse(validCtx, "test-project", "abc1234567", api.RenameDatabaseRequest{Name: "new-name"}).
+				m.EXPECT().RenameDatabaseWithResponse(validCtx, "test-space", "abc1234567", api.RenameDatabaseRequest{Name: "new-name"}).
 					Return(&api.RenameDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusNotFound),
 						JSONDefault:  &api.Error{Message: "database not found"},
@@ -87,7 +87,7 @@ func TestRenameCmd(t *testing.T) {
 			args: []string{"rename", "abc1234567", "new-name"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
-				m.EXPECT().RenameDatabaseWithResponse(validCtx, "test-project", "abc1234567", api.RenameDatabaseRequest{Name: "new-name"}).
+				m.EXPECT().RenameDatabaseWithResponse(validCtx, "test-space", "abc1234567", api.RenameDatabaseRequest{Name: "new-name"}).
 					Return(&api.RenameDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusNoContent),
 					}, nil)

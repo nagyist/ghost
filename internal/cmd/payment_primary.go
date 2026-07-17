@@ -21,13 +21,13 @@ func buildPaymentPrimaryCmd(app *common.App) *cobra.Command {
 		ValidArgsFunction: paymentMethodIDCompletion(app),
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
 
 			// Fetch payment method
-			getResp, err := client.GetPaymentMethodWithResponse(cmd.Context(), projectID, args[0])
+			getResp, err := client.GetPaymentMethodWithResponse(cmd.Context(), spaceID, args[0])
 			if err != nil {
 				return fmt.Errorf("failed to get payment method: %w", err)
 			}
@@ -46,7 +46,7 @@ func buildPaymentPrimaryCmd(app *common.App) *cobra.Command {
 			}
 
 			// Set as primary
-			resp, err := client.SetPaymentMethodPrimaryWithResponse(cmd.Context(), projectID, args[0])
+			resp, err := client.SetPaymentMethodPrimaryWithResponse(cmd.Context(), spaceID, args[0])
 			if err != nil {
 				return fmt.Errorf("failed to set primary payment method: %w", err)
 			}

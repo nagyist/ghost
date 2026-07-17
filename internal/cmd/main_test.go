@@ -174,7 +174,7 @@ func runCommand(
 		if rc.clientErr != nil {
 			return nil, "", rc.clientErr
 		}
-		return mockClient, "test-project", nil
+		return mockClient, "test-space", nil
 	})
 
 	// Capture output, stripping ANSI color/style sequences so tests can

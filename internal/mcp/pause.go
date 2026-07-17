@@ -58,7 +58,7 @@ func newPauseTool() *mcp.Tool {
 }
 
 func (s *Server) handlePause(ctx context.Context, req *mcp.CallToolRequest, input PauseInput) (*mcp.CallToolResult, PauseOutput, error) {
-	cfg, client, projectID, err := s.app.GetAll()
+	cfg, client, spaceID, err := s.app.GetAll()
 	if err != nil {
 		return nil, PauseOutput{}, err
 	}
@@ -70,7 +70,7 @@ func (s *Server) handlePause(ctx context.Context, req *mcp.CallToolRequest, inpu
 	// Make the pause request
 	resp, err := client.PauseDatabaseWithResponse(
 		ctx,
-		api.SpaceId(projectID),
+		api.SpaceId(spaceID),
 		api.DatabaseRef(input.Ref),
 	)
 	if err != nil {

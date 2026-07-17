@@ -25,13 +25,13 @@ func buildRenameCmd(app *common.App) *cobra.Command {
 			databaseRef := args[0]
 			newName := args[1]
 
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
 
 			// Fetch database details to resolve name/ID
-			getResp, err := client.GetDatabaseWithResponse(cmd.Context(), projectID, databaseRef)
+			getResp, err := client.GetDatabaseWithResponse(cmd.Context(), spaceID, databaseRef)
 			if err != nil {
 				return fmt.Errorf("failed to get database details: %w", err)
 			}
@@ -47,7 +47,7 @@ func buildRenameCmd(app *common.App) *cobra.Command {
 
 			resp, err := client.RenameDatabaseWithResponse(
 				cmd.Context(),
-				api.SpaceId(projectID),
+				api.SpaceId(spaceID),
 				api.DatabaseRef(database.Id),
 				api.RenameDatabaseRequest{Name: newName},
 			)

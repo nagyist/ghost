@@ -31,7 +31,7 @@ func TestCreateCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"create", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", api.CreateDatabaseRequest{Name: new("mydb")}).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to create database: connection refused",
@@ -40,7 +40,7 @@ func TestCreateCmd(t *testing.T) {
 			name: "API error",
 			args: []string{"create", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", api.CreateDatabaseRequest{Name: new("mydb")}).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal error"},
@@ -55,7 +55,7 @@ func TestCreateCmd(t *testing.T) {
 			name: "no payment method code on standard create falls through to raw error",
 			args: []string{"create", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", api.CreateDatabaseRequest{Name: new("mydb")}).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusBadRequest),
 						JSONDefault:  &api.Error{Message: "no valid payment method found", Code: new(api.ErrorCodeNoPaymentMethod)},
@@ -67,7 +67,7 @@ func TestCreateCmd(t *testing.T) {
 			name: "compute limit exceeded shows overages guidance",
 			args: []string{"create", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", api.CreateDatabaseRequest{Name: new("mydb")}).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusBadRequest),
 						JSONDefault:  &api.Error{Message: "compute limit has been exceeded", Code: new(api.ErrorCodeComputeLimitExceeded)},
@@ -79,7 +79,7 @@ func TestCreateCmd(t *testing.T) {
 			name: "nil response body",
 			args: []string{"create", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", api.CreateDatabaseRequest{Name: new("mydb")}).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      nil,
@@ -95,7 +95,7 @@ func TestCreateCmd(t *testing.T) {
 					db.Name = "ghost-12345"
 					db.Password = &password
 				})
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{}).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", api.CreateDatabaseRequest{}).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &autoDb,
@@ -107,7 +107,7 @@ func TestCreateCmd(t *testing.T) {
 			name: "name as positional arg",
 			args: []string{"create", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", api.CreateDatabaseRequest{Name: new("mydb")}).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &db,
@@ -122,7 +122,7 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmod
 			name: "name via deprecated --name flag",
 			args: []string{"create", "--name", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", api.CreateDatabaseRequest{Name: new("mydb")}).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &db,
@@ -137,7 +137,7 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmod
 			name: "json output",
 			args: []string{"create", "mydb", "--json"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", api.CreateDatabaseRequest{Name: new("mydb")}).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &db,
@@ -154,7 +154,7 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmod
 			name: "yaml output",
 			args: []string{"create", "mydb", "--yaml"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{Name: new("mydb")}).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", api.CreateDatabaseRequest{Name: new("mydb")}).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &db,
@@ -169,7 +169,7 @@ name: mydb
 			name: "with share token",
 			args: []string{"create", "--from-share", "tok_xyz"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", api.CreateDatabaseRequest{ShareToken: new("tok_xyz")}).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", api.CreateDatabaseRequest{ShareToken: new("tok_xyz")}).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &db,

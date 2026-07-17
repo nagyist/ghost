@@ -37,14 +37,14 @@ enums, functions, and procedures) are likewise omitted by default; pass
 		RunE: func(cmd *cobra.Command, args []string) error {
 			databaseRef := args[0]
 
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
 
 			schema, err := common.FetchDatabaseSchema(cmd.Context(), common.FetchDatabaseSchemaArgs{
 				Client:             client,
-				ProjectID:          projectID,
+				SpaceID:            spaceID,
 				DatabaseRef:        databaseRef,
 				Schema:             schemaName,
 				IncludeInternal:    includeInternal,

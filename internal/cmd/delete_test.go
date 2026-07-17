@@ -12,7 +12,7 @@ import (
 func TestDeleteCmd(t *testing.T) {
 	setupGet := func(m *mock.MockClientWithResponsesInterface) {
 		db := sampleDatabase()
-		m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+		m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 			Return(&api.GetDatabaseResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &db,
@@ -20,7 +20,7 @@ func TestDeleteCmd(t *testing.T) {
 	}
 
 	setupDelete := func(m *mock.MockClientWithResponsesInterface) {
-		m.EXPECT().DeleteDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+		m.EXPECT().DeleteDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 			Return(&api.DeleteDatabaseResponse{
 				HTTPResponse: httpResponse(http.StatusAccepted),
 			}, nil)
@@ -37,7 +37,7 @@ func TestDeleteCmd(t *testing.T) {
 			name: "network error on get",
 			args: []string{"delete", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to get database details: connection refused",
@@ -46,7 +46,7 @@ func TestDeleteCmd(t *testing.T) {
 			name: "API error on get",
 			args: []string{"delete", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusNotFound),
 						JSONDefault:  &api.Error{Message: "database not found"},
@@ -58,7 +58,7 @@ func TestDeleteCmd(t *testing.T) {
 			name: "nil response body on get",
 			args: []string{"delete", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -89,7 +89,7 @@ func TestDeleteCmd(t *testing.T) {
 			args: []string{"delete", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
-				m.EXPECT().DeleteDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().DeleteDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(nil, errors.New("connection refused"))
 			},
 			opts:       []runOption{withStdin("y\n"), withIsTerminal(true)},
@@ -101,7 +101,7 @@ func TestDeleteCmd(t *testing.T) {
 			args: []string{"delete", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
-				m.EXPECT().DeleteDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().DeleteDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.DeleteDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal server error"},

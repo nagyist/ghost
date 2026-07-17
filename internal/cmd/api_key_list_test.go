@@ -26,7 +26,7 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"api-key", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-project").
+				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to list API keys: connection refused",
@@ -35,7 +35,7 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "API error",
 			args: []string{"api-key", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-project").
+				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
 					Return(&api.ListApiKeysResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal error"},
@@ -47,7 +47,7 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "nil response body",
 			args: []string{"api-key", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-project").
+				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
 					Return(&api.ListApiKeysResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -60,7 +60,7 @@ func TestApiKeyListCmd(t *testing.T) {
 			args: []string{"api-key", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				empty := []api.ApiKey{}
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-project").
+				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
 					Return(&api.ListApiKeysResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &empty,
@@ -72,7 +72,7 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "text output",
 			args: []string{"api-key", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-project").
+				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
 					Return(&api.ListApiKeysResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &keys,
@@ -85,7 +85,7 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "json output",
 			args: []string{"api-key", "list", "--json"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-project").
+				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
 					Return(&api.ListApiKeysResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &keys,
@@ -104,7 +104,7 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "yaml output",
 			args: []string{"api-key", "list", "--yaml"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-project").
+				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
 					Return(&api.ListApiKeysResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &keys,
@@ -119,7 +119,7 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "ls alias",
 			args: []string{"api-key", "ls"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-project").
+				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
 					Return(&api.ListApiKeysResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &keys,

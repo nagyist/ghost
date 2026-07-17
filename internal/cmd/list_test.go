@@ -38,7 +38,7 @@ func TestListCmd(t *testing.T) {
 
 	setupList := func(dbs []api.DatabaseWithUsage) func(*mock.MockClientWithResponsesInterface) {
 		return func(m *mock.MockClientWithResponsesInterface) {
-			m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+			m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 				Return(&api.ListDatabasesResponse{
 					HTTPResponse: httpResponse(http.StatusOK),
 					JSON200:      &dbs,
@@ -57,7 +57,7 @@ func TestListCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to list databases: connection refused",
@@ -66,7 +66,7 @@ func TestListCmd(t *testing.T) {
 			name: "API error",
 			args: []string{"list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal error"},
@@ -78,7 +78,7 @@ func TestListCmd(t *testing.T) {
 			name: "nil response body",
 			args: []string{"list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,

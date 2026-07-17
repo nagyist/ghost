@@ -52,7 +52,7 @@ func TestCreateDedicatedCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"create-dedicated", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", namedReq("mydb")).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to create database: connection refused",
@@ -61,7 +61,7 @@ func TestCreateDedicatedCmd(t *testing.T) {
 			name: "no payment method",
 			args: []string{"create-dedicated", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusBadRequest),
 						JSONDefault:  &api.Error{Message: "no valid payment method found", Code: new(api.ErrorCodeNoPaymentMethod)},
@@ -73,7 +73,7 @@ func TestCreateDedicatedCmd(t *testing.T) {
 			name: "API error",
 			args: []string{"create-dedicated", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal error"},
@@ -85,7 +85,7 @@ func TestCreateDedicatedCmd(t *testing.T) {
 			name: "nil response body",
 			args: []string{"create-dedicated", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      nil,
@@ -102,7 +102,7 @@ func TestCreateDedicatedCmd(t *testing.T) {
 					db.Password = &password
 					db.Type = api.DatabaseTypeDedicated
 				})
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", defaultReq).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", defaultReq).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &autoDb,
@@ -114,7 +114,7 @@ func TestCreateDedicatedCmd(t *testing.T) {
 			name: "name as positional arg",
 			args: []string{"create-dedicated", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &db,
@@ -129,7 +129,7 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmod
 			name: "name via deprecated --name flag",
 			args: []string{"create-dedicated", "--name", "mydb"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &db,
@@ -144,7 +144,7 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmod
 			name: "custom size",
 			args: []string{"create-dedicated", "--size", "4x"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", sizedReq("4x")).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", sizedReq("4x")).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &db,
@@ -159,7 +159,7 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmod
 			name: "json output",
 			args: []string{"create-dedicated", "mydb", "--json"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &db,
@@ -177,7 +177,7 @@ Connection: postgresql://tsdbadmin:testpass123@host.example.com:5432/tsdb?sslmod
 			name: "yaml output",
 			args: []string{"create-dedicated", "mydb", "--yaml"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", namedReq("mydb")).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", namedReq("mydb")).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &db,
@@ -198,7 +198,7 @@ size: 1x
 					Size:       new(api.DatabaseSize("1x")),
 					ShareToken: new("tok_xyz"),
 				}
-				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-project", req).
+				m.EXPECT().CreateDatabaseWithResponse(validCtx, "test-space", req).
 					Return(&api.CreateDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &db,

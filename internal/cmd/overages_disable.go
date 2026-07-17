@@ -33,7 +33,7 @@ databases will be paused.`,
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
@@ -53,7 +53,7 @@ databases will be paused.`,
 				}
 			}
 
-			resp, err := client.UpdateOveragesWithResponse(cmd.Context(), projectID, api.UpdateOverageSettingsRequest{
+			resp, err := client.UpdateOveragesWithResponse(cmd.Context(), spaceID, api.UpdateOverageSettingsRequest{
 				Enabled: false,
 			})
 			if err != nil {

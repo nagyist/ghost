@@ -14,7 +14,7 @@ func TestSpaceListCmd(t *testing.T) {
 
 	successSetup := func(m *mock.MockClientWithResponsesInterface) {
 		spaces := []api.Space{
-			{Id: "test-project", Name: "Test Space", Role: new(api.MemberRoleOwner)},
+			{Id: "test-space", Name: "Test Space", Role: new(api.MemberRoleOwner)},
 			{Id: "other-proj", Name: "Other Space", Role: new(api.MemberRoleDeveloper)},
 		}
 		m.EXPECT().ListSpacesWithResponse(validCtx).
@@ -72,7 +72,7 @@ func TestSpaceListCmd(t *testing.T) {
 			args:       []string{"space", "list"},
 			opts:       []runOption{experimental},
 			setup:      successSetup,
-			wantStdout: "ID            NAME          ROLE       \ntest-project  Test Space *  owner      \nother-proj    Other Space   developer  \n",
+			wantStdout: "ID          NAME          ROLE       \ntest-space  Test Space *  owner      \nother-proj  Other Space   developer  \n",
 		},
 		{
 			name:  "json output",
@@ -81,7 +81,7 @@ func TestSpaceListCmd(t *testing.T) {
 			setup: successSetup,
 			wantStdout: `[
   {
-    "id": "test-project",
+    "id": "test-space",
     "name": "Test Space",
     "role": "owner",
     "current": true
@@ -101,7 +101,7 @@ func TestSpaceListCmd(t *testing.T) {
 			opts:  []runOption{experimental},
 			setup: successSetup,
 			wantStdout: `- current: true
-  id: test-project
+  id: test-space
   name: Test Space
   role: owner
 - current: false
@@ -115,7 +115,7 @@ func TestSpaceListCmd(t *testing.T) {
 			args:       []string{"space", "ls"},
 			opts:       []runOption{experimental},
 			setup:      successSetup,
-			wantStdout: "ID            NAME          ROLE       \ntest-project  Test Space *  owner      \nother-proj    Other Space   developer  \n",
+			wantStdout: "ID          NAME          ROLE       \ntest-space  Test Space *  owner      \nother-proj  Other Space   developer  \n",
 		},
 	}
 

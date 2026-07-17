@@ -42,7 +42,7 @@ func TestInvoiceViewCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"invoice", "view", "inv_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-project", "inv_123").
+				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-space", "inv_123").
 					Return(nil, errors.New("connection refused"))
 			},
 			opts:    []runOption{experimental},
@@ -52,7 +52,7 @@ func TestInvoiceViewCmd(t *testing.T) {
 			name: "forbidden (cross-tenant)",
 			args: []string{"invoice", "view", "inv_bad"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-project", "inv_bad").
+				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-space", "inv_bad").
 					Return(&api.GetInvoiceResponse{
 						HTTPResponse: httpResponse(http.StatusForbidden),
 						JSONDefault:  &api.Error{Message: "insufficient permissions to view the target invoice"},
@@ -65,7 +65,7 @@ func TestInvoiceViewCmd(t *testing.T) {
 			name: "nil response body",
 			args: []string{"invoice", "view", "inv_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-project", "inv_123").
+				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-space", "inv_123").
 					Return(&api.GetInvoiceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -78,7 +78,7 @@ func TestInvoiceViewCmd(t *testing.T) {
 			name: "empty line items",
 			args: []string{"invoice", "view", "inv_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-project", "inv_123").
+				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-space", "inv_123").
 					Return(&api.GetInvoiceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &api.InvoiceDetail{LineItems: []api.InvoiceLineItem{}},
@@ -91,7 +91,7 @@ func TestInvoiceViewCmd(t *testing.T) {
 			name: "text output",
 			args: []string{"invoice", "view", "inv_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-project", "inv_123").
+				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-space", "inv_123").
 					Return(&api.GetInvoiceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &detail,
@@ -104,7 +104,7 @@ func TestInvoiceViewCmd(t *testing.T) {
 			name: "json output",
 			args: []string{"invoice", "view", "inv_123", "--json"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-project", "inv_123").
+				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-space", "inv_123").
 					Return(&api.GetInvoiceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &detail,
@@ -135,7 +135,7 @@ func TestInvoiceViewCmd(t *testing.T) {
 			name: "get alias",
 			args: []string{"invoice", "get", "inv_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-project", "inv_123").
+				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-space", "inv_123").
 					Return(&api.GetInvoiceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &detail,
@@ -148,7 +148,7 @@ func TestInvoiceViewCmd(t *testing.T) {
 			name: "details alias",
 			args: []string{"invoice", "details", "inv_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-project", "inv_123").
+				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-space", "inv_123").
 					Return(&api.GetInvoiceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &detail,
@@ -161,7 +161,7 @@ func TestInvoiceViewCmd(t *testing.T) {
 			name: "show alias",
 			args: []string{"invoice", "show", "inv_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-project", "inv_123").
+				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-space", "inv_123").
 					Return(&api.GetInvoiceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &detail,

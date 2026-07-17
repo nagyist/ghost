@@ -43,7 +43,7 @@ func newShareRevokeTool() *mcp.Tool {
 }
 
 func (s *Server) handleShareRevoke(ctx context.Context, req *mcp.CallToolRequest, input ShareRevokeInput) (*mcp.CallToolResult, ShareOutput, error) {
-	cfg, client, projectID, err := s.app.GetAll()
+	cfg, client, spaceID, err := s.app.GetAll()
 	if err != nil {
 		return nil, ShareOutput{}, err
 	}
@@ -52,7 +52,7 @@ func (s *Server) handleShareRevoke(ctx context.Context, req *mcp.CallToolRequest
 		return nil, ShareOutput{}, err
 	}
 
-	resp, err := client.RevokeShareWithResponse(ctx, projectID, input.ShareToken)
+	resp, err := client.RevokeShareWithResponse(ctx, spaceID, input.ShareToken)
 	if err != nil {
 		return nil, ShareOutput{}, fmt.Errorf("failed to revoke share: %w", err)
 	}

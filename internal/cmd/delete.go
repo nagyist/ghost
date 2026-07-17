@@ -35,13 +35,13 @@ the deletion, unless you use the --confirm flag.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			databaseRef := args[0]
 
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
 
 			// Fetch database details to get the name
-			getResp, err := client.GetDatabaseWithResponse(cmd.Context(), projectID, databaseRef)
+			getResp, err := client.GetDatabaseWithResponse(cmd.Context(), spaceID, databaseRef)
 			if err != nil {
 				return fmt.Errorf("failed to get database details: %w", err)
 			}
@@ -77,7 +77,7 @@ the deletion, unless you use the --confirm flag.`,
 			// Make the delete request using the resolved ID
 			resp, err := client.DeleteDatabaseWithResponse(
 				cmd.Context(),
-				api.SpaceId(projectID),
+				api.SpaceId(spaceID),
 				api.DatabaseRef(database.Id),
 			)
 			if err != nil {

@@ -17,7 +17,7 @@ func TestSpaceUseCmd(t *testing.T) {
 
 	tokenCreds := config.Credentials{
 		Token:   &oauth2.Token{AccessToken: "test-token"},
-		SpaceID: "test-project",
+		SpaceID: "test-space",
 	}
 
 	// setupGetSpace mocks a successful lookup of the requested space.
@@ -71,7 +71,7 @@ func TestSpaceUseCmd(t *testing.T) {
 			args: []string{"space", "use", "other-proj"},
 			opts: []runOption{experimental, withStoredCredentials(config.Credentials{
 				APIKey:  "legacy-key",
-				SpaceID: "test-project",
+				SpaceID: "test-space",
 			})},
 			wantErr: "cannot switch spaces when authenticated with an API key; run 'ghost login'",
 		},

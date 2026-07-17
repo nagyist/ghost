@@ -14,11 +14,11 @@ func TestSpaceCmd(t *testing.T) {
 
 	// userSetup mocks a space resolved via user auth: role and owner populated.
 	userSetup := func(m *mock.MockClientWithResponsesInterface) {
-		m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+		m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200: &api.SpaceDetail{
-					Id:   "test-project",
+					Id:   "test-space",
 					Name: "Test Space",
 					Role: new(api.MemberRoleDeveloper),
 					Owner: &api.Member{
@@ -33,11 +33,11 @@ func TestSpaceCmd(t *testing.T) {
 
 	// apiKeySetup mocks a space resolved via API-key auth: role and owner omitted.
 	apiKeySetup := func(m *mock.MockClientWithResponsesInterface) {
-		m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+		m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200: &api.SpaceDetail{
-					Id:   "test-project",
+					Id:   "test-space",
 					Name: "Test Space",
 				},
 			}, nil)
@@ -55,7 +55,7 @@ func TestSpaceCmd(t *testing.T) {
 			args: []string{"space"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+				m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to get space: connection refused",
@@ -65,7 +65,7 @@ func TestSpaceCmd(t *testing.T) {
 			args: []string{"space"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+				m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 					Return(&api.GetSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal error"},
@@ -78,7 +78,7 @@ func TestSpaceCmd(t *testing.T) {
 			args: []string{"space"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+				m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 					Return(&api.GetSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -91,7 +91,7 @@ func TestSpaceCmd(t *testing.T) {
 			args:  []string{"space"},
 			opts:  []runOption{experimental},
 			setup: userSetup,
-			wantStdout: `Space: Test Space (test-project)
+			wantStdout: `Space: Test Space (test-space)
 Owner: Jane Doe (jane@example.com)
 Role: developer
 `,
@@ -102,7 +102,7 @@ Role: developer
 			opts:  []runOption{experimental},
 			setup: userSetup,
 			wantStdout: `{
-  "id": "test-project",
+  "id": "test-space",
   "name": "Test Space",
   "owner": {
     "email": "jane@example.com",
@@ -119,7 +119,7 @@ Role: developer
 			args:  []string{"space", "--yaml"},
 			opts:  []runOption{experimental},
 			setup: userSetup,
-			wantStdout: `id: test-project
+			wantStdout: `id: test-space
 name: Test Space
 owner:
   email: jane@example.com
@@ -134,7 +134,7 @@ role: developer
 			args:  []string{"space"},
 			opts:  []runOption{experimental},
 			setup: apiKeySetup,
-			wantStdout: `Space: Test Space (test-project)
+			wantStdout: `Space: Test Space (test-space)
 `,
 		},
 	}

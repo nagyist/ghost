@@ -30,12 +30,12 @@ func buildUsageCmd(app *common.App) *cobra.Command {
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
 
-			usage, err := common.FetchUsage(cmd.Context(), client, projectID)
+			usage, err := common.FetchUsage(cmd.Context(), client, spaceID)
 			if err != nil {
 				return err
 			}

@@ -45,7 +45,7 @@ no-limit mode).`,
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
@@ -54,7 +54,7 @@ no-limit mode).`,
 			// Check proactively so we can surface clear guidance up front,
 			// before the no-limit billing confirmation prompt below — rather
 			// than only after the user has already confirmed.
-			pmResp, err := client.ListPaymentMethodsWithResponse(cmd.Context(), projectID)
+			pmResp, err := client.ListPaymentMethodsWithResponse(cmd.Context(), spaceID)
 			if err != nil {
 				return fmt.Errorf("failed to list payment methods: %w", err)
 			}
@@ -94,7 +94,7 @@ no-limit mode).`,
 				req.ComputeLimitMinutes = new(limit * 60)
 			}
 
-			resp, err := client.UpdateOveragesWithResponse(cmd.Context(), projectID, req)
+			resp, err := client.UpdateOveragesWithResponse(cmd.Context(), spaceID, req)
 			if err != nil {
 				return fmt.Errorf("failed to enable overages: %w", err)
 			}

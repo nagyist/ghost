@@ -55,13 +55,13 @@ PostgreSQL tools.`,
 				return errors.New("cannot use --generate when password is provided as an argument")
 			}
 
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
 
 			// Fetch database details
-			getResp, err := client.GetDatabaseWithResponse(cmd.Context(), projectID, databaseRef)
+			getResp, err := client.GetDatabaseWithResponse(cmd.Context(), spaceID, databaseRef)
 			if err != nil {
 				return fmt.Errorf("failed to get database details: %w", err)
 			}
@@ -101,7 +101,7 @@ PostgreSQL tools.`,
 
 			// Update the password via API
 			updateReq := api.UpdatePasswordRequest{Password: password}
-			resp, err := client.UpdatePasswordWithResponse(cmd.Context(), projectID, database.Id, updateReq)
+			resp, err := client.UpdatePasswordWithResponse(cmd.Context(), spaceID, database.Id, updateReq)
 			if err != nil {
 				return fmt.Errorf("failed to update password: %w", err)
 			}

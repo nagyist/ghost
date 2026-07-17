@@ -21,7 +21,7 @@ func TestConnectCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"connect", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to get database: connection refused",
@@ -30,7 +30,7 @@ func TestConnectCmd(t *testing.T) {
 			name: "API error",
 			args: []string{"connect", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusNotFound),
 						JSONDefault:  &api.Error{Message: "database not found"},
@@ -42,7 +42,7 @@ func TestConnectCmd(t *testing.T) {
 			name: "nil response body",
 			args: []string{"connect", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -57,7 +57,7 @@ func TestConnectCmd(t *testing.T) {
 				db := sampleDatabase(func(db *api.Database) {
 					db.Host = "no-pgpass-match.example.com"
 				})
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &db,
@@ -73,7 +73,7 @@ func TestConnectCmd(t *testing.T) {
 				db := sampleDatabase(func(db *api.Database) {
 					db.Host = "no-pgpass-match.example.com"
 				})
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &db,

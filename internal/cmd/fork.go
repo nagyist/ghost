@@ -91,13 +91,13 @@ type DatabaseForkOutput struct {
 }
 
 func forkDatabase(cmd *cobra.Command, app *common.App, args forkDatabaseArgs) error {
-	client, projectID, err := app.GetClient()
+	client, spaceID, err := app.GetClient()
 	if err != nil {
 		return err
 	}
 
 	// Fetch source database to get its name and check readiness
-	sourceResp, err := client.GetDatabaseWithResponse(cmd.Context(), projectID, args.sourceDatabaseRef)
+	sourceResp, err := client.GetDatabaseWithResponse(cmd.Context(), spaceID, args.sourceDatabaseRef)
 	if err != nil {
 		return fmt.Errorf("failed to get source database: %w", err)
 	}
@@ -115,7 +115,7 @@ func forkDatabase(cmd *cobra.Command, app *common.App, args forkDatabaseArgs) er
 	}
 
 	// Make API call to fork database
-	forkResp, err := client.ForkDatabaseWithResponse(cmd.Context(), projectID, sourceDatabase.Id, args.req)
+	forkResp, err := client.ForkDatabaseWithResponse(cmd.Context(), spaceID, sourceDatabase.Id, args.req)
 	if err != nil {
 		return fmt.Errorf("failed to fork database: %w", err)
 	}
@@ -186,7 +186,7 @@ func forkDatabase(cmd *cobra.Command, app *common.App, args forkDatabaseArgs) er
 
 	return common.WaitForDatabaseWithProgress(cmd.Context(), cmd.InOrStdin(), cmd.ErrOrStderr(), common.WaitForDatabaseArgs{
 		Client:      client,
-		ProjectID:   projectID,
+		SpaceID:     spaceID,
 		DatabaseRef: forkedDatabase.Id,
 	})
 }

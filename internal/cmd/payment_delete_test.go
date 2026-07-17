@@ -15,7 +15,7 @@ func TestPaymentDeleteCmd(t *testing.T) {
 	}
 
 	setupGet := func(m *mock.MockClientWithResponsesInterface) {
-		m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
+		m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-space", "pm_123").
 			Return(&api.GetPaymentMethodResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &pm,
@@ -23,7 +23,7 @@ func TestPaymentDeleteCmd(t *testing.T) {
 	}
 
 	setupDelete := func(m *mock.MockClientWithResponsesInterface) {
-		m.EXPECT().DeletePaymentMethodWithResponse(validCtx, "test-project", "pm_123").
+		m.EXPECT().DeletePaymentMethodWithResponse(validCtx, "test-space", "pm_123").
 			Return(&api.DeletePaymentMethodResponse{
 				HTTPResponse: httpResponse(http.StatusNoContent),
 			}, nil)
@@ -40,7 +40,7 @@ func TestPaymentDeleteCmd(t *testing.T) {
 			name: "network error on get",
 			args: []string{"payment", "delete", "pm_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
+				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-space", "pm_123").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to get payment method: connection refused",
@@ -49,7 +49,7 @@ func TestPaymentDeleteCmd(t *testing.T) {
 			name: "API error on get",
 			args: []string{"payment", "delete", "pm_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
+				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-space", "pm_123").
 					Return(&api.GetPaymentMethodResponse{
 						HTTPResponse: httpResponse(http.StatusNotFound),
 						JSONDefault:  &api.Error{Message: "payment method not found"},
@@ -61,7 +61,7 @@ func TestPaymentDeleteCmd(t *testing.T) {
 			name: "nil response body on get",
 			args: []string{"payment", "delete", "pm_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
+				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-space", "pm_123").
 					Return(&api.GetPaymentMethodResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -93,7 +93,7 @@ func TestPaymentDeleteCmd(t *testing.T) {
 			opts: []runOption{withStdin("y\n"), withIsTerminal(true)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
-				m.EXPECT().DeletePaymentMethodWithResponse(validCtx, "test-project", "pm_123").
+				m.EXPECT().DeletePaymentMethodWithResponse(validCtx, "test-space", "pm_123").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr:    "failed to delete payment method: connection refused",
@@ -104,7 +104,7 @@ func TestPaymentDeleteCmd(t *testing.T) {
 			args: []string{"payment", "delete", "pm_123", "--confirm"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
-				m.EXPECT().DeletePaymentMethodWithResponse(validCtx, "test-project", "pm_123").
+				m.EXPECT().DeletePaymentMethodWithResponse(validCtx, "test-space", "pm_123").
 					Return(&api.DeletePaymentMethodResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal error"},

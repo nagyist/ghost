@@ -98,7 +98,7 @@ func (s *Server) handleVisualizeQuery(ctx context.Context, input VisualizeInput)
 	// whose connectionStringForService builds the DSN with the immutable
 	// read_only connection GUC (ReadOnly: cfg.ReadOnly). That allows SELECTs and
 	// rejects writes, matching ghost_sql, so cfg is not needed here.
-	_, client, projectID, err := s.app.GetAll()
+	_, client, spaceID, err := s.app.GetAll()
 	if err != nil {
 		return nil, VisualizeOutput{}, err
 	}
@@ -117,7 +117,7 @@ func (s *Server) handleVisualizeQuery(ctx context.Context, input VisualizeInput)
 	// and the URL would show the name. The backend always has the API client to
 	// resolve this reliably, whereas the frontend's database list may not be
 	// loaded yet.
-	database, err := resolveDatabase(ctx, client, projectID, input.Ref)
+	database, err := resolveDatabase(ctx, client, spaceID, input.Ref)
 	if err != nil {
 		return nil, VisualizeOutput{}, err
 	}

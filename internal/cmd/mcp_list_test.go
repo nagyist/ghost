@@ -84,7 +84,7 @@ func TestMCPListCmd(t *testing.T) {
 			args: []string{"mcp", "list", "--function-tools"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &[]api.DatabaseWithUsage{},

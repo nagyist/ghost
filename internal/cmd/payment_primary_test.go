@@ -29,7 +29,7 @@ func TestPaymentPrimaryCmd(t *testing.T) {
 			name: "network error on get",
 			args: []string{"payment", "primary", "pm_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
+				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-space", "pm_123").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to get payment method: connection refused",
@@ -38,7 +38,7 @@ func TestPaymentPrimaryCmd(t *testing.T) {
 			name: "API error on get",
 			args: []string{"payment", "primary", "pm_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
+				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-space", "pm_123").
 					Return(&api.GetPaymentMethodResponse{
 						HTTPResponse: httpResponse(http.StatusNotFound),
 						JSONDefault:  &api.Error{Message: "payment method not found"},
@@ -50,7 +50,7 @@ func TestPaymentPrimaryCmd(t *testing.T) {
 			name: "nil response body on get",
 			args: []string{"payment", "primary", "pm_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
+				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-space", "pm_123").
 					Return(&api.GetPaymentMethodResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -62,7 +62,7 @@ func TestPaymentPrimaryCmd(t *testing.T) {
 			name: "already primary",
 			args: []string{"payment", "primary", "pm_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
+				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-space", "pm_123").
 					Return(&api.GetPaymentMethodResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &pmAlreadyPrimary,
@@ -74,12 +74,12 @@ func TestPaymentPrimaryCmd(t *testing.T) {
 			name: "network error on set primary",
 			args: []string{"payment", "primary", "pm_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
+				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-space", "pm_123").
 					Return(&api.GetPaymentMethodResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &pm,
 					}, nil)
-				m.EXPECT().SetPaymentMethodPrimaryWithResponse(validCtx, "test-project", "pm_123").
+				m.EXPECT().SetPaymentMethodPrimaryWithResponse(validCtx, "test-space", "pm_123").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to set primary payment method: connection refused",
@@ -88,12 +88,12 @@ func TestPaymentPrimaryCmd(t *testing.T) {
 			name: "success",
 			args: []string{"payment", "primary", "pm_123"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-project", "pm_123").
+				m.EXPECT().GetPaymentMethodWithResponse(validCtx, "test-space", "pm_123").
 					Return(&api.GetPaymentMethodResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &pm,
 					}, nil)
-				m.EXPECT().SetPaymentMethodPrimaryWithResponse(validCtx, "test-project", "pm_123").
+				m.EXPECT().SetPaymentMethodPrimaryWithResponse(validCtx, "test-space", "pm_123").
 					Return(&api.SetPaymentMethodPrimaryResponse{
 						HTTPResponse: httpResponse(http.StatusNoContent),
 					}, nil)

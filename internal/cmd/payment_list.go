@@ -26,12 +26,12 @@ func buildPaymentListCmd(app *common.App) *cobra.Command {
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
 
-			resp, err := client.ListPaymentMethodsWithResponse(cmd.Context(), projectID)
+			resp, err := client.ListPaymentMethodsWithResponse(cmd.Context(), spaceID)
 			if err != nil {
 				return fmt.Errorf("failed to list payment methods: %w", err)
 			}

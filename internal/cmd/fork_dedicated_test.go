@@ -24,7 +24,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 
 	setupGetSource := func(m *mock.MockClientWithResponsesInterface) {
 		db := sourceDb
-		m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+		m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 			Return(&api.GetDatabaseResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &db,
@@ -44,7 +44,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 				Type: new(api.DatabaseTypeDedicated),
 				Size: new(api.DatabaseSize("1x")),
 			}
-			m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-project", "abc1234567", req).
+			m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-space", "abc1234567", req).
 				Return(&api.ForkDatabaseResponse{
 					HTTPResponse: httpResponse(http.StatusAccepted),
 					JSON202:      &db,
@@ -68,7 +68,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 			name: "network error on get source",
 			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to get source database: connection refused",
@@ -77,7 +77,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 			name: "API error on get source",
 			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusNotFound),
 						JSONDefault:  &api.Error{Message: "database not found"},
@@ -89,7 +89,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 			name: "nil response body on get source",
 			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -104,7 +104,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 				db := sampleDatabase(func(db *api.Database) {
 					db.Status = api.DatabaseStatusPaused
 				})
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &db,
@@ -119,7 +119,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 				db := sampleDatabase(func(db *api.Database) {
 					db.Status = api.DatabaseStatusConfiguring
 				})
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &db,
@@ -132,7 +132,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
-				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-project", "abc1234567", defaultReq).
+				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-space", "abc1234567", defaultReq).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to fork database: connection refused",
@@ -142,7 +142,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
-				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-project", "abc1234567", defaultReq).
+				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-space", "abc1234567", defaultReq).
 					Return(&api.ForkDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusBadRequest),
 						JSONDefault:  &api.Error{Message: "no valid payment method found", Code: new(api.ErrorCodeNoPaymentMethod)},
@@ -155,7 +155,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
-				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-project", "abc1234567", defaultReq).
+				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-space", "abc1234567", defaultReq).
 					Return(&api.ForkDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal server error"},
@@ -168,7 +168,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 			args: []string{"fork-dedicated", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
-				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-project", "abc1234567", defaultReq).
+				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-space", "abc1234567", defaultReq).
 					Return(&api.ForkDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      nil,
@@ -209,7 +209,7 @@ func TestForkDedicatedCmd(t *testing.T) {
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSource(m)
 				db := forkedDb
-				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-project", "abc1234567", api.ForkDatabaseRequest{
+				m.EXPECT().ForkDatabaseWithResponse(validCtx, "test-space", "abc1234567", api.ForkDatabaseRequest{
 					Type: new(api.DatabaseTypeDedicated),
 					Size: new(api.DatabaseSize("4x")),
 				}).Return(&api.ForkDatabaseResponse{

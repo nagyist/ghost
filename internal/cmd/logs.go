@@ -48,7 +48,7 @@ most recent entries at the bottom.`,
 				return fmt.Errorf("--tail must be at least 1, got %d", tail)
 			}
 
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
@@ -56,7 +56,7 @@ most recent entries at the bottom.`,
 			// Fetch logs with pagination
 			logs, err := common.FetchLogs(cmd.Context(), common.FetchLogsArgs{
 				Client:      client,
-				ProjectID:   projectID,
+				SpaceID:     spaceID,
 				DatabaseRef: databaseRef,
 				Tail:        tail,
 				Until:       until,

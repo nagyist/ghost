@@ -21,13 +21,13 @@ func buildPaymentUndeleteCmd(app *common.App) *cobra.Command {
 		ValidArgsFunction: paymentMethodIDCompletion(app),
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
 
 			// Fetch payment method
-			getResp, err := client.GetPaymentMethodWithResponse(cmd.Context(), projectID, args[0])
+			getResp, err := client.GetPaymentMethodWithResponse(cmd.Context(), spaceID, args[0])
 			if err != nil {
 				return fmt.Errorf("failed to get payment method: %w", err)
 			}
@@ -46,7 +46,7 @@ func buildPaymentUndeleteCmd(app *common.App) *cobra.Command {
 			}
 
 			// Cancel the pending deletion
-			resp, err := client.CancelPaymentMethodDeletionWithResponse(cmd.Context(), projectID, args[0])
+			resp, err := client.CancelPaymentMethodDeletionWithResponse(cmd.Context(), spaceID, args[0])
 			if err != nil {
 				return fmt.Errorf("failed to cancel payment method deletion: %w", err)
 			}

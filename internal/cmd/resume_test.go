@@ -21,7 +21,7 @@ func TestResumeCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"resume", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ResumeDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().ResumeDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to resume database: connection refused",
@@ -30,7 +30,7 @@ func TestResumeCmd(t *testing.T) {
 			name: "API error",
 			args: []string{"resume", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ResumeDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().ResumeDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.ResumeDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusNotFound),
 						JSONDefault:  &api.Error{Message: "database not found"},
@@ -42,7 +42,7 @@ func TestResumeCmd(t *testing.T) {
 			name: "compute limit exceeded shows overages guidance",
 			args: []string{"resume", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ResumeDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().ResumeDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.ResumeDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusBadRequest),
 						JSONDefault:  &api.Error{Message: "compute limit has been exceeded", Code: new(api.ErrorCodeComputeLimitExceeded)},
@@ -54,7 +54,7 @@ func TestResumeCmd(t *testing.T) {
 			name: "nil response body",
 			args: []string{"resume", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ResumeDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().ResumeDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.ResumeDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      nil,
@@ -67,7 +67,7 @@ func TestResumeCmd(t *testing.T) {
 			args: []string{"resume", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				db := sampleDatabase()
-				m.EXPECT().ResumeDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().ResumeDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.ResumeDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusAccepted),
 						JSON202:      &db,

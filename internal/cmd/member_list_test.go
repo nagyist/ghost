@@ -17,7 +17,7 @@ func TestMemberListCmd(t *testing.T) {
 			{UserId: 101, Name: "Alice Smith", Email: "alice@example.com", Role: api.MemberRoleOwner},
 			{UserId: 102, Name: "Bob Jones", Email: "bob@example.com", Role: api.MemberRoleDeveloper},
 		}
-		m.EXPECT().ListMembersWithResponse(validCtx, "test-project").
+		m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 			Return(&api.ListMembersResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &members,
@@ -36,7 +36,7 @@ func TestMemberListCmd(t *testing.T) {
 			args: []string{"member", "list"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListMembersWithResponse(validCtx, "test-project").
+				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to list members: connection refused",
@@ -46,7 +46,7 @@ func TestMemberListCmd(t *testing.T) {
 			args: []string{"member", "list"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListMembersWithResponse(validCtx, "test-project").
+				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(&api.ListMembersResponse{
 						HTTPResponse: httpResponse(http.StatusForbidden),
 						JSONDefault:  &api.Error{Message: "this endpoint requires user authentication"},
@@ -59,7 +59,7 @@ func TestMemberListCmd(t *testing.T) {
 			args: []string{"member", "list"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListMembersWithResponse(validCtx, "test-project").
+				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(&api.ListMembersResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,

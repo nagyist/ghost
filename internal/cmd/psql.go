@@ -42,13 +42,13 @@ Any flags after -- are passed directly to psql.`,
 			}
 			databaseRef := dbArgs[0]
 
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
 
 			// Fetch database details
-			resp, err := client.GetDatabaseWithResponse(cmd.Context(), projectID, databaseRef)
+			resp, err := client.GetDatabaseWithResponse(cmd.Context(), spaceID, databaseRef)
 			if err != nil {
 				return fmt.Errorf("failed to get database: %w", err)
 			}

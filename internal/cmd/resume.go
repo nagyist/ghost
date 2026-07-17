@@ -29,7 +29,7 @@ func buildResumeCmd(app *common.App) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			databaseRef := args[0]
 
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
@@ -37,7 +37,7 @@ func buildResumeCmd(app *common.App) *cobra.Command {
 			// Make the resume request
 			resp, err := client.ResumeDatabaseWithResponse(
 				cmd.Context(),
-				api.SpaceId(projectID),
+				api.SpaceId(spaceID),
 				api.DatabaseRef(databaseRef),
 			)
 			if err != nil {
@@ -81,7 +81,7 @@ func buildResumeCmd(app *common.App) *cobra.Command {
 
 			return common.WaitForDatabaseWithProgress(cmd.Context(), cmd.InOrStdin(), cmd.ErrOrStderr(), common.WaitForDatabaseArgs{
 				Client:      client,
-				ProjectID:   projectID,
+				SpaceID:     spaceID,
 				DatabaseRef: database.Id,
 			})
 		},

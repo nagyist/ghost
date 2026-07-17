@@ -200,13 +200,13 @@ func inviteReceivedCompletion(app *common.App) cobra.CompletionFunc {
 }
 
 func listDatabases(cmd *cobra.Command, app *common.App) ([]api.DatabaseWithUsage, error) {
-	client, projectID, err := app.GetClient()
+	client, spaceID, err := app.GetClient()
 	if err != nil {
 		return nil, err
 	}
 
 	// Make API call to list databases
-	resp, err := client.ListDatabasesWithResponse(cmd.Context(), projectID)
+	resp, err := client.ListDatabasesWithResponse(cmd.Context(), spaceID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list databases: %w", err)
 	}
@@ -291,12 +291,12 @@ func paymentMethodIDCompletion(app *common.App) cobra.CompletionFunc {
 }
 
 func listPaymentMethods(cmd *cobra.Command, app *common.App) ([]api.PaymentMethod, error) {
-	client, projectID, err := app.GetClient()
+	client, spaceID, err := app.GetClient()
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := client.ListPaymentMethodsWithResponse(cmd.Context(), projectID)
+	resp, err := client.ListPaymentMethodsWithResponse(cmd.Context(), spaceID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list payment methods: %w", err)
 	}
@@ -334,12 +334,12 @@ func apiKeyPrefixCompletion(app *common.App) cobra.CompletionFunc {
 }
 
 func listApiKeys(cmd *cobra.Command, app *common.App) ([]api.ApiKey, error) {
-	client, projectID, err := app.GetClient()
+	client, spaceID, err := app.GetClient()
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := client.ListApiKeysWithResponse(cmd.Context(), projectID)
+	resp, err := client.ListApiKeysWithResponse(cmd.Context(), spaceID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list API keys: %w", err)
 	}
@@ -378,12 +378,12 @@ func invoiceIDCompletion(app *common.App) cobra.CompletionFunc {
 }
 
 func listInvoices(cmd *cobra.Command, app *common.App) ([]api.Invoice, error) {
-	client, projectID, err := app.GetClient()
+	client, spaceID, err := app.GetClient()
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := client.ListInvoicesWithResponse(cmd.Context(), projectID)
+	resp, err := client.ListInvoicesWithResponse(cmd.Context(), spaceID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list invoices: %w", err)
 	}
@@ -412,12 +412,12 @@ func shareTokenCompletion(app *common.App) cobra.CompletionFunc {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
 
-		client, projectID, err := app.GetClient()
+		client, spaceID, err := app.GetClient()
 		if err != nil {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
 
-		resp, err := client.ListSharesWithResponse(cmd.Context(), projectID)
+		resp, err := client.ListSharesWithResponse(cmd.Context(), spaceID)
 		if err != nil || resp.StatusCode() != http.StatusOK || resp.JSON200 == nil {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}

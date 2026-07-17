@@ -23,7 +23,7 @@ func TestShareCmd(t *testing.T) {
 
 	setupGet := func(m *mock.MockClientWithResponsesInterface) {
 		db := sampleDatabase()
-		m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+		m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 			Return(&api.GetDatabaseResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &db,
@@ -36,7 +36,7 @@ func TestShareCmd(t *testing.T) {
 			if withExpiry {
 				s.ExpiresAt = expiresAt
 			}
-			m.EXPECT().ShareDatabaseWithResponse(validCtx, "test-project", "abc1234567", api.ShareDatabaseJSONRequestBody{ExpiresAt: expiresAt}).
+			m.EXPECT().ShareDatabaseWithResponse(validCtx, "test-space", "abc1234567", api.ShareDatabaseJSONRequestBody{ExpiresAt: expiresAt}).
 				Return(&api.ShareDatabaseResponse{
 					HTTPResponse: httpResponse(http.StatusCreated),
 					JSON201:      &s,
@@ -55,7 +55,7 @@ func TestShareCmd(t *testing.T) {
 			name: "network error on get",
 			args: []string{"share", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to get database details: connection refused",
@@ -64,7 +64,7 @@ func TestShareCmd(t *testing.T) {
 			name: "API error on get",
 			args: []string{"share", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusNotFound),
 						JSONDefault:  &api.Error{Message: "database not found"},
@@ -76,7 +76,7 @@ func TestShareCmd(t *testing.T) {
 			name: "nil response body on get",
 			args: []string{"share", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -91,7 +91,7 @@ func TestShareCmd(t *testing.T) {
 				db := sampleDatabase(func(db *api.Database) {
 					db.Status = api.DatabaseStatusPaused
 				})
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &db,
@@ -106,7 +106,7 @@ func TestShareCmd(t *testing.T) {
 				db := sampleDatabase(func(db *api.Database) {
 					db.Status = api.DatabaseStatusConfiguring
 				})
-				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-project", "abc1234567").
+				m.EXPECT().GetDatabaseWithResponse(validCtx, "test-space", "abc1234567").
 					Return(&api.GetDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &db,
@@ -119,7 +119,7 @@ func TestShareCmd(t *testing.T) {
 			args: []string{"share", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
-				m.EXPECT().ShareDatabaseWithResponse(validCtx, "test-project", "abc1234567", api.ShareDatabaseJSONRequestBody{}).
+				m.EXPECT().ShareDatabaseWithResponse(validCtx, "test-space", "abc1234567", api.ShareDatabaseJSONRequestBody{}).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to create share: connection refused",
@@ -129,7 +129,7 @@ func TestShareCmd(t *testing.T) {
 			args: []string{"share", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
-				m.EXPECT().ShareDatabaseWithResponse(validCtx, "test-project", "abc1234567", api.ShareDatabaseJSONRequestBody{}).
+				m.EXPECT().ShareDatabaseWithResponse(validCtx, "test-space", "abc1234567", api.ShareDatabaseJSONRequestBody{}).
 					Return(&api.ShareDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal server error"},
@@ -142,7 +142,7 @@ func TestShareCmd(t *testing.T) {
 			args: []string{"share", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGet(m)
-				m.EXPECT().ShareDatabaseWithResponse(validCtx, "test-project", "abc1234567", api.ShareDatabaseJSONRequestBody{}).
+				m.EXPECT().ShareDatabaseWithResponse(validCtx, "test-space", "abc1234567", api.ShareDatabaseJSONRequestBody{}).
 					Return(&api.ShareDatabaseResponse{
 						HTTPResponse: httpResponse(http.StatusCreated),
 						JSON201:      nil,

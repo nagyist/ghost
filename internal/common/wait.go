@@ -16,7 +16,7 @@ import (
 
 type WaitForDatabaseArgs struct {
 	Client      api.ClientWithResponsesInterface
-	ProjectID   string
+	SpaceID     string
 	DatabaseRef string
 }
 
@@ -40,7 +40,7 @@ func WaitForDatabase(ctx context.Context, args WaitForDatabaseArgs) error {
 				return err
 			}
 		case <-ticker.C:
-			resp, err := args.Client.GetDatabaseWithResponse(ctx, args.ProjectID, args.DatabaseRef)
+			resp, err := args.Client.GetDatabaseWithResponse(ctx, args.SpaceID, args.DatabaseRef)
 			if err != nil {
 				return fmt.Errorf("failed to fetch database status: %w", err)
 			}

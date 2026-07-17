@@ -47,7 +47,7 @@ GHOST_API_KEY environment variable.`,
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client, projectID, err := app.GetClient()
+			client, spaceID, err := app.GetClient()
 			if err != nil {
 				return err
 			}
@@ -61,7 +61,7 @@ GHOST_API_KEY environment variable.`,
 			}
 
 			// Create the API key
-			resp, err := client.CreateApiKeyWithResponse(cmd.Context(), projectID, api.CreateApiKeyJSONRequestBody{
+			resp, err := client.CreateApiKeyWithResponse(cmd.Context(), spaceID, api.CreateApiKeyJSONRequestBody{
 				Name: name,
 			})
 			if err != nil {

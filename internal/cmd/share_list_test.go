@@ -51,7 +51,7 @@ func TestShareListCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"share", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListSharesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListSharesWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to list shares: connection refused",
@@ -60,7 +60,7 @@ func TestShareListCmd(t *testing.T) {
 			name: "API error",
 			args: []string{"share", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListSharesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListSharesWithResponse(validCtx, "test-space").
 					Return(&api.ListSharesResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal server error"},
@@ -72,7 +72,7 @@ func TestShareListCmd(t *testing.T) {
 			name: "nil response body",
 			args: []string{"share", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListSharesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListSharesWithResponse(validCtx, "test-space").
 					Return(&api.ListSharesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -85,7 +85,7 @@ func TestShareListCmd(t *testing.T) {
 			args: []string{"share", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				empty := []api.DatabaseShare{}
-				m.EXPECT().ListSharesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListSharesWithResponse(validCtx, "test-space").
 					Return(&api.ListSharesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &empty,
@@ -98,7 +98,7 @@ func TestShareListCmd(t *testing.T) {
 			args: []string{"share", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				list := shares
-				m.EXPECT().ListSharesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListSharesWithResponse(validCtx, "test-space").
 					Return(&api.ListSharesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &list,
@@ -111,7 +111,7 @@ func TestShareListCmd(t *testing.T) {
 			args: []string{"share", "list", "--json"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				list := []api.DatabaseShare{active}
-				m.EXPECT().ListSharesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListSharesWithResponse(validCtx, "test-space").
 					Return(&api.ListSharesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &list,
@@ -135,7 +135,7 @@ func TestShareListCmd(t *testing.T) {
 			args: []string{"share", "list", "--yaml"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				list := []api.DatabaseShare{active}
-				m.EXPECT().ListSharesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListSharesWithResponse(validCtx, "test-space").
 					Return(&api.ListSharesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &list,
@@ -155,7 +155,7 @@ func TestShareListCmd(t *testing.T) {
 			args: []string{"share", "ls"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				list := []api.DatabaseShare{active}
-				m.EXPECT().ListSharesWithResponse(validCtx, "test-project").
+				m.EXPECT().ListSharesWithResponse(validCtx, "test-space").
 					Return(&api.ListSharesResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &list,

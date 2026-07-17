@@ -100,13 +100,13 @@ type forkDatabaseResult struct {
 
 // forkDatabase is a shared helper for ghost_fork and ghost_fork_dedicated.
 func (s *Server) forkDatabase(ctx context.Context, args forkDatabaseArgs) (forkDatabaseResult, error) {
-	client, projectID, err := s.app.GetClient()
+	client, spaceID, err := s.app.GetClient()
 	if err != nil {
 		return forkDatabaseResult{}, err
 	}
 
 	// Fetch source database to check readiness
-	sourceResp, err := client.GetDatabaseWithResponse(ctx, projectID, args.sourceDatabaseRef)
+	sourceResp, err := client.GetDatabaseWithResponse(ctx, spaceID, args.sourceDatabaseRef)
 	if err != nil {
 		return forkDatabaseResult{}, fmt.Errorf("failed to get source database: %w", err)
 	}
@@ -124,8 +124,8 @@ func (s *Server) forkDatabase(ctx context.Context, args forkDatabaseArgs) (forkD
 	}
 
 	// Make API call to fork database
-	// API defaults all other values based on Ghost project plan type
-	forkResp, err := client.ForkDatabaseWithResponse(ctx, projectID, args.sourceDatabaseRef, args.req)
+	// API defaults all other values based on Ghost space plan type
+	forkResp, err := client.ForkDatabaseWithResponse(ctx, spaceID, args.sourceDatabaseRef, args.req)
 	if err != nil {
 		return forkDatabaseResult{}, fmt.Errorf("failed to fork database: %w", err)
 	}
@@ -168,7 +168,7 @@ func (s *Server) forkDatabase(ctx context.Context, args forkDatabaseArgs) (forkD
 	if args.wait {
 		if err := common.WaitForDatabase(ctx, common.WaitForDatabaseArgs{
 			Client:      client,
-			ProjectID:   projectID,
+			SpaceID:     spaceID,
 			DatabaseRef: databaseID,
 		}); err != nil {
 			return forkDatabaseResult{}, err

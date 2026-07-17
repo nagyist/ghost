@@ -17,7 +17,7 @@ func TestMemberRemoveCmd(t *testing.T) {
 			{UserId: 101, Name: "Alice Smith", Email: "alice@example.com", Role: api.MemberRoleOwner},
 			{UserId: 102, Name: "Bob Jones", Email: "bob@example.com", Role: api.MemberRoleDeveloper},
 		}
-		m.EXPECT().ListMembersWithResponse(validCtx, "test-project").
+		m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 			Return(&api.ListMembersResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &members,
@@ -25,7 +25,7 @@ func TestMemberRemoveCmd(t *testing.T) {
 	}
 	setupRemove := func(m *mock.MockClientWithResponsesInterface) {
 		removed := api.Member{UserId: 102, Name: "Bob Jones", Email: "bob@example.com", Role: api.MemberRoleDeveloper}
-		m.EXPECT().RemoveMemberWithResponse(validCtx, "test-project", int64(102)).
+		m.EXPECT().RemoveMemberWithResponse(validCtx, "test-space", int64(102)).
 			Return(&api.RemoveMemberResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &removed,
@@ -44,7 +44,7 @@ func TestMemberRemoveCmd(t *testing.T) {
 			args: []string{"member", "remove", "bob@example.com"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListMembersWithResponse(validCtx, "test-project").
+				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to list members: connection refused",
@@ -54,7 +54,7 @@ func TestMemberRemoveCmd(t *testing.T) {
 			args: []string{"member", "remove", "bob@example.com"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListMembersWithResponse(validCtx, "test-project").
+				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(&api.ListMembersResponse{
 						HTTPResponse: httpResponse(http.StatusForbidden),
 						JSONDefault:  &api.Error{Message: "this endpoint requires user authentication"},
@@ -67,7 +67,7 @@ func TestMemberRemoveCmd(t *testing.T) {
 			args: []string{"member", "remove", "bob@example.com"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListMembersWithResponse(validCtx, "test-project").
+				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(&api.ListMembersResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -103,7 +103,7 @@ func TestMemberRemoveCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
-				m.EXPECT().RemoveMemberWithResponse(validCtx, "test-project", int64(102)).
+				m.EXPECT().RemoveMemberWithResponse(validCtx, "test-space", int64(102)).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to remove member: connection refused",
@@ -114,7 +114,7 @@ func TestMemberRemoveCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
-				m.EXPECT().RemoveMemberWithResponse(validCtx, "test-project", int64(101)).
+				m.EXPECT().RemoveMemberWithResponse(validCtx, "test-space", int64(101)).
 					Return(&api.RemoveMemberResponse{
 						HTTPResponse: httpResponse(http.StatusBadRequest),
 						JSONDefault:  &api.Error{Message: "the space owner cannot be removed"},
@@ -128,7 +128,7 @@ func TestMemberRemoveCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
-				m.EXPECT().RemoveMemberWithResponse(validCtx, "test-project", int64(102)).
+				m.EXPECT().RemoveMemberWithResponse(validCtx, "test-space", int64(102)).
 					Return(&api.RemoveMemberResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,

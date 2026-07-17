@@ -61,7 +61,7 @@ func TestLogsCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"logs", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-project", "abc1234567", logsParamsMatcher(nil, time.Time{})).
+				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-space", "abc1234567", logsParamsMatcher(nil, time.Time{})).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to fetch logs: connection refused",
@@ -70,7 +70,7 @@ func TestLogsCmd(t *testing.T) {
 			name: "API error",
 			args: []string{"logs", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-project", "abc1234567", logsParamsMatcher(nil, time.Time{})).
+				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-space", "abc1234567", logsParamsMatcher(nil, time.Time{})).
 					Return(&api.DatabaseLogsResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal error"},
@@ -82,7 +82,7 @@ func TestLogsCmd(t *testing.T) {
 			name: "nil response body",
 			args: []string{"logs", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-project", "abc1234567", logsParamsMatcher(nil, time.Time{})).
+				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-space", "abc1234567", logsParamsMatcher(nil, time.Time{})).
 					Return(&api.DatabaseLogsResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -94,7 +94,7 @@ func TestLogsCmd(t *testing.T) {
 			name: "text output",
 			args: []string{"logs", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-project", "abc1234567", logsParamsMatcher(nil, time.Time{})).
+				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-space", "abc1234567", logsParamsMatcher(nil, time.Time{})).
 					Return(&api.DatabaseLogsResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.LogsResponse{
@@ -111,7 +111,7 @@ func TestLogsCmd(t *testing.T) {
 			name: "json output",
 			args: []string{"logs", "abc1234567", "--json"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-project", "abc1234567", logsParamsMatcher(nil, time.Time{})).
+				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-space", "abc1234567", logsParamsMatcher(nil, time.Time{})).
 					Return(&api.DatabaseLogsResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.LogsResponse{
@@ -132,7 +132,7 @@ func TestLogsCmd(t *testing.T) {
 			name: "yaml output",
 			args: []string{"logs", "abc1234567", "--yaml"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-project", "abc1234567", logsParamsMatcher(nil, time.Time{})).
+				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-space", "abc1234567", logsParamsMatcher(nil, time.Time{})).
 					Return(&api.DatabaseLogsResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.LogsResponse{
@@ -151,7 +151,7 @@ func TestLogsCmd(t *testing.T) {
 			name: "empty logs",
 			args: []string{"logs", "abc1234567"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-project", "abc1234567", logsParamsMatcher(nil, time.Time{})).
+				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-space", "abc1234567", logsParamsMatcher(nil, time.Time{})).
 					Return(&api.DatabaseLogsResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &api.LogsResponse{Entries: []api.LogEntry{}},
@@ -173,7 +173,7 @@ func TestLogsCmd(t *testing.T) {
 			name: "tail flag",
 			args: []string{"logs", "abc1234567", "--tail", "1"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-project", "abc1234567", logsParamsMatcher(nil, time.Time{})).
+				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-space", "abc1234567", logsParamsMatcher(nil, time.Time{})).
 					Return(&api.DatabaseLogsResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.LogsResponse{
@@ -192,7 +192,7 @@ func TestLogsCmd(t *testing.T) {
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				cursor := "page-2-cursor"
 				gomock.InOrder(
-					m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-project", "abc1234567", logsParamsMatcher(nil, time.Time{})).
+					m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-space", "abc1234567", logsParamsMatcher(nil, time.Time{})).
 						Return(&api.DatabaseLogsResponse{
 							HTTPResponse: httpResponse(http.StatusOK),
 							JSON200: &api.LogsResponse{
@@ -203,7 +203,7 @@ func TestLogsCmd(t *testing.T) {
 								LastCursor: &cursor,
 							},
 						}, nil),
-					m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-project", "abc1234567", logsParamsMatcher(&cursor, time.Time{})).
+					m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-space", "abc1234567", logsParamsMatcher(&cursor, time.Time{})).
 						Return(&api.DatabaseLogsResponse{
 							HTTPResponse: httpResponse(http.StatusOK),
 							JSON200: &api.LogsResponse{
@@ -219,7 +219,7 @@ func TestLogsCmd(t *testing.T) {
 			args: []string{"logs", "abc1234567", "--until", "2024-06-15T10:00:00Z"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				until := time.Date(2024, 6, 15, 10, 0, 0, 0, time.UTC)
-				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-project", "abc1234567", logsParamsMatcher(nil, until)).
+				m.EXPECT().DatabaseLogsWithResponse(validCtx, "test-space", "abc1234567", logsParamsMatcher(nil, until)).
 					Return(&api.DatabaseLogsResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.LogsResponse{

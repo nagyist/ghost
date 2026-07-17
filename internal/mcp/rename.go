@@ -62,7 +62,7 @@ func newRenameTool() *mcp.Tool {
 }
 
 func (s *Server) handleRename(ctx context.Context, req *mcp.CallToolRequest, input RenameInput) (*mcp.CallToolResult, RenameOutput, error) {
-	cfg, client, projectID, err := s.app.GetAll()
+	cfg, client, spaceID, err := s.app.GetAll()
 	if err != nil {
 		return nil, RenameOutput{}, err
 	}
@@ -72,7 +72,7 @@ func (s *Server) handleRename(ctx context.Context, req *mcp.CallToolRequest, inp
 	}
 
 	// Fetch database details to resolve name/ID
-	getResp, err := client.GetDatabaseWithResponse(ctx, projectID, input.Ref)
+	getResp, err := client.GetDatabaseWithResponse(ctx, spaceID, input.Ref)
 	if err != nil {
 		return nil, RenameOutput{}, fmt.Errorf("failed to get database details: %w", err)
 	}
@@ -88,7 +88,7 @@ func (s *Server) handleRename(ctx context.Context, req *mcp.CallToolRequest, inp
 
 	resp, err := client.RenameDatabaseWithResponse(
 		ctx,
-		api.SpaceId(projectID),
+		api.SpaceId(spaceID),
 		api.DatabaseRef(database.Id),
 		api.RenameDatabaseRequest{Name: input.Name},
 	)

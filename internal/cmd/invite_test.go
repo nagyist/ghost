@@ -22,7 +22,7 @@ func TestInviteCmd(t *testing.T) {
 				Status:    api.InviteStatusPending,
 				CreatedAt: createdAt,
 			}
-			m.EXPECT().CreateInviteWithResponse(validCtx, "test-project", api.CreateInviteJSONRequestBody{
+			m.EXPECT().CreateInviteWithResponse(validCtx, "test-space", api.CreateInviteJSONRequestBody{
 				Email: "bob@example.com",
 				Role:  new(role),
 			}).
@@ -33,24 +33,24 @@ func TestInviteCmd(t *testing.T) {
 		}
 	}
 	setupGetSpace := func(m *mock.MockClientWithResponsesInterface) {
-		m.EXPECT().GetSpaceWithResponse(validCtx, "test-project").
+		m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
-				JSON200:      &api.SpaceDetail{Id: "test-project", Name: "Test Space"},
+				JSON200:      &api.SpaceDetail{Id: "test-space", Name: "Test Space"},
 			}, nil)
 	}
 
-	wantText := "Invited bob@example.com to space Test Space (test-project) as a developer.\n\n" +
+	wantText := "Invited bob@example.com to space Test Space (test-space) as a developer.\n\n" +
 		"If they're new to Ghost, the invitation will be accepted automatically\n" +
 		"at signup. If they already use Ghost, they can accept the invite with\n" +
-		"'ghost invite accept test-project'.\n\n" +
+		"'ghost invite accept test-space'.\n\n" +
 		"Note: the invitation is tied to bob@example.com; they must log in to\n" +
 		"Ghost with a GitHub account with that primary email.\n"
 
-	wantTextAdmin := "Invited bob@example.com to space Test Space (test-project) as an admin.\n\n" +
+	wantTextAdmin := "Invited bob@example.com to space Test Space (test-space) as an admin.\n\n" +
 		"If they're new to Ghost, the invitation will be accepted automatically\n" +
 		"at signup. If they already use Ghost, they can accept the invite with\n" +
-		"'ghost invite accept test-project'.\n\n" +
+		"'ghost invite accept test-space'.\n\n" +
 		"Note: the invitation is tied to bob@example.com; they must log in to\n" +
 		"Ghost with a GitHub account with that primary email.\n"
 
@@ -78,7 +78,7 @@ func TestInviteCmd(t *testing.T) {
 			args: []string{"invite", "bob@example.com"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateInviteWithResponse(validCtx, "test-project", api.CreateInviteJSONRequestBody{
+				m.EXPECT().CreateInviteWithResponse(validCtx, "test-space", api.CreateInviteJSONRequestBody{
 					Email: "bob@example.com",
 					Role:  new(api.MemberRoleDeveloper),
 				}).
@@ -91,7 +91,7 @@ func TestInviteCmd(t *testing.T) {
 			args: []string{"invite", "bob@example.com"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateInviteWithResponse(validCtx, "test-project", api.CreateInviteJSONRequestBody{
+				m.EXPECT().CreateInviteWithResponse(validCtx, "test-space", api.CreateInviteJSONRequestBody{
 					Email: "bob@example.com",
 					Role:  new(api.MemberRoleDeveloper),
 				}).
@@ -107,7 +107,7 @@ func TestInviteCmd(t *testing.T) {
 			args: []string{"invite", "bob@example.com"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().CreateInviteWithResponse(validCtx, "test-project", api.CreateInviteJSONRequestBody{
+				m.EXPECT().CreateInviteWithResponse(validCtx, "test-space", api.CreateInviteJSONRequestBody{
 					Email: "bob@example.com",
 					Role:  new(api.MemberRoleDeveloper),
 				}).

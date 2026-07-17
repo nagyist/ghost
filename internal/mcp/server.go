@@ -212,12 +212,12 @@ func (s *Server) registerTools(ctx context.Context, opts Options) {
 func (s *Server) analyticsMiddleware(next mcp.MethodHandler) mcp.MethodHandler {
 	return func(ctx context.Context, method string, req mcp.Request) (result mcp.Result, runErr error) {
 		// Reload config and client for this request
-		cfg, client, projectID, err := s.app.Load(ctx)
+		cfg, client, spaceID, err := s.app.Load(ctx)
 		if err != nil {
 			// If config loading fails, skip analytics and continue
 			return next(ctx, method, req)
 		}
-		a := analytics.New(cfg, client, projectID)
+		a := analytics.New(cfg, client, spaceID)
 
 		start := time.Now()
 		switch r := req.(type) {

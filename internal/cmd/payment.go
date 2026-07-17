@@ -33,13 +33,13 @@ func buildPaymentInteractiveCmd(app *common.App) *cobra.Command {
 				return listCmd.RunE(listCmd, nil)
 			}
 
-			cfg, client, projectID, err := app.GetAll()
+			cfg, client, spaceID, err := app.GetAll()
 			if err != nil {
 				return err
 			}
 
 			// Fetch payment methods
-			resp, err := client.ListPaymentMethodsWithResponse(cmd.Context(), projectID)
+			resp, err := client.ListPaymentMethodsWithResponse(cmd.Context(), spaceID)
 			if err != nil {
 				return fmt.Errorf("failed to list payment methods: %w", err)
 			}
@@ -56,7 +56,7 @@ func buildPaymentInteractiveCmd(app *common.App) *cobra.Command {
 				cmd.Context(),
 				cfg.APIURL,
 				client,
-				projectID,
+				spaceID,
 				resp.JSON200.PaymentMethods,
 			)
 
@@ -129,7 +129,7 @@ type paymentInteractiveModel struct {
 	ctx         context.Context
 	apiURL      string
 	client      api.ClientWithResponsesInterface
-	projectID   string
+	spaceID     string
 	methods     []api.PaymentMethod
 	cursor      int
 	status      string // success message
@@ -146,15 +146,15 @@ func newPaymentInteractiveModel(
 	ctx context.Context,
 	apiURL string,
 	client api.ClientWithResponsesInterface,
-	projectID string,
+	spaceID string,
 	methods []api.PaymentMethod,
 ) paymentInteractiveModel {
 	return paymentInteractiveModel{
-		ctx:       ctx,
-		apiURL:    apiURL,
-		client:    client,
-		projectID: projectID,
-		methods:   methods,
+		ctx:     ctx,
+		apiURL:  apiURL,
+		client:  client,
+		spaceID: spaceID,
+		methods: methods,
 	}
 }
 
@@ -423,7 +423,7 @@ func apiError(prefix string, statusCode int, jsonDefault *api.Error) error {
 
 func (m paymentInteractiveModel) refreshMethods() tea.Cmd {
 	return func() tea.Msg {
-		resp, err := m.client.ListPaymentMethodsWithResponse(m.ctx, m.projectID)
+		resp, err := m.client.ListPaymentMethodsWithResponse(m.ctx, m.spaceID)
 		if err != nil {
 			return paymentActionResultMsg{err: fmt.Errorf("failed to refresh: %w", err)}
 		}
@@ -439,7 +439,7 @@ func (m paymentInteractiveModel) refreshMethods() tea.Cmd {
 
 func (m paymentInteractiveModel) setPrimary(pm api.PaymentMethod) tea.Cmd {
 	return func() tea.Msg {
-		resp, err := m.client.SetPaymentMethodPrimaryWithResponse(m.ctx, m.projectID, pm.Id)
+		resp, err := m.client.SetPaymentMethodPrimaryWithResponse(m.ctx, m.spaceID, pm.Id)
 		if err != nil {
 			return paymentActionResultMsg{err: fmt.Errorf("failed to set primary: %w", err)}
 		}
@@ -454,7 +454,7 @@ func (m paymentInteractiveModel) setPrimary(pm api.PaymentMethod) tea.Cmd {
 
 func (m paymentInteractiveModel) deletePaymentMethod(pm api.PaymentMethod) tea.Cmd {
 	return func() tea.Msg {
-		resp, err := m.client.DeletePaymentMethodWithResponse(m.ctx, m.projectID, pm.Id)
+		resp, err := m.client.DeletePaymentMethodWithResponse(m.ctx, m.spaceID, pm.Id)
 		if err != nil {
 			return paymentActionResultMsg{err: fmt.Errorf("failed to delete: %w", err)}
 		}
@@ -469,7 +469,7 @@ func (m paymentInteractiveModel) deletePaymentMethod(pm api.PaymentMethod) tea.C
 
 func (m paymentInteractiveModel) cancelDeletion(pm api.PaymentMethod) tea.Cmd {
 	return func() tea.Msg {
-		resp, err := m.client.CancelPaymentMethodDeletionWithResponse(m.ctx, m.projectID, pm.Id)
+		resp, err := m.client.CancelPaymentMethodDeletionWithResponse(m.ctx, m.spaceID, pm.Id)
 		if err != nil {
 			return paymentActionResultMsg{err: fmt.Errorf("failed to cancel deletion: %w", err)}
 		}
@@ -484,7 +484,7 @@ func (m paymentInteractiveModel) cancelDeletion(pm api.PaymentMethod) tea.Cmd {
 
 func (m paymentInteractiveModel) addPaymentMethod() tea.Cmd {
 	return func() tea.Msg {
-		resp, err := m.client.CreatePaymentMethodSetupWithResponse(m.ctx, m.projectID)
+		resp, err := m.client.CreatePaymentMethodSetupWithResponse(m.ctx, m.spaceID)
 		if err != nil {
 			return paymentActionResultMsg{err: fmt.Errorf("failed to create payment setup: %w", err)}
 		}
