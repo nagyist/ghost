@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -36,6 +37,11 @@ type Server struct {
 	// by @mcp-marked Postgres functions in each database). Nil when the
 	// feature is unavailable (not experimental and not serving).
 	functionManager *function.Manager
+	// readOnlyMu guards readOnlyToolsRegistered. The read-only-sensitive
+	// (write) tools are registered or removed dynamically as the read_only
+	// config changes; see reconcileReadOnlyTools.
+	readOnlyMu              sync.Mutex
+	readOnlyToolsRegistered bool
 }
 
 // FunctionToolsMode selects how much of the generated function-tool feature
@@ -152,13 +158,15 @@ func (s *Server) StartStdio(ctx context.Context) error {
 	return s.mcpServer.Run(ctx, &mcp.StdioTransport{})
 }
 
-// Returns an HTTP handler that implements the http transport
+// HTTPHandler returns an HTTP handler that implements the streamable HTTP
+// transport. The handler is stateful (sessions are tracked via the
+// Mcp-Session-Id header) so the server can push notifications/tools/list_changed
+// to connected clients when the read_only config changes and the read-only
+// tool set is reconciled (see reconcileReadOnlyTools).
 func (s *Server) HTTPHandler() http.Handler {
 	return mcp.NewStreamableHTTPHandler(func(req *http.Request) *mcp.Server {
 		return s.mcpServer
-	}, &mcp.StreamableHTTPOptions{
-		Stateless: true,
-	})
+	}, nil)
 }
 
 // registerTools registers all available MCP tools, per opts.FunctionTools
@@ -170,33 +178,35 @@ func (s *Server) registerTools(ctx context.Context, opts Options) {
 	// Register authentication tools
 	mcp.AddTool(s.mcpServer, newLoginTool(), s.handleLogin)
 
-	// Register Ghost database tools
+	// Register Ghost database tools that are always available (read-only, or
+	// otherwise not gated by read-only mode). The read-only-sensitive (write)
+	// tools are registered separately, below.
 	mcp.AddTool(s.mcpServer, newIDTool(), s.handleID)
 	mcp.AddTool(s.mcpServer, newUsageTool(), s.handleUsage)
 	mcp.AddTool(s.mcpServer, newListTool(), s.handleList)
 	mcp.AddTool(s.mcpServer, newCreateTool(), s.handleCreate)
-	mcp.AddTool(s.mcpServer, newDeleteTool(), s.handleDelete)
 	mcp.AddTool(s.mcpServer, newForkTool(), s.handleFork)
-	mcp.AddTool(s.mcpServer, newPauseTool(), s.handlePause)
 	mcp.AddTool(s.mcpServer, newResumeTool(), s.handleResume)
 	mcp.AddTool(s.mcpServer, newConnectTool(), s.handleConnect)
 	mcp.AddTool(s.mcpServer, newSQLTool(), s.handleSQL)
 	mcp.AddTool(s.mcpServer, newSchemaTool(), s.handleSchema)
-	mcp.AddTool(s.mcpServer, newPasswordTool(), s.handlePassword)
 	mcp.AddTool(s.mcpServer, newLogsTool(), s.handleLogs)
 	mcp.AddTool(s.mcpServer, newFeedbackTool(), s.handleFeedback)
-	mcp.AddTool(s.mcpServer, newRenameTool(), s.handleRename)
 	mcp.AddTool(s.mcpServer, newCreateDedicatedTool(), s.handleCreateDedicated)
 	mcp.AddTool(s.mcpServer, newForkDedicatedTool(), s.handleForkDedicated)
-	mcp.AddTool(s.mcpServer, newShareTool(), s.handleShare)
 	mcp.AddTool(s.mcpServer, newShareListTool(), s.handleShareList)
-	mcp.AddTool(s.mcpServer, newShareRevokeTool(), s.handleShareRevoke)
 	mcp.AddTool(s.mcpServer, newInvoiceListTool(), s.handleInvoiceList)
 	mcp.AddTool(s.mcpServer, newInvoiceTool(), s.handleInvoice)
 	mcp.AddTool(s.mcpServer, newPricingTool(), s.handlePricing)
 	mcp.AddTool(s.mcpServer, newAPIKeyListTool(), s.handleAPIKeyList)
-	mcp.AddTool(s.mcpServer, newAPIKeyCreateTool(), s.handleAPIKeyCreate)
-	mcp.AddTool(s.mcpServer, newAPIKeyDeleteTool(), s.handleAPIKeyDelete)
+
+	// Register the read-only-sensitive (write) tools unless read-only mode is
+	// enabled. They are added and removed dynamically as the read_only config
+	// changes on subsequent requests; see reconcileReadOnlyTools.
+	if !s.app.GetConfig().ReadOnly {
+		s.registerReadOnlyTools()
+		s.readOnlyToolsRegistered = true
+	}
 
 	// Register browser-backed visualization tools (local/stdio mode only).
 	if s.browser != nil {
@@ -211,6 +221,58 @@ func (s *Server) registerTools(ctx context.Context, opts Options) {
 	}
 }
 
+// registerReadOnlyTools registers the tools that mutate or destroy existing
+// resources, and so are disallowed in read-only mode. The handlers also guard
+// themselves with checkReadOnly as defense-in-depth, in case a client calls a
+// tool in the window before it is removed (or ignores tool-list-changed
+// notifications). Keep the tool set here in sync with removeReadOnlyTools.
+func (s *Server) registerReadOnlyTools() {
+	mcp.AddTool(s.mcpServer, newDeleteTool(), s.handleDelete)
+	mcp.AddTool(s.mcpServer, newRenameTool(), s.handleRename)
+	mcp.AddTool(s.mcpServer, newPauseTool(), s.handlePause)
+	mcp.AddTool(s.mcpServer, newShareTool(), s.handleShare)
+	mcp.AddTool(s.mcpServer, newShareRevokeTool(), s.handleShareRevoke)
+	mcp.AddTool(s.mcpServer, newPasswordTool(), s.handlePassword)
+	mcp.AddTool(s.mcpServer, newAPIKeyCreateTool(), s.handleAPIKeyCreate)
+	mcp.AddTool(s.mcpServer, newAPIKeyDeleteTool(), s.handleAPIKeyDelete)
+}
+
+// removeReadOnlyTools removes the tools registered by registerReadOnlyTools.
+// The names are derived from the same tool constructors so they can't drift;
+// keep this set in sync with registerReadOnlyTools.
+func (s *Server) removeReadOnlyTools() {
+	s.mcpServer.RemoveTools(
+		newDeleteTool().Name,
+		newRenameTool().Name,
+		newPauseTool().Name,
+		newShareTool().Name,
+		newShareRevokeTool().Name,
+		newPasswordTool().Name,
+		newAPIKeyCreateTool().Name,
+		newAPIKeyDeleteTool().Name,
+	)
+}
+
+// reconcileReadOnlyTools adds or removes the read-only-sensitive (write) tools
+// to match the current read_only config, if it has changed since the last
+// call. Adding or removing tools causes the SDK to emit a
+// notifications/tools/list_changed to connected clients, so it is only done on
+// an actual transition — re-adding an already-registered tool would emit a
+// spurious notification on every request.
+func (s *Server) reconcileReadOnlyTools(readOnly bool) {
+	s.readOnlyMu.Lock()
+	defer s.readOnlyMu.Unlock()
+
+	switch {
+	case readOnly && s.readOnlyToolsRegistered:
+		s.removeReadOnlyTools()
+		s.readOnlyToolsRegistered = false
+	case !readOnly && !s.readOnlyToolsRegistered:
+		s.registerReadOnlyTools()
+		s.readOnlyToolsRegistered = true
+	}
+}
+
 // analyticsMiddleware tracks analytics for all MCP requests
 func (s *Server) analyticsMiddleware(next mcp.MethodHandler) mcp.MethodHandler {
 	return func(ctx context.Context, method string, req mcp.Request) (result mcp.Result, runErr error) {
@@ -220,6 +282,11 @@ func (s *Server) analyticsMiddleware(next mcp.MethodHandler) mcp.MethodHandler {
 			// If config loading fails, skip analytics and continue
 			return next(ctx, method, req)
 		}
+
+		// Add or remove the read-only-sensitive (write) tools to match the
+		// current read_only config, in case it changed since the last request.
+		s.reconcileReadOnlyTools(cfg.ReadOnly)
+
 		a := analytics.New(cfg, client, spaceID)
 
 		start := time.Now()
