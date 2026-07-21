@@ -109,6 +109,9 @@ The `ghost mcp` command installs a [Model Context Protocol](https://modelcontext
 
 | Tool | Description |
 |------|-------------|
+| `ghost_api_key_create` | Create a new API key |
+| `ghost_api_key_delete` | Delete an API key |
+| `ghost_api_key_list` | List API keys |
 | `ghost_connect` | Get a connection string for a database |
 | `ghost_create` | Create a new database |
 | `ghost_create_dedicated` | Create a new dedicated database |

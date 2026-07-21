@@ -194,6 +194,9 @@ func (s *Server) registerTools(ctx context.Context, opts Options) {
 	mcp.AddTool(s.mcpServer, newInvoiceListTool(), s.handleInvoiceList)
 	mcp.AddTool(s.mcpServer, newInvoiceTool(), s.handleInvoice)
 	mcp.AddTool(s.mcpServer, newPricingTool(), s.handlePricing)
+	mcp.AddTool(s.mcpServer, newAPIKeyListTool(), s.handleAPIKeyList)
+	mcp.AddTool(s.mcpServer, newAPIKeyCreateTool(), s.handleAPIKeyCreate)
+	mcp.AddTool(s.mcpServer, newAPIKeyDeleteTool(), s.handleAPIKeyDelete)
 
 	// Register browser-backed visualization tools (local/stdio mode only).
 	if s.browser != nil {

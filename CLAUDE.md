@@ -282,6 +282,7 @@ Each MCP tool in `internal/mcp/` follows a consistent structure:
 - **Registration**: `mcp.AddTool(s.mcpServer, newXxxTool(), s.handleXxx)` in `server.go`'s `registerTools()` method.
 - **Read-only guard**: Destructive/write tools must call `checkReadOnly(cfg)` after loading config, to respect the read-only config option.
 - **JSON Schema defaults are applied by the SDK**: The Go MCP SDK (`go-sdk`) calls `resolved.ApplyDefaults()` on the raw JSON input *before* unmarshaling into the typed input struct. This means if a schema sets `Default` on a field (e.g. `schema.Properties["size"].Default = json.RawMessage("\"1x\"")`), the handler is guaranteed to receive that value when the caller omits the field. Handlers can rely on this and do not need to check for zero values or apply defaults themselves.
+- **Optional input fields need `,omitempty`**: `jsonschema.For` marks every struct field as `required` unless its `json` tag includes `,omitempty` (or it's a pointer). An optional input field must therefore use `json:"name,omitempty"` — without it the field lands in the schema's `required` list and clients can't omit it. Follow the existing optional fields (e.g. `CreateInput.Name`, `ForkInput.Name`) as the pattern. Required fields (e.g. a delete tool's identifier) correctly omit `,omitempty`.
 
 ## Context Handling
 

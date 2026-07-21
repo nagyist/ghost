@@ -21,6 +21,9 @@ func TestMCPListCmd(t *testing.T) {
 		"prompt  postgres-database-migration             \n" +
 		"prompt  postgres-hybrid-text-search             \n" +
 		"prompt  setup-timescaledb-hypertables           \n" +
+		"tool    ghost_api_key_create                    \n" +
+		"tool    ghost_api_key_delete                    \n" +
+		"tool    ghost_api_key_list                      \n" +
 		"tool    ghost_connect                           \n" +
 		"tool    ghost_create                            \n" +
 		"tool    ghost_create_dedicated                  \n" +
