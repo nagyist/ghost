@@ -46,9 +46,9 @@ func databaseCompletion(app *common.App) cobra.CompletionFunc {
 		results := make([]string, 0, len(databases))
 		for _, database := range databases {
 			if strings.HasPrefix(database.Name, toComplete) {
-				results = append(results, cobra.CompletionWithDesc(database.Name, database.Id))
-			} else if strings.HasPrefix(database.Id, toComplete) {
-				results = append(results, cobra.CompletionWithDesc(database.Id, database.Name))
+				results = append(results, cobra.CompletionWithDesc(database.Name, database.ID))
+			} else if strings.HasPrefix(database.ID, toComplete) {
+				results = append(results, cobra.CompletionWithDesc(database.ID, database.Name))
 			}
 		}
 		return results, cobra.ShellCompDirectiveNoFileComp
@@ -76,8 +76,8 @@ func spaceCompletion(app *common.App) cobra.CompletionFunc {
 		spaces := *resp.JSON200
 		results := make([]string, 0, len(spaces))
 		for _, space := range spaces {
-			if strings.HasPrefix(space.Id, toComplete) {
-				results = append(results, cobra.CompletionWithDesc(space.Id, space.Name))
+			if strings.HasPrefix(space.ID, toComplete) {
+				results = append(results, cobra.CompletionWithDesc(space.ID, space.Name))
 			}
 		}
 		return results, cobra.ShellCompDirectiveNoFileComp
@@ -97,7 +97,7 @@ func memberEmailCompletion(app *common.App) cobra.CompletionFunc {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
 
-		resp, err := client.ListMembersWithResponse(cmd.Context(), api.SpaceId(spaceID))
+		resp, err := client.ListMembersWithResponse(cmd.Context(), api.SpaceID(spaceID))
 		if err != nil || resp.StatusCode() != http.StatusOK || resp.JSON200 == nil {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
@@ -151,7 +151,7 @@ func inviteSentCompletion(app *common.App) cobra.CompletionFunc {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
 
-		resp, err := client.ListInvitesWithResponse(cmd.Context(), api.SpaceId(spaceID))
+		resp, err := client.ListInvitesWithResponse(cmd.Context(), api.SpaceID(spaceID))
 		if err != nil || resp.StatusCode() != http.StatusOK || resp.JSON200 == nil {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
@@ -191,8 +191,8 @@ func inviteReceivedCompletion(app *common.App) cobra.CompletionFunc {
 		invitations := *resp.JSON200
 		results := make([]string, 0, len(invitations))
 		for _, invitation := range invitations {
-			if strings.HasPrefix(invitation.SpaceId, toComplete) {
-				results = append(results, cobra.CompletionWithDesc(invitation.SpaceId, invitation.SpaceName))
+			if strings.HasPrefix(invitation.SpaceID, toComplete) {
+				results = append(results, cobra.CompletionWithDesc(invitation.SpaceID, invitation.SpaceName))
 			}
 		}
 		return results, cobra.ShellCompDirectiveNoFileComp
@@ -281,9 +281,9 @@ func paymentMethodIDCompletion(app *common.App) cobra.CompletionFunc {
 
 		results := make([]string, 0, len(methods))
 		for _, pm := range methods {
-			if strings.HasPrefix(pm.Id, toComplete) {
+			if strings.HasPrefix(pm.ID, toComplete) {
 				desc := fmt.Sprintf("%s ending in %s", pm.Brand, pm.Last4)
-				results = append(results, cobra.CompletionWithDesc(pm.Id, desc))
+				results = append(results, cobra.CompletionWithDesc(pm.ID, desc))
 			}
 		}
 		return results, cobra.ShellCompDirectiveNoFileComp
@@ -333,13 +333,13 @@ func apiKeyPrefixCompletion(app *common.App) cobra.CompletionFunc {
 	})
 }
 
-func listApiKeys(cmd *cobra.Command, app *common.App) ([]api.ApiKey, error) {
+func listApiKeys(cmd *cobra.Command, app *common.App) ([]api.APIKey, error) {
 	client, spaceID, err := app.GetClient()
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := client.ListApiKeysWithResponse(cmd.Context(), spaceID)
+	resp, err := client.ListAPIKeysWithResponse(cmd.Context(), spaceID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list API keys: %w", err)
 	}
@@ -368,9 +368,9 @@ func invoiceIDCompletion(app *common.App) cobra.CompletionFunc {
 
 		results := make([]string, 0, len(invoices))
 		for _, inv := range invoices {
-			if strings.HasPrefix(inv.Id, toComplete) {
+			if strings.HasPrefix(inv.ID, toComplete) {
 				desc := fmt.Sprintf("%s (%s)", inv.InvoiceNumber, inv.InvoiceDate.Format("2006-01-02"))
-				results = append(results, cobra.CompletionWithDesc(inv.Id, desc))
+				results = append(results, cobra.CompletionWithDesc(inv.ID, desc))
 			}
 		}
 		return results, cobra.ShellCompDirectiveNoFileComp

@@ -56,7 +56,7 @@ confirm, unless you use the --confirm flag.`,
 				if !util.IsTerminal(cmd.InOrStdin()) {
 					return errors.New("cannot prompt for confirmation: stdin is not a terminal; use --confirm to skip")
 				}
-				cmd.PrintErrf("Leave space '%s' (%s)? [y/N] ", space.Name, space.Id)
+				cmd.PrintErrf("Leave space '%s' (%s)? [y/N] ", space.Name, space.ID)
 
 				confirmation, err := util.ReadLine(cmd.Context(), cmd.InOrStdin())
 				if err != nil {
@@ -70,7 +70,7 @@ confirm, unless you use the --confirm flag.`,
 				}
 			}
 
-			resp, err := client.LeaveSpaceWithResponse(cmd.Context(), api.SpaceId(spaceID))
+			resp, err := client.LeaveSpaceWithResponse(cmd.Context(), api.SpaceID(spaceID))
 			if err != nil {
 				return fmt.Errorf("failed to leave space: %w", err)
 			}
@@ -82,7 +82,7 @@ confirm, unless you use the --confirm flag.`,
 			}
 
 			result := resp.JSON200
-			cmd.Printf("Left space '%s' (%s)\n", result.SpaceName, result.SpaceId)
+			cmd.Printf("Left space '%s' (%s)\n", result.SpaceName, result.SpaceID)
 
 			// The current space now points at one we no longer belong to, which
 			// would break subsequent commands. Switch back to the user's owned
@@ -129,11 +129,11 @@ func switchToOwnedSpace(cmd *cobra.Command, cfg *config.Config, client api.Clien
 		hint()
 		return
 	}
-	creds.SpaceID = owned.Id
+	creds.SpaceID = owned.ID
 	if err := cfg.StoreCredentials(creds); err != nil {
 		hint()
 		return
 	}
 
-	cmd.Printf("Switched to space '%s' (%s)\n", owned.Name, owned.Id)
+	cmd.Printf("Switched to space '%s' (%s)\n", owned.Name, owned.ID)
 }

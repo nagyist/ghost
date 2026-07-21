@@ -22,10 +22,10 @@ func (APIKeyListInput) Schema() *jsonschema.Schema {
 }
 
 // APIKeyListOutput represents output for ghost_api_key_list. The API's own
-// api.ApiKey type is used directly — it exposes only the prefix, name, and
+// api.APIKey type is used directly — it exposes only the prefix, name, and
 // creation time, never the secret.
 type APIKeyListOutput struct {
-	APIKeys []api.ApiKey `json:"api_keys"`
+	APIKeys []api.APIKey `json:"api_keys"`
 }
 
 func (APIKeyListOutput) Schema() *jsonschema.Schema {
@@ -58,7 +58,7 @@ func (s *Server) handleAPIKeyList(ctx context.Context, req *mcp.CallToolRequest,
 		return nil, APIKeyListOutput{}, err
 	}
 
-	resp, err := client.ListApiKeysWithResponse(ctx, spaceID)
+	resp, err := client.ListAPIKeysWithResponse(ctx, spaceID)
 	if err != nil {
 		return nil, APIKeyListOutput{}, fmt.Errorf("failed to list API keys: %w", err)
 	}

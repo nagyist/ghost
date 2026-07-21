@@ -17,7 +17,7 @@ func TestInviteReceivedCmd(t *testing.T) {
 	successSetup := func(m *mock.MockClientWithResponsesInterface) {
 		invitations := []api.ReceivedInvite{
 			{
-				SpaceId:      "space-abc",
+				SpaceID:      "space-abc",
 				SpaceName:    "Alice's space",
 				InviterEmail: "alice@example.com",
 				InviterName:  "Alice Smith",

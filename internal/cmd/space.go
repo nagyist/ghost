@@ -78,7 +78,7 @@ The CLI operates on one space at a time — the current space. Running
 }
 
 func outputSpace(cmd *cobra.Command, space *api.SpaceDetail) {
-	cmd.Printf("Space: %s (%s)\n", space.Name, space.Id)
+	cmd.Printf("Space: %s (%s)\n", space.Name, space.ID)
 	if space.Owner != nil {
 		cmd.Printf("Owner: %s (%s)\n", space.Owner.Name, space.Owner.Email)
 	}

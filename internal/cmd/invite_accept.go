@@ -42,7 +42,7 @@ you'll be prompted; use --switch or --switch=false to decide without a prompt.`,
 				return err
 			}
 
-			resp, err := client.AcceptInviteWithResponse(cmd.Context(), api.SpaceId(spaceID))
+			resp, err := client.AcceptInviteWithResponse(cmd.Context(), api.SpaceID(spaceID))
 			if err != nil {
 				return fmt.Errorf("failed to accept invitation: %w", err)
 			}
@@ -54,13 +54,13 @@ you'll be prompted; use --switch or --switch=false to decide without a prompt.`,
 			}
 
 			joined := resp.JSON200
-			cmd.Printf("Joined space '%s' (%s)\n", joined.SpaceName, joined.SpaceId)
+			cmd.Printf("Joined space '%s' (%s)\n", joined.SpaceName, joined.SpaceID)
 
 			// Decide whether to switch the current space to the joined one.
 			doSwitch := switchSpace
 			if !cmd.Flags().Changed("switch") {
 				if !util.IsTerminal(cmd.InOrStdin()) {
-					cmd.Printf("Run 'ghost space use %s' to switch to it.\n", joined.SpaceId)
+					cmd.Printf("Run 'ghost space use %s' to switch to it.\n", joined.SpaceID)
 					return nil
 				}
 				cmd.PrintErrf("Switch to this space now? [Y/n] ")
@@ -73,14 +73,14 @@ you'll be prompted; use --switch or --switch=false to decide without a prompt.`,
 			}
 
 			if !doSwitch {
-				cmd.Printf("Run 'ghost space use %s' to switch to it.\n", joined.SpaceId)
+				cmd.Printf("Run 'ghost space use %s' to switch to it.\n", joined.SpaceID)
 				return nil
 			}
 
-			if err := setCurrentSpace(cfg, joined.SpaceId); err != nil {
+			if err := setCurrentSpace(cfg, joined.SpaceID); err != nil {
 				return err
 			}
-			cmd.Printf("Switched to space '%s' (%s)\n", joined.SpaceName, joined.SpaceId)
+			cmd.Printf("Switched to space '%s' (%s)\n", joined.SpaceName, joined.SpaceID)
 			return nil
 		},
 	}

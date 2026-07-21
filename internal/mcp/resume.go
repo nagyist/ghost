@@ -70,7 +70,7 @@ func (s *Server) handleResume(ctx context.Context, req *mcp.CallToolRequest, inp
 	// Make the start request
 	resp, err := client.ResumeDatabaseWithResponse(
 		ctx,
-		api.SpaceId(spaceID),
+		api.SpaceID(spaceID),
 		api.DatabaseRef(input.Ref),
 	)
 	if err != nil {
@@ -109,14 +109,14 @@ func (s *Server) handleResume(ctx context.Context, req *mcp.CallToolRequest, inp
 		if err := common.WaitForDatabase(ctx, common.WaitForDatabaseArgs{
 			Client:      client,
 			SpaceID:     spaceID,
-			DatabaseRef: database.Id,
+			DatabaseRef: database.ID,
 		}); err != nil {
 			return nil, ResumeOutput{}, err
 		}
 	}
 
 	return nil, ResumeOutput{
-		ID:               database.Id,
+		ID:               database.ID,
 		Name:             database.Name,
 		ConnectionString: connStr,
 		Warnings:         warnings,

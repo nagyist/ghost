@@ -22,7 +22,7 @@ func newTestManager(prefixTools bool) *Manager {
 func TestRegisterServiceToolsComposesNames(t *testing.T) {
 	m := newTestManager(true)
 	svc := &service{
-		database: api.Database{Id: "db1", Name: "billing"},
+		database: api.Database{ID: "db1", Name: "billing"},
 		prefix:   "billing",
 		tools: []tool{
 			{Schema: "public", Name: "get_user", Mode: modeExec},
@@ -48,7 +48,7 @@ func TestRegisterServiceToolsComposesNames(t *testing.T) {
 func TestRegisterServiceToolsOmitsPrefixInServeMode(t *testing.T) {
 	m := newTestManager(false)
 	svc := &service{
-		database: api.Database{Id: "db1", Name: "billing"},
+		database: api.Database{ID: "db1", Name: "billing"},
 		// prefix left empty, as Load leaves it when prefixTools is false.
 		tools: []tool{
 			{Schema: "public", Name: "get_user", Mode: modeExec},
@@ -71,7 +71,7 @@ func TestRegisterServiceToolsDedupesSameNameAcrossSchemas(t *testing.T) {
 	// ORDER BY would produce for a real database) — the first gets the bare
 	// name, the rest get numeric suffixes, never dropped.
 	svc := &service{
-		database: api.Database{Id: "db1", Name: "billing"},
+		database: api.Database{ID: "db1", Name: "billing"},
 		prefix:   "billing",
 		tools: []tool{
 			{Schema: "public", Name: "get_user", Mode: modeExec},
@@ -96,12 +96,12 @@ func TestRegisterServiceToolsDedupesAcrossDatabases(t *testing.T) {
 	// LoadAll's deterministic sequential registration pass: both are
 	// registered in a fixed order (here, A before B).
 	svcA := &service{
-		database: api.Database{Id: "dbA", Name: "My!DB"},
+		database: api.Database{ID: "dbA", Name: "My!DB"},
 		prefix:   normalizeToolNameSegment("My!DB", "db"),
 		tools:    []tool{{Schema: "public", Name: "get_user", Mode: modeExec}},
 	}
 	svcB := &service{
-		database: api.Database{Id: "dbB", Name: "My@DB"},
+		database: api.Database{ID: "dbB", Name: "My@DB"},
 		prefix:   normalizeToolNameSegment("My@DB", "db"),
 		tools:    []tool{{Schema: "public", Name: "get_user", Mode: modeExec}},
 	}
@@ -120,7 +120,7 @@ func TestRegisterServiceToolsDedupesAcrossDatabases(t *testing.T) {
 func TestRegisterServiceToolsNormalizesIllegalCharacters(t *testing.T) {
 	m := newTestManager(false)
 	svc := &service{
-		database: api.Database{Id: "db1", Name: "billing"},
+		database: api.Database{ID: "db1", Name: "billing"},
 		tools: []tool{
 			{Schema: "public", Name: "short_name", Mode: modeExec},
 			{Schema: "public", Name: "get customer", Mode: modeExec}, // space -> underscore
@@ -165,7 +165,7 @@ func TestRegisterServiceToolsTruncatesOverLengthName(t *testing.T) {
 	m := newTestManager(false)
 	longName := strings.Repeat("x", maxToolNameLength+50)
 	svc := &service{
-		database: api.Database{Id: "db1", Name: "billing"},
+		database: api.Database{ID: "db1", Name: "billing"},
 		tools: []tool{
 			{Schema: "public", Name: "short_name", Mode: modeExec},
 			{Schema: "public", Name: longName, Mode: modeExec},
@@ -190,7 +190,7 @@ func TestRegisterServiceToolsDedupesAfterTruncation(t *testing.T) {
 	// truncating both would otherwise make them collide.
 	base := strings.Repeat("x", maxToolNameLength)
 	svc := &service{
-		database: api.Database{Id: "db1", Name: "billing"},
+		database: api.Database{ID: "db1", Name: "billing"},
 		tools: []tool{
 			{Schema: "public", Name: base + "aaaa", Mode: modeExec},
 			{Schema: "public", Name: base + "bbbb", Mode: modeExec},
@@ -220,7 +220,7 @@ func TestRegisterServiceToolsReloadIsStable(t *testing.T) {
 		{Schema: "public", Name: "get_order", Mode: modeExec},
 	}
 	svc := &service{
-		database: api.Database{Id: "db1", Name: "billing"},
+		database: api.Database{ID: "db1", Name: "billing"},
 		prefix:   "billing",
 		tools:    slices.Clone(tools),
 	}

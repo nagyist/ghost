@@ -14,14 +14,14 @@ func TestInvoiceViewCmd(t *testing.T) {
 		LineItems: []api.InvoiceLineItem{
 			{
 				ProductType: "storage",
-				DatabaseId:  new("svc-abc123"),
+				DatabaseID:  new("svc-abc123"),
 				Quantity:    20,
 				UnitPrice:   0.25,
 				LineTotal:   5.00,
 			},
 			{
 				ProductType: "compute",
-				DatabaseId:  new("svc-abc123"),
+				DatabaseID:  new("svc-abc123"),
 				Quantity:    40,
 				UnitPrice:   0.50,
 				LineTotal:   20.00,

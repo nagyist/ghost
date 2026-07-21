@@ -124,7 +124,7 @@ func (s *Server) createDatabase(ctx context.Context, args createDatabaseArgs) (c
 		return createDatabaseResult{}, errors.New("empty response from API")
 	}
 	database := *resp.JSON202
-	databaseID := database.Id
+	databaseID := database.ID
 
 	// Save password to .pgpass file
 	var warnings []string

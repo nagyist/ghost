@@ -1195,7 +1195,7 @@ func FetchDatabaseSchema(ctx context.Context, args FetchDatabaseSchemaArgs) (*Da
 	}
 
 	return &DatabaseSchema{
-		ID:      database.Id,
+		ID:      database.ID,
 		Name:    database.Name,
 		Schemas: bld.build(),
 	}, nil

@@ -13,16 +13,16 @@ const (
 
 // Defines values for AuthInfoType.
 const (
-	AuthInfoTypeApiKey AuthInfoType = "api_key"
+	AuthInfoTypeAPIKey AuthInfoType = "api_key"
 	AuthInfoTypeUser   AuthInfoType = "user"
 )
 
 // Defines values for DatabaseSize.
 const (
-	DatabaseSizeN1x DatabaseSize = "1x"
-	DatabaseSizeN2x DatabaseSize = "2x"
-	DatabaseSizeN4x DatabaseSize = "4x"
-	DatabaseSizeN8x DatabaseSize = "8x"
+	DatabaseSizeN1X DatabaseSize = "1x"
+	DatabaseSizeN2X DatabaseSize = "2x"
+	DatabaseSizeN4X DatabaseSize = "4x"
+	DatabaseSizeN8X DatabaseSize = "8x"
 )
 
 // Defines values for DatabaseStatus.
@@ -73,8 +73,8 @@ const (
 	MemberRoleViewer    MemberRole = "viewer"
 )
 
-// ApiKey An API key in a space.
-type ApiKey struct {
+// APIKey An API key in a space.
+type APIKey struct {
 	// CreatedAt Time the API key was created.
 	CreatedAt time.Time `json:"created_at"`
 
@@ -85,22 +85,22 @@ type ApiKey struct {
 	Prefix string `json:"prefix"`
 }
 
-// ApiKeyCredentials Credentials for a newly created API key. The secret portion cannot be retrieved again later.
-type ApiKeyCredentials struct {
+// APIKeyCredentials Credentials for a newly created API key. The secret portion cannot be retrieved again later.
+type APIKeyCredentials struct {
 	// AccessKey Use as the username in HTTP Basic auth.
 	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	AccessKey string `json:"access_key"`
 
-	// ApiKey Bearer token for the key. Use as `Authorization: Bearer <api_key>`.
-	ApiKey string `json:"api_key"`
+	// APIKey Bearer token for the key. Use as `Authorization: Bearer <api_key>`.
+	APIKey string `json:"api_key"`
 
 	// SecretKey Use as the password in HTTP Basic auth.
 	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	SecretKey string `json:"secret_key"`
 }
 
-// ApiKeyInfo Information about the API key used for authentication.
-type ApiKeyInfo struct {
+// APIKeyInfo Information about the API key used for authentication.
+type APIKeyInfo struct {
 	// CreatedAt Time the API key was created.
 	CreatedAt time.Time `json:"created_at"`
 
@@ -110,8 +110,8 @@ type ApiKeyInfo struct {
 	// Prefix Stable prefix identifier for the API key (starts with `gt_`), identifying the key without exposing the secret.
 	Prefix string `json:"prefix"`
 
-	// SpaceId Space the API key is scoped to.
-	SpaceId string `json:"space_id"`
+	// SpaceID Space the API key is scoped to.
+	SpaceID string `json:"space_id"`
 
 	// SpaceName Name of the space the API key is scoped to.
 	SpaceName string `json:"space_name"`
@@ -119,8 +119,8 @@ type ApiKeyInfo struct {
 	// UserEmail Email of the user who created the API key.
 	UserEmail string `json:"user_email"`
 
-	// UserId ID of the user who created the API key.
-	UserId string `json:"user_id"`
+	// UserID ID of the user who created the API key.
+	UserID string `json:"user_id"`
 
 	// UserName Name of the user who created the API key.
 	UserName string `json:"user_name"`
@@ -128,8 +128,8 @@ type ApiKeyInfo struct {
 
 // AuthInfo Information about the authenticated caller.
 type AuthInfo struct {
-	// ApiKey Information about the API key used for authentication.
-	ApiKey *ApiKeyInfo `json:"api_key,omitempty"`
+	// APIKey Information about the API key used for authentication.
+	APIKey *APIKeyInfo `json:"api_key,omitempty"`
 
 	// Type Type of authentication used.
 	Type AuthInfoType `json:"type"`
@@ -146,8 +146,8 @@ type ComputePrice struct {
 	// MemoryGib Memory allocation in GiB.
 	MemoryGib int `json:"memory_gib"`
 
-	// MilliCpu CPU allocation in millicores (1000 = 1 vCPU).
-	MilliCpu int `json:"milli_cpu"`
+	// MilliCPU CPU allocation in millicores (1000 = 1 vCPU).
+	MilliCPU int `json:"milli_cpu"`
 
 	// PricePerHour Price per hour while the database is running.
 	PricePerHour float64 `json:"price_per_hour"`
@@ -159,8 +159,8 @@ type ComputePrice struct {
 	Size DatabaseSize `json:"size"`
 }
 
-// CreateApiKeyRequest Request to create a new API key in a space.
-type CreateApiKeyRequest struct {
+// CreateAPIKeyRequest Request to create a new API key in a space.
+type CreateAPIKeyRequest struct {
 	// Name User-provided label for the new API key.
 	Name string `json:"name"`
 }
@@ -207,8 +207,8 @@ type Database struct {
 	// Host PostgreSQL hostname for connections.
 	Host string `json:"host"`
 
-	// Id Database ID.
-	Id string `json:"id"`
+	// ID Database ID.
+	ID string `json:"id"`
 
 	// Name Database name. Unique within the space.
 	Name string `json:"name"`
@@ -239,8 +239,8 @@ type DatabaseShare struct {
 	// CreatedAt Time the share was created.
 	CreatedAt time.Time `json:"created_at"`
 
-	// DatabaseId ID of the source database.
-	DatabaseId string `json:"database_id"`
+	// DatabaseID ID of the source database.
+	DatabaseID string `json:"database_id"`
 
 	// DatabaseName Name of the source database.
 	DatabaseName string `json:"database_name"`
@@ -274,8 +274,8 @@ type DatabaseWithUsage struct {
 	// Host PostgreSQL hostname for connections.
 	Host string `json:"host"`
 
-	// Id Database ID.
-	Id string `json:"id"`
+	// ID Database ID.
+	ID string `json:"id"`
 
 	// Name Database name. Unique within the space.
 	Name string `json:"name"`
@@ -389,8 +389,8 @@ type Invite struct {
 
 // InviteActionResult Result of accepting or declining a received invite.
 type InviteActionResult struct {
-	// SpaceId ID of the space the invite was for.
-	SpaceId string `json:"space_id"`
+	// SpaceID ID of the space the invite was for.
+	SpaceID string `json:"space_id"`
 
 	// SpaceName Name of the space the invite was for.
 	SpaceName string `json:"space_name"`
@@ -405,8 +405,8 @@ type InviteStatus string
 
 // Invoice Invoice summary.
 type Invoice struct {
-	// Id Opaque invoice ID used to look up invoice details.
-	Id string `json:"id"`
+	// ID Opaque invoice ID used to look up invoice details.
+	ID string `json:"id"`
 
 	// InvoiceDate Date the invoice was issued.
 	InvoiceDate time.Time `json:"invoice_date"`
@@ -432,8 +432,8 @@ type InvoiceDetail struct {
 
 // InvoiceLineItem A single line item on an invoice.
 type InvoiceLineItem struct {
-	// DatabaseId Ghost database ID this line item is attributed to, if any.
-	DatabaseId *string `json:"database_id,omitempty"`
+	// DatabaseID Ghost database ID this line item is attributed to, if any.
+	DatabaseID *string `json:"database_id,omitempty"`
 
 	// DetailedSpec Additional spec details (e.g. tier, size).
 	DetailedSpec *string `json:"detailed_spec,omitempty"`
@@ -465,8 +465,8 @@ type InvoicesResponse struct {
 
 // LeaveSpaceResult Result of leaving a space.
 type LeaveSpaceResult struct {
-	// SpaceId ID of the space the user left.
-	SpaceId string `json:"space_id"`
+	// SpaceID ID of the space the user left.
+	SpaceID string `json:"space_id"`
 
 	// SpaceName Name of the space the user left.
 	SpaceName string `json:"space_name"`
@@ -518,8 +518,8 @@ type Member struct {
 	// member identity).
 	Role MemberRole `json:"role"`
 
-	// UserId User ID of the member.
-	UserId int64 `json:"user_id"`
+	// UserID User ID of the member.
+	UserID int64 `json:"user_id"`
 }
 
 // MemberRole A member's role within a space. The `owner` role belongs to the user
@@ -541,8 +541,8 @@ type PaymentMethod struct {
 	// ExpYear Card expiration year (four digits).
 	ExpYear int `json:"exp_year"`
 
-	// Id Payment method ID.
-	Id string `json:"id"`
+	// ID Payment method ID.
+	ID string `json:"id"`
 
 	// Last4 Last four digits of the card number.
 	Last4 string `json:"last4"`
@@ -565,8 +565,8 @@ type PaymentSetupResponse struct {
 	// ClientSecret Stripe Setup Intent client secret.
 	ClientSecret string `json:"client_secret"`
 
-	// PaymentUrl URL of the hosted payment page for collecting card details.
-	PaymentUrl string `json:"payment_url"`
+	// PaymentURL URL of the hosted payment page for collecting card details.
+	PaymentURL string `json:"payment_url"`
 }
 
 // Pricing Pricing data grouped by category.
@@ -598,8 +598,8 @@ type ReceivedInvite struct {
 	// member identity).
 	Role MemberRole `json:"role"`
 
-	// SpaceId ID of the space the user is invited to.
-	SpaceId string `json:"space_id"`
+	// SpaceID ID of the space the user is invited to.
+	SpaceID string `json:"space_id"`
 
 	// SpaceName Name of the space the user is invited to.
 	SpaceName string `json:"space_name"`
@@ -619,8 +619,8 @@ type RenameSpaceRequest struct {
 
 // RenameSpaceResult Result of renaming a space.
 type RenameSpaceResult struct {
-	// Id Space ID.
-	Id string `json:"id"`
+	// ID Space ID.
+	ID string `json:"id"`
 
 	// NewName Space name after the rename.
 	NewName string `json:"new_name"`
@@ -637,8 +637,8 @@ type ShareDatabaseRequest struct {
 
 // Space A Ghost space.
 type Space struct {
-	// Id Space ID.
-	Id string `json:"id"`
+	// ID Space ID.
+	ID string `json:"id"`
 
 	// Name Space name.
 	Name string `json:"name"`
@@ -654,8 +654,8 @@ type Space struct {
 
 // SpaceDetail Detailed information about a single Ghost space.
 type SpaceDetail struct {
-	// Id Space ID.
-	Id string `json:"id"`
+	// ID Space ID.
+	ID string `json:"id"`
 
 	// Name Space name.
 	Name string `json:"name"`
@@ -789,15 +789,15 @@ type UserInfo struct {
 	// Email User email address.
 	Email string `json:"email"`
 
-	// Id User ID.
-	Id string `json:"id"`
+	// ID User ID.
+	ID string `json:"id"`
 
 	// Name User's full name.
 	Name string `json:"name"`
 }
 
-// ApiKeyPrefix defines model for ApiKeyPrefix.
-type ApiKeyPrefix = string
+// APIKeyPrefix defines model for ApiKeyPrefix.
+type APIKeyPrefix = string
 
 // DatabaseRef defines model for DatabaseRef.
 type DatabaseRef = string
@@ -805,20 +805,20 @@ type DatabaseRef = string
 // InviteEmail defines model for InviteEmail.
 type InviteEmail = string
 
-// InvoiceId defines model for InvoiceId.
-type InvoiceId = string
+// InvoiceID defines model for InvoiceId.
+type InvoiceID = string
 
-// MemberUserId defines model for MemberUserId.
-type MemberUserId = int64
+// MemberUserID defines model for MemberUserId.
+type MemberUserID = int64
 
-// PaymentId defines model for PaymentId.
-type PaymentId = string
+// PaymentID defines model for PaymentId.
+type PaymentID = string
 
 // ShareToken defines model for ShareToken.
 type ShareToken = string
 
-// SpaceId defines model for SpaceId.
-type SpaceId = string
+// SpaceID defines model for SpaceId.
+type SpaceID = string
 
 // DatabaseLogsParams defines parameters for DatabaseLogs.
 type DatabaseLogsParams struct {
@@ -859,8 +859,8 @@ type SubmitFeedbackJSONRequestBody = FeedbackRequest
 // CreateSpaceJSONRequestBody defines body for CreateSpace for application/json ContentType.
 type CreateSpaceJSONRequestBody = CreateSpaceRequest
 
-// CreateApiKeyJSONRequestBody defines body for CreateApiKey for application/json ContentType.
-type CreateApiKeyJSONRequestBody = CreateApiKeyRequest
+// CreateAPIKeyJSONRequestBody defines body for CreateAPIKey for application/json ContentType.
+type CreateAPIKeyJSONRequestBody = CreateAPIKeyRequest
 
 // CreateDatabaseJSONRequestBody defines body for CreateDatabase for application/json ContentType.
 type CreateDatabaseJSONRequestBody = CreateDatabaseRequest

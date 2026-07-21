@@ -36,7 +36,7 @@ func buildInviteSentCmd(app *common.App) *cobra.Command {
 				return err
 			}
 
-			resp, err := client.ListInvitesWithResponse(cmd.Context(), api.SpaceId(spaceID))
+			resp, err := client.ListInvitesWithResponse(cmd.Context(), api.SpaceID(spaceID))
 			if err != nil {
 				return fmt.Errorf("failed to list invites: %w", err)
 			}

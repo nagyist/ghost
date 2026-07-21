@@ -37,7 +37,7 @@ func buildApiKeyListCmd(app *common.App) *cobra.Command {
 				return err
 			}
 
-			resp, err := client.ListApiKeysWithResponse(cmd.Context(), spaceID)
+			resp, err := client.ListAPIKeysWithResponse(cmd.Context(), spaceID)
 			if err != nil {
 				return fmt.Errorf("failed to list API keys: %w", err)
 			}

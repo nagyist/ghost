@@ -65,14 +65,14 @@ Any flags after -- are passed directly to psql.`,
 
 			// Check if the database is ready to accept connections
 			if err := common.CheckReady(database); err != nil {
-				return handleDatabaseError(err, database.Id)
+				return handleDatabaseError(err, database.ID)
 			}
 
 			// Get password for database
 			password, err := common.GetPassword(database, "tsdbadmin")
 			if err != nil {
 				if errors.Is(err, common.ErrPasswordNotFound) {
-					return fmt.Errorf("password not found\n\nRun 'ghost password %s' to reset the password, or add the entry to ~/.pgpass manually", database.Id)
+					return fmt.Errorf("password not found\n\nRun 'ghost password %s' to reset the password, or add the entry to ~/.pgpass manually", database.ID)
 				}
 				return fmt.Errorf("failed to retrieve password: %w", err)
 			}

@@ -99,10 +99,10 @@ func runShareCreate(cmd *cobra.Command, app *common.App, databaseRef string, exp
 	database := *getResp.JSON200
 
 	if err := common.CheckReady(database); err != nil {
-		return handleDatabaseError(err, database.Id)
+		return handleDatabaseError(err, database.ID)
 	}
 
-	resp, err := client.ShareDatabaseWithResponse(cmd.Context(), spaceID, database.Id, api.ShareDatabaseJSONRequestBody{
+	resp, err := client.ShareDatabaseWithResponse(cmd.Context(), spaceID, database.ID, api.ShareDatabaseJSONRequestBody{
 		ExpiresAt: expiresAt,
 	})
 	if err != nil {
@@ -161,7 +161,7 @@ func toShare(s api.DatabaseShare, baseURL string, now time.Time) (Share, error) 
 	return Share{
 		URL:          u,
 		ShareToken:   s.ShareToken,
-		DatabaseID:   s.DatabaseId,
+		DatabaseID:   s.DatabaseID,
 		DatabaseName: s.DatabaseName,
 		Status:       shareStatus(s, now),
 		CreatedAt:    s.CreatedAt,

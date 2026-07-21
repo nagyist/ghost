@@ -77,7 +77,7 @@ PostgreSQL tools.`,
 
 			// Check if the database is ready
 			if err := common.CheckReady(database); err != nil {
-				return handleDatabaseError(err, database.Id)
+				return handleDatabaseError(err, database.ID)
 			}
 
 			// Determine the password to use
@@ -101,7 +101,7 @@ PostgreSQL tools.`,
 
 			// Update the password via API
 			updateReq := api.UpdatePasswordRequest{Password: password}
-			resp, err := client.UpdatePasswordWithResponse(cmd.Context(), spaceID, database.Id, updateReq)
+			resp, err := client.UpdatePasswordWithResponse(cmd.Context(), spaceID, database.ID, updateReq)
 			if err != nil {
 				return fmt.Errorf("failed to update password: %w", err)
 			}
@@ -115,7 +115,7 @@ PostgreSQL tools.`,
 				cmd.PrintErrf("Warning: failed to save password to .pgpass: %v\n", err)
 			}
 
-			cmd.Printf("Password updated for '%s' (%s)\n", database.Name, database.Id)
+			cmd.Printf("Password updated for '%s' (%s)\n", database.Name, database.ID)
 			return nil
 		},
 	}

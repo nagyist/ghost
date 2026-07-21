@@ -59,7 +59,7 @@ Roles:
 
 			resp, err := client.CreateInviteWithResponse(
 				cmd.Context(),
-				api.SpaceId(spaceID),
+				api.SpaceID(spaceID),
 				api.CreateInviteJSONRequestBody{
 					Email: email,
 					Role:  new(api.MemberRole(role)),

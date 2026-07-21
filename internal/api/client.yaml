@@ -3,5 +3,7 @@ package: api
 output: client.go
 generate:
   client: true
+output-options:
+  name-normalizer: ToCamelCaseWithInitialisms
 compatibility:
   always-prefix-enum-values: true

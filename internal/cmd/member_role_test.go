@@ -14,8 +14,8 @@ func TestMemberRoleCmd(t *testing.T) {
 
 	setupList := func(m *mock.MockClientWithResponsesInterface) {
 		members := []api.Member{
-			{UserId: 101, Name: "Alice Smith", Email: "alice@example.com", Role: api.MemberRoleOwner},
-			{UserId: 102, Name: "Bob Jones", Email: "bob@example.com", Role: api.MemberRoleDeveloper},
+			{UserID: 101, Name: "Alice Smith", Email: "alice@example.com", Role: api.MemberRoleOwner},
+			{UserID: 102, Name: "Bob Jones", Email: "bob@example.com", Role: api.MemberRoleDeveloper},
 		}
 		m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 			Return(&api.ListMembersResponse{
@@ -25,7 +25,7 @@ func TestMemberRoleCmd(t *testing.T) {
 	}
 	setupUpdate := func(role api.MemberRole) func(m *mock.MockClientWithResponsesInterface) {
 		return func(m *mock.MockClientWithResponsesInterface) {
-			updated := api.Member{UserId: 102, Name: "Bob Jones", Email: "bob@example.com", Role: role}
+			updated := api.Member{UserID: 102, Name: "Bob Jones", Email: "bob@example.com", Role: role}
 			m.EXPECT().UpdateMemberRoleWithResponse(validCtx, "test-space", int64(102), api.UpdateMemberRoleRequest{Role: role}).
 				Return(&api.UpdateMemberRoleResponse{
 					HTTPResponse: httpResponse(http.StatusOK),

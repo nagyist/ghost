@@ -70,7 +70,7 @@ func buildListCmd(app *common.App) *cobra.Command {
 			output := make([]DatabaseListItem, len(databases))
 			for i, database := range databases {
 				output[i] = DatabaseListItem{
-					ID:             database.Id,
+					ID:             database.ID,
 					Name:           database.Name,
 					Type:           database.Type,
 					Size:           database.Size,

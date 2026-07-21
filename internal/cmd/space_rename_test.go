@@ -24,7 +24,7 @@ func TestSpaceRenameCmd(t *testing.T) {
 			args: []string{"space", "rename", "New Space"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().RenameSpaceWithResponse(validCtx, api.SpaceId("test-space"), api.RenameSpaceRequest{Name: "New Space"}).
+				m.EXPECT().RenameSpaceWithResponse(validCtx, api.SpaceID("test-space"), api.RenameSpaceRequest{Name: "New Space"}).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to rename space: connection refused",
@@ -34,7 +34,7 @@ func TestSpaceRenameCmd(t *testing.T) {
 			args: []string{"space", "rename", "New Space"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().RenameSpaceWithResponse(validCtx, api.SpaceId("test-space"), api.RenameSpaceRequest{Name: "New Space"}).
+				m.EXPECT().RenameSpaceWithResponse(validCtx, api.SpaceID("test-space"), api.RenameSpaceRequest{Name: "New Space"}).
 					Return(&api.RenameSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusForbidden),
 						JSONDefault:  &api.Error{Message: "user authentication required"},
@@ -47,7 +47,7 @@ func TestSpaceRenameCmd(t *testing.T) {
 			args: []string{"space", "rename", "New Space"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().RenameSpaceWithResponse(validCtx, api.SpaceId("test-space"), api.RenameSpaceRequest{Name: "New Space"}).
+				m.EXPECT().RenameSpaceWithResponse(validCtx, api.SpaceID("test-space"), api.RenameSpaceRequest{Name: "New Space"}).
 					Return(&api.RenameSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
@@ -60,11 +60,11 @@ func TestSpaceRenameCmd(t *testing.T) {
 			args: []string{"space", "rename", "New Space"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().RenameSpaceWithResponse(validCtx, api.SpaceId("test-space"), api.RenameSpaceRequest{Name: "New Space"}).
+				m.EXPECT().RenameSpaceWithResponse(validCtx, api.SpaceID("test-space"), api.RenameSpaceRequest{Name: "New Space"}).
 					Return(&api.RenameSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200: &api.RenameSpaceResult{
-							Id:      "test-space",
+							ID:      "test-space",
 							OldName: "Test Space",
 							NewName: "New Space",
 						},

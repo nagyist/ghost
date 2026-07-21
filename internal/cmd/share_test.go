@@ -16,7 +16,7 @@ func TestShareCmd(t *testing.T) {
 
 	share := api.DatabaseShare{
 		ShareToken:   "tok_xyz",
-		DatabaseId:   "abc1234567",
+		DatabaseID:   "abc1234567",
 		DatabaseName: "mydb",
 		CreatedAt:    createdAt,
 	}

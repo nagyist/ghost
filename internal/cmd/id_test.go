@@ -18,7 +18,7 @@ func TestIDCmd(t *testing.T) {
 				JSON200: &api.AuthInfo{
 					Type: api.AuthInfoTypeUser,
 					User: &api.UserInfo{
-						Id:    "usr_123",
+						ID:    "usr_123",
 						Name:  "Jane Doe",
 						Email: "jane@example.com",
 					},
@@ -31,15 +31,15 @@ func TestIDCmd(t *testing.T) {
 			Return(&api.AuthInfoResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200: &api.AuthInfo{
-					Type: api.AuthInfoTypeApiKey,
-					ApiKey: &api.ApiKeyInfo{
+					Type: api.AuthInfoTypeAPIKey,
+					APIKey: &api.APIKeyInfo{
 						Prefix:    "gt_abc123",
 						Name:      "CI Key",
 						CreatedAt: time.Date(2024, 1, 15, 10, 30, 0, 0, time.UTC),
-						UserId:    "usr_123",
+						UserID:    "usr_123",
 						UserName:  "Jane Doe",
 						UserEmail: "jane@example.com",
-						SpaceId:   "spc_456",
+						SpaceID:   "spc_456",
 						SpaceName: "my-space",
 					},
 				},

@@ -119,10 +119,10 @@ type ClientInterface interface {
 	ListReceivedInvites(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// AcceptInvite request
-	AcceptInvite(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	AcceptInvite(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeclineInvite request
-	DeclineInvite(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DeclineInvite(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetPricing request
 	GetPricing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -136,132 +136,132 @@ type ClientInterface interface {
 	CreateSpace(ctx context.Context, body CreateSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetSpace request
-	GetSpace(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetSpace(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ListApiKeys request
-	ListApiKeys(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// ListAPIKeys request
+	ListAPIKeys(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateApiKeyWithBody request with any body
-	CreateApiKeyWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateAPIKeyWithBody request with any body
+	CreateAPIKeyWithBody(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	CreateApiKey(ctx context.Context, spaceId SpaceId, body CreateApiKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateAPIKey(ctx context.Context, spaceID SpaceID, body CreateAPIKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteApiKey request
-	DeleteApiKey(ctx context.Context, spaceId SpaceId, prefix ApiKeyPrefix, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DeleteAPIKey request
+	DeleteAPIKey(ctx context.Context, spaceID SpaceID, prefix APIKeyPrefix, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListDatabases request
-	ListDatabases(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ListDatabases(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateDatabaseWithBody request with any body
-	CreateDatabaseWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateDatabaseWithBody(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	CreateDatabase(ctx context.Context, spaceId SpaceId, body CreateDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateDatabase(ctx context.Context, spaceID SpaceID, body CreateDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteDatabase request
-	DeleteDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DeleteDatabase(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetDatabase request
-	GetDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetDatabase(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ForkDatabaseWithBody request with any body
-	ForkDatabaseWithBody(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ForkDatabaseWithBody(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	ForkDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ForkDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ForkDatabase(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body ForkDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseLogs request
-	DatabaseLogs(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, params *DatabaseLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseLogs(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, params *DatabaseLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// UpdatePasswordWithBody request with any body
-	UpdatePasswordWithBody(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	UpdatePasswordWithBody(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	UpdatePassword(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	UpdatePassword(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PauseDatabase request
-	PauseDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PauseDatabase(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RenameDatabaseWithBody request with any body
-	RenameDatabaseWithBody(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	RenameDatabaseWithBody(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	RenameDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body RenameDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	RenameDatabase(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body RenameDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ResumeDatabase request
-	ResumeDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ResumeDatabase(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ShareDatabaseWithBody request with any body
-	ShareDatabaseWithBody(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ShareDatabaseWithBody(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	ShareDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ShareDatabase(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListInvites request
-	ListInvites(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ListInvites(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateInviteWithBody request with any body
-	CreateInviteWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateInviteWithBody(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	CreateInvite(ctx context.Context, spaceId SpaceId, body CreateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateInvite(ctx context.Context, spaceID SpaceID, body CreateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CancelInvite request
-	CancelInvite(ctx context.Context, spaceId SpaceId, email InviteEmail, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CancelInvite(ctx context.Context, spaceID SpaceID, email InviteEmail, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListInvoices request
-	ListInvoices(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ListInvoices(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetInvoice request
-	GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId InvoiceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetInvoice(ctx context.Context, spaceID SpaceID, invoiceID InvoiceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// LeaveSpace request
-	LeaveSpace(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	LeaveSpace(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListMembers request
-	ListMembers(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ListMembers(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RemoveMember request
-	RemoveMember(ctx context.Context, spaceId SpaceId, userId MemberUserId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	RemoveMember(ctx context.Context, spaceID SpaceID, userID MemberUserID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// UpdateMemberRoleWithBody request with any body
-	UpdateMemberRoleWithBody(ctx context.Context, spaceId SpaceId, userId MemberUserId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	UpdateMemberRoleWithBody(ctx context.Context, spaceID SpaceID, userID MemberUserID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	UpdateMemberRole(ctx context.Context, spaceId SpaceId, userId MemberUserId, body UpdateMemberRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	UpdateMemberRole(ctx context.Context, spaceID SpaceID, userID MemberUserID, body UpdateMemberRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// UpdateOveragesWithBody request with any body
-	UpdateOveragesWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	UpdateOveragesWithBody(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	UpdateOverages(ctx context.Context, spaceId SpaceId, body UpdateOveragesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	UpdateOverages(ctx context.Context, spaceID SpaceID, body UpdateOveragesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListPaymentMethods request
-	ListPaymentMethods(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ListPaymentMethods(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreatePaymentMethodSetup request
-	CreatePaymentMethodSetup(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreatePaymentMethodSetup(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeletePaymentMethod request
-	DeletePaymentMethod(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DeletePaymentMethod(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetPaymentMethod request
-	GetPaymentMethod(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetPaymentMethod(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CancelPaymentMethodDeletion request
-	CancelPaymentMethodDeletion(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CancelPaymentMethodDeletion(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SetPaymentMethodPrimary request
-	SetPaymentMethodPrimary(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SetPaymentMethodPrimary(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RenameSpaceWithBody request with any body
-	RenameSpaceWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	RenameSpaceWithBody(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	RenameSpace(ctx context.Context, spaceId SpaceId, body RenameSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	RenameSpace(ctx context.Context, spaceID SpaceID, body RenameSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListShares request
-	ListShares(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ListShares(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RevokeShare request
-	RevokeShare(ctx context.Context, spaceId SpaceId, shareToken ShareToken, reqEditors ...RequestEditorFn) (*http.Response, error)
+	RevokeShare(ctx context.Context, spaceID SpaceID, shareToken ShareToken, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SpaceStatus request
-	SpaceStatus(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SpaceStatus(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SpaceUsage request
-	SpaceUsage(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SpaceUsage(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) AnalyticsIdentifyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -396,8 +396,8 @@ func (c *Client) ListReceivedInvites(ctx context.Context, reqEditors ...RequestE
 	return c.Client.Do(req)
 }
 
-func (c *Client) AcceptInvite(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAcceptInviteRequest(c.Server, spaceId)
+func (c *Client) AcceptInvite(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAcceptInviteRequest(c.Server, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -408,8 +408,8 @@ func (c *Client) AcceptInvite(ctx context.Context, spaceId SpaceId, reqEditors .
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeclineInvite(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeclineInviteRequest(c.Server, spaceId)
+func (c *Client) DeclineInvite(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeclineInviteRequest(c.Server, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -468,8 +468,8 @@ func (c *Client) CreateSpace(ctx context.Context, body CreateSpaceJSONRequestBod
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetSpace(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetSpaceRequest(c.Server, spaceId)
+func (c *Client) GetSpace(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetSpaceRequest(c.Server, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -480,8 +480,8 @@ func (c *Client) GetSpace(ctx context.Context, spaceId SpaceId, reqEditors ...Re
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListApiKeys(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListApiKeysRequest(c.Server, spaceId)
+func (c *Client) ListAPIKeys(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAPIKeysRequest(c.Server, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -492,8 +492,8 @@ func (c *Client) ListApiKeys(ctx context.Context, spaceId SpaceId, reqEditors ..
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateApiKeyWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateApiKeyRequestWithBody(c.Server, spaceId, contentType, body)
+func (c *Client) CreateAPIKeyWithBody(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAPIKeyRequestWithBody(c.Server, spaceID, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -504,8 +504,8 @@ func (c *Client) CreateApiKeyWithBody(ctx context.Context, spaceId SpaceId, cont
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateApiKey(ctx context.Context, spaceId SpaceId, body CreateApiKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateApiKeyRequest(c.Server, spaceId, body)
+func (c *Client) CreateAPIKey(ctx context.Context, spaceID SpaceID, body CreateAPIKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAPIKeyRequest(c.Server, spaceID, body)
 	if err != nil {
 		return nil, err
 	}
@@ -516,8 +516,8 @@ func (c *Client) CreateApiKey(ctx context.Context, spaceId SpaceId, body CreateA
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeleteApiKey(ctx context.Context, spaceId SpaceId, prefix ApiKeyPrefix, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteApiKeyRequest(c.Server, spaceId, prefix)
+func (c *Client) DeleteAPIKey(ctx context.Context, spaceID SpaceID, prefix APIKeyPrefix, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteAPIKeyRequest(c.Server, spaceID, prefix)
 	if err != nil {
 		return nil, err
 	}
@@ -528,8 +528,8 @@ func (c *Client) DeleteApiKey(ctx context.Context, spaceId SpaceId, prefix ApiKe
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListDatabases(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListDatabasesRequest(c.Server, spaceId)
+func (c *Client) ListDatabases(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListDatabasesRequest(c.Server, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -540,8 +540,8 @@ func (c *Client) ListDatabases(ctx context.Context, spaceId SpaceId, reqEditors 
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateDatabaseWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateDatabaseRequestWithBody(c.Server, spaceId, contentType, body)
+func (c *Client) CreateDatabaseWithBody(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDatabaseRequestWithBody(c.Server, spaceID, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -552,8 +552,8 @@ func (c *Client) CreateDatabaseWithBody(ctx context.Context, spaceId SpaceId, co
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateDatabase(ctx context.Context, spaceId SpaceId, body CreateDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateDatabaseRequest(c.Server, spaceId, body)
+func (c *Client) CreateDatabase(ctx context.Context, spaceID SpaceID, body CreateDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDatabaseRequest(c.Server, spaceID, body)
 	if err != nil {
 		return nil, err
 	}
@@ -564,8 +564,8 @@ func (c *Client) CreateDatabase(ctx context.Context, spaceId SpaceId, body Creat
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeleteDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteDatabaseRequest(c.Server, spaceId, databaseRef)
+func (c *Client) DeleteDatabase(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteDatabaseRequest(c.Server, spaceID, databaseRef)
 	if err != nil {
 		return nil, err
 	}
@@ -576,8 +576,8 @@ func (c *Client) DeleteDatabase(ctx context.Context, spaceId SpaceId, databaseRe
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetDatabaseRequest(c.Server, spaceId, databaseRef)
+func (c *Client) GetDatabase(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDatabaseRequest(c.Server, spaceID, databaseRef)
 	if err != nil {
 		return nil, err
 	}
@@ -588,8 +588,8 @@ func (c *Client) GetDatabase(ctx context.Context, spaceId SpaceId, databaseRef D
 	return c.Client.Do(req)
 }
 
-func (c *Client) ForkDatabaseWithBody(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewForkDatabaseRequestWithBody(c.Server, spaceId, databaseRef, contentType, body)
+func (c *Client) ForkDatabaseWithBody(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewForkDatabaseRequestWithBody(c.Server, spaceID, databaseRef, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -600,8 +600,8 @@ func (c *Client) ForkDatabaseWithBody(ctx context.Context, spaceId SpaceId, data
 	return c.Client.Do(req)
 }
 
-func (c *Client) ForkDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ForkDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewForkDatabaseRequest(c.Server, spaceId, databaseRef, body)
+func (c *Client) ForkDatabase(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body ForkDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewForkDatabaseRequest(c.Server, spaceID, databaseRef, body)
 	if err != nil {
 		return nil, err
 	}
@@ -612,8 +612,8 @@ func (c *Client) ForkDatabase(ctx context.Context, spaceId SpaceId, databaseRef 
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseLogs(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, params *DatabaseLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseLogsRequest(c.Server, spaceId, databaseRef, params)
+func (c *Client) DatabaseLogs(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, params *DatabaseLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseLogsRequest(c.Server, spaceID, databaseRef, params)
 	if err != nil {
 		return nil, err
 	}
@@ -624,8 +624,8 @@ func (c *Client) DatabaseLogs(ctx context.Context, spaceId SpaceId, databaseRef 
 	return c.Client.Do(req)
 }
 
-func (c *Client) UpdatePasswordWithBody(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdatePasswordRequestWithBody(c.Server, spaceId, databaseRef, contentType, body)
+func (c *Client) UpdatePasswordWithBody(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdatePasswordRequestWithBody(c.Server, spaceID, databaseRef, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -636,8 +636,8 @@ func (c *Client) UpdatePasswordWithBody(ctx context.Context, spaceId SpaceId, da
 	return c.Client.Do(req)
 }
 
-func (c *Client) UpdatePassword(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdatePasswordRequest(c.Server, spaceId, databaseRef, body)
+func (c *Client) UpdatePassword(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdatePasswordRequest(c.Server, spaceID, databaseRef, body)
 	if err != nil {
 		return nil, err
 	}
@@ -648,8 +648,8 @@ func (c *Client) UpdatePassword(ctx context.Context, spaceId SpaceId, databaseRe
 	return c.Client.Do(req)
 }
 
-func (c *Client) PauseDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPauseDatabaseRequest(c.Server, spaceId, databaseRef)
+func (c *Client) PauseDatabase(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPauseDatabaseRequest(c.Server, spaceID, databaseRef)
 	if err != nil {
 		return nil, err
 	}
@@ -660,8 +660,8 @@ func (c *Client) PauseDatabase(ctx context.Context, spaceId SpaceId, databaseRef
 	return c.Client.Do(req)
 }
 
-func (c *Client) RenameDatabaseWithBody(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRenameDatabaseRequestWithBody(c.Server, spaceId, databaseRef, contentType, body)
+func (c *Client) RenameDatabaseWithBody(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenameDatabaseRequestWithBody(c.Server, spaceID, databaseRef, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -672,8 +672,8 @@ func (c *Client) RenameDatabaseWithBody(ctx context.Context, spaceId SpaceId, da
 	return c.Client.Do(req)
 }
 
-func (c *Client) RenameDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body RenameDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRenameDatabaseRequest(c.Server, spaceId, databaseRef, body)
+func (c *Client) RenameDatabase(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body RenameDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenameDatabaseRequest(c.Server, spaceID, databaseRef, body)
 	if err != nil {
 		return nil, err
 	}
@@ -684,8 +684,8 @@ func (c *Client) RenameDatabase(ctx context.Context, spaceId SpaceId, databaseRe
 	return c.Client.Do(req)
 }
 
-func (c *Client) ResumeDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewResumeDatabaseRequest(c.Server, spaceId, databaseRef)
+func (c *Client) ResumeDatabase(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewResumeDatabaseRequest(c.Server, spaceID, databaseRef)
 	if err != nil {
 		return nil, err
 	}
@@ -696,8 +696,8 @@ func (c *Client) ResumeDatabase(ctx context.Context, spaceId SpaceId, databaseRe
 	return c.Client.Do(req)
 }
 
-func (c *Client) ShareDatabaseWithBody(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewShareDatabaseRequestWithBody(c.Server, spaceId, databaseRef, contentType, body)
+func (c *Client) ShareDatabaseWithBody(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewShareDatabaseRequestWithBody(c.Server, spaceID, databaseRef, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -708,8 +708,8 @@ func (c *Client) ShareDatabaseWithBody(ctx context.Context, spaceId SpaceId, dat
 	return c.Client.Do(req)
 }
 
-func (c *Client) ShareDatabase(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewShareDatabaseRequest(c.Server, spaceId, databaseRef, body)
+func (c *Client) ShareDatabase(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewShareDatabaseRequest(c.Server, spaceID, databaseRef, body)
 	if err != nil {
 		return nil, err
 	}
@@ -720,8 +720,8 @@ func (c *Client) ShareDatabase(ctx context.Context, spaceId SpaceId, databaseRef
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListInvites(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListInvitesRequest(c.Server, spaceId)
+func (c *Client) ListInvites(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListInvitesRequest(c.Server, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -732,8 +732,8 @@ func (c *Client) ListInvites(ctx context.Context, spaceId SpaceId, reqEditors ..
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateInviteWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateInviteRequestWithBody(c.Server, spaceId, contentType, body)
+func (c *Client) CreateInviteWithBody(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateInviteRequestWithBody(c.Server, spaceID, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -744,8 +744,8 @@ func (c *Client) CreateInviteWithBody(ctx context.Context, spaceId SpaceId, cont
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateInvite(ctx context.Context, spaceId SpaceId, body CreateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateInviteRequest(c.Server, spaceId, body)
+func (c *Client) CreateInvite(ctx context.Context, spaceID SpaceID, body CreateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateInviteRequest(c.Server, spaceID, body)
 	if err != nil {
 		return nil, err
 	}
@@ -756,8 +756,8 @@ func (c *Client) CreateInvite(ctx context.Context, spaceId SpaceId, body CreateI
 	return c.Client.Do(req)
 }
 
-func (c *Client) CancelInvite(ctx context.Context, spaceId SpaceId, email InviteEmail, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCancelInviteRequest(c.Server, spaceId, email)
+func (c *Client) CancelInvite(ctx context.Context, spaceID SpaceID, email InviteEmail, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCancelInviteRequest(c.Server, spaceID, email)
 	if err != nil {
 		return nil, err
 	}
@@ -768,8 +768,8 @@ func (c *Client) CancelInvite(ctx context.Context, spaceId SpaceId, email Invite
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListInvoices(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListInvoicesRequest(c.Server, spaceId)
+func (c *Client) ListInvoices(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListInvoicesRequest(c.Server, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -780,8 +780,8 @@ func (c *Client) ListInvoices(ctx context.Context, spaceId SpaceId, reqEditors .
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId InvoiceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetInvoiceRequest(c.Server, spaceId, invoiceId)
+func (c *Client) GetInvoice(ctx context.Context, spaceID SpaceID, invoiceID InvoiceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetInvoiceRequest(c.Server, spaceID, invoiceID)
 	if err != nil {
 		return nil, err
 	}
@@ -792,8 +792,8 @@ func (c *Client) GetInvoice(ctx context.Context, spaceId SpaceId, invoiceId Invo
 	return c.Client.Do(req)
 }
 
-func (c *Client) LeaveSpace(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewLeaveSpaceRequest(c.Server, spaceId)
+func (c *Client) LeaveSpace(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewLeaveSpaceRequest(c.Server, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -804,8 +804,8 @@ func (c *Client) LeaveSpace(ctx context.Context, spaceId SpaceId, reqEditors ...
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListMembers(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListMembersRequest(c.Server, spaceId)
+func (c *Client) ListMembers(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListMembersRequest(c.Server, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -816,8 +816,8 @@ func (c *Client) ListMembers(ctx context.Context, spaceId SpaceId, reqEditors ..
 	return c.Client.Do(req)
 }
 
-func (c *Client) RemoveMember(ctx context.Context, spaceId SpaceId, userId MemberUserId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRemoveMemberRequest(c.Server, spaceId, userId)
+func (c *Client) RemoveMember(ctx context.Context, spaceID SpaceID, userID MemberUserID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveMemberRequest(c.Server, spaceID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -828,8 +828,8 @@ func (c *Client) RemoveMember(ctx context.Context, spaceId SpaceId, userId Membe
 	return c.Client.Do(req)
 }
 
-func (c *Client) UpdateMemberRoleWithBody(ctx context.Context, spaceId SpaceId, userId MemberUserId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateMemberRoleRequestWithBody(c.Server, spaceId, userId, contentType, body)
+func (c *Client) UpdateMemberRoleWithBody(ctx context.Context, spaceID SpaceID, userID MemberUserID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateMemberRoleRequestWithBody(c.Server, spaceID, userID, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -840,8 +840,8 @@ func (c *Client) UpdateMemberRoleWithBody(ctx context.Context, spaceId SpaceId, 
 	return c.Client.Do(req)
 }
 
-func (c *Client) UpdateMemberRole(ctx context.Context, spaceId SpaceId, userId MemberUserId, body UpdateMemberRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateMemberRoleRequest(c.Server, spaceId, userId, body)
+func (c *Client) UpdateMemberRole(ctx context.Context, spaceID SpaceID, userID MemberUserID, body UpdateMemberRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateMemberRoleRequest(c.Server, spaceID, userID, body)
 	if err != nil {
 		return nil, err
 	}
@@ -852,8 +852,8 @@ func (c *Client) UpdateMemberRole(ctx context.Context, spaceId SpaceId, userId M
 	return c.Client.Do(req)
 }
 
-func (c *Client) UpdateOveragesWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateOveragesRequestWithBody(c.Server, spaceId, contentType, body)
+func (c *Client) UpdateOveragesWithBody(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateOveragesRequestWithBody(c.Server, spaceID, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -864,8 +864,8 @@ func (c *Client) UpdateOveragesWithBody(ctx context.Context, spaceId SpaceId, co
 	return c.Client.Do(req)
 }
 
-func (c *Client) UpdateOverages(ctx context.Context, spaceId SpaceId, body UpdateOveragesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateOveragesRequest(c.Server, spaceId, body)
+func (c *Client) UpdateOverages(ctx context.Context, spaceID SpaceID, body UpdateOveragesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateOveragesRequest(c.Server, spaceID, body)
 	if err != nil {
 		return nil, err
 	}
@@ -876,8 +876,8 @@ func (c *Client) UpdateOverages(ctx context.Context, spaceId SpaceId, body Updat
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListPaymentMethods(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListPaymentMethodsRequest(c.Server, spaceId)
+func (c *Client) ListPaymentMethods(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListPaymentMethodsRequest(c.Server, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -888,8 +888,8 @@ func (c *Client) ListPaymentMethods(ctx context.Context, spaceId SpaceId, reqEdi
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreatePaymentMethodSetup(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreatePaymentMethodSetupRequest(c.Server, spaceId)
+func (c *Client) CreatePaymentMethodSetup(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePaymentMethodSetupRequest(c.Server, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -900,8 +900,8 @@ func (c *Client) CreatePaymentMethodSetup(ctx context.Context, spaceId SpaceId, 
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeletePaymentMethod(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeletePaymentMethodRequest(c.Server, spaceId, paymentId)
+func (c *Client) DeletePaymentMethod(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeletePaymentMethodRequest(c.Server, spaceID, paymentID)
 	if err != nil {
 		return nil, err
 	}
@@ -912,8 +912,8 @@ func (c *Client) DeletePaymentMethod(ctx context.Context, spaceId SpaceId, payme
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetPaymentMethod(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetPaymentMethodRequest(c.Server, spaceId, paymentId)
+func (c *Client) GetPaymentMethod(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPaymentMethodRequest(c.Server, spaceID, paymentID)
 	if err != nil {
 		return nil, err
 	}
@@ -924,8 +924,8 @@ func (c *Client) GetPaymentMethod(ctx context.Context, spaceId SpaceId, paymentI
 	return c.Client.Do(req)
 }
 
-func (c *Client) CancelPaymentMethodDeletion(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCancelPaymentMethodDeletionRequest(c.Server, spaceId, paymentId)
+func (c *Client) CancelPaymentMethodDeletion(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCancelPaymentMethodDeletionRequest(c.Server, spaceID, paymentID)
 	if err != nil {
 		return nil, err
 	}
@@ -936,8 +936,8 @@ func (c *Client) CancelPaymentMethodDeletion(ctx context.Context, spaceId SpaceI
 	return c.Client.Do(req)
 }
 
-func (c *Client) SetPaymentMethodPrimary(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSetPaymentMethodPrimaryRequest(c.Server, spaceId, paymentId)
+func (c *Client) SetPaymentMethodPrimary(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetPaymentMethodPrimaryRequest(c.Server, spaceID, paymentID)
 	if err != nil {
 		return nil, err
 	}
@@ -948,8 +948,8 @@ func (c *Client) SetPaymentMethodPrimary(ctx context.Context, spaceId SpaceId, p
 	return c.Client.Do(req)
 }
 
-func (c *Client) RenameSpaceWithBody(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRenameSpaceRequestWithBody(c.Server, spaceId, contentType, body)
+func (c *Client) RenameSpaceWithBody(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenameSpaceRequestWithBody(c.Server, spaceID, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -960,8 +960,8 @@ func (c *Client) RenameSpaceWithBody(ctx context.Context, spaceId SpaceId, conte
 	return c.Client.Do(req)
 }
 
-func (c *Client) RenameSpace(ctx context.Context, spaceId SpaceId, body RenameSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRenameSpaceRequest(c.Server, spaceId, body)
+func (c *Client) RenameSpace(ctx context.Context, spaceID SpaceID, body RenameSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenameSpaceRequest(c.Server, spaceID, body)
 	if err != nil {
 		return nil, err
 	}
@@ -972,8 +972,8 @@ func (c *Client) RenameSpace(ctx context.Context, spaceId SpaceId, body RenameSp
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListShares(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListSharesRequest(c.Server, spaceId)
+func (c *Client) ListShares(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListSharesRequest(c.Server, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -984,8 +984,8 @@ func (c *Client) ListShares(ctx context.Context, spaceId SpaceId, reqEditors ...
 	return c.Client.Do(req)
 }
 
-func (c *Client) RevokeShare(ctx context.Context, spaceId SpaceId, shareToken ShareToken, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRevokeShareRequest(c.Server, spaceId, shareToken)
+func (c *Client) RevokeShare(ctx context.Context, spaceID SpaceID, shareToken ShareToken, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeShareRequest(c.Server, spaceID, shareToken)
 	if err != nil {
 		return nil, err
 	}
@@ -996,8 +996,8 @@ func (c *Client) RevokeShare(ctx context.Context, spaceId SpaceId, shareToken Sh
 	return c.Client.Do(req)
 }
 
-func (c *Client) SpaceStatus(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSpaceStatusRequest(c.Server, spaceId)
+func (c *Client) SpaceStatus(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSpaceStatusRequest(c.Server, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1008,8 +1008,8 @@ func (c *Client) SpaceStatus(ctx context.Context, spaceId SpaceId, reqEditors ..
 	return c.Client.Do(req)
 }
 
-func (c *Client) SpaceUsage(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSpaceUsageRequest(c.Server, spaceId)
+func (c *Client) SpaceUsage(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSpaceUsageRequest(c.Server, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1262,12 +1262,12 @@ func NewListReceivedInvitesRequest(server string) (*http.Request, error) {
 }
 
 // NewAcceptInviteRequest generates requests for AcceptInvite
-func NewAcceptInviteRequest(server string, spaceId SpaceId) (*http.Request, error) {
+func NewAcceptInviteRequest(server string, spaceID SpaceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1296,12 +1296,12 @@ func NewAcceptInviteRequest(server string, spaceId SpaceId) (*http.Request, erro
 }
 
 // NewDeclineInviteRequest generates requests for DeclineInvite
-func NewDeclineInviteRequest(server string, spaceId SpaceId) (*http.Request, error) {
+func NewDeclineInviteRequest(server string, spaceID SpaceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1424,12 +1424,12 @@ func NewCreateSpaceRequestWithBody(server string, contentType string, body io.Re
 }
 
 // NewGetSpaceRequest generates requests for GetSpace
-func NewGetSpaceRequest(server string, spaceId SpaceId) (*http.Request, error) {
+func NewGetSpaceRequest(server string, spaceID SpaceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1457,13 +1457,13 @@ func NewGetSpaceRequest(server string, spaceId SpaceId) (*http.Request, error) {
 	return req, nil
 }
 
-// NewListApiKeysRequest generates requests for ListApiKeys
-func NewListApiKeysRequest(server string, spaceId SpaceId) (*http.Request, error) {
+// NewListAPIKeysRequest generates requests for ListAPIKeys
+func NewListAPIKeysRequest(server string, spaceID SpaceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1491,24 +1491,24 @@ func NewListApiKeysRequest(server string, spaceId SpaceId) (*http.Request, error
 	return req, nil
 }
 
-// NewCreateApiKeyRequest calls the generic CreateApiKey builder with application/json body
-func NewCreateApiKeyRequest(server string, spaceId SpaceId, body CreateApiKeyJSONRequestBody) (*http.Request, error) {
+// NewCreateAPIKeyRequest calls the generic CreateAPIKey builder with application/json body
+func NewCreateAPIKeyRequest(server string, spaceID SpaceID, body CreateAPIKeyJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCreateApiKeyRequestWithBody(server, spaceId, "application/json", bodyReader)
+	return NewCreateAPIKeyRequestWithBody(server, spaceID, "application/json", bodyReader)
 }
 
-// NewCreateApiKeyRequestWithBody generates requests for CreateApiKey with any type of body
-func NewCreateApiKeyRequestWithBody(server string, spaceId SpaceId, contentType string, body io.Reader) (*http.Request, error) {
+// NewCreateAPIKeyRequestWithBody generates requests for CreateAPIKey with any type of body
+func NewCreateAPIKeyRequestWithBody(server string, spaceID SpaceID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1538,13 +1538,13 @@ func NewCreateApiKeyRequestWithBody(server string, spaceId SpaceId, contentType 
 	return req, nil
 }
 
-// NewDeleteApiKeyRequest generates requests for DeleteApiKey
-func NewDeleteApiKeyRequest(server string, spaceId SpaceId, prefix ApiKeyPrefix) (*http.Request, error) {
+// NewDeleteAPIKeyRequest generates requests for DeleteAPIKey
+func NewDeleteAPIKeyRequest(server string, spaceID SpaceID, prefix APIKeyPrefix) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1580,12 +1580,12 @@ func NewDeleteApiKeyRequest(server string, spaceId SpaceId, prefix ApiKeyPrefix)
 }
 
 // NewListDatabasesRequest generates requests for ListDatabases
-func NewListDatabasesRequest(server string, spaceId SpaceId) (*http.Request, error) {
+func NewListDatabasesRequest(server string, spaceID SpaceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1614,23 +1614,23 @@ func NewListDatabasesRequest(server string, spaceId SpaceId) (*http.Request, err
 }
 
 // NewCreateDatabaseRequest calls the generic CreateDatabase builder with application/json body
-func NewCreateDatabaseRequest(server string, spaceId SpaceId, body CreateDatabaseJSONRequestBody) (*http.Request, error) {
+func NewCreateDatabaseRequest(server string, spaceID SpaceID, body CreateDatabaseJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCreateDatabaseRequestWithBody(server, spaceId, "application/json", bodyReader)
+	return NewCreateDatabaseRequestWithBody(server, spaceID, "application/json", bodyReader)
 }
 
 // NewCreateDatabaseRequestWithBody generates requests for CreateDatabase with any type of body
-func NewCreateDatabaseRequestWithBody(server string, spaceId SpaceId, contentType string, body io.Reader) (*http.Request, error) {
+func NewCreateDatabaseRequestWithBody(server string, spaceID SpaceID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1661,12 +1661,12 @@ func NewCreateDatabaseRequestWithBody(server string, spaceId SpaceId, contentTyp
 }
 
 // NewDeleteDatabaseRequest generates requests for DeleteDatabase
-func NewDeleteDatabaseRequest(server string, spaceId SpaceId, databaseRef DatabaseRef) (*http.Request, error) {
+func NewDeleteDatabaseRequest(server string, spaceID SpaceID, databaseRef DatabaseRef) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1702,12 +1702,12 @@ func NewDeleteDatabaseRequest(server string, spaceId SpaceId, databaseRef Databa
 }
 
 // NewGetDatabaseRequest generates requests for GetDatabase
-func NewGetDatabaseRequest(server string, spaceId SpaceId, databaseRef DatabaseRef) (*http.Request, error) {
+func NewGetDatabaseRequest(server string, spaceID SpaceID, databaseRef DatabaseRef) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1743,23 +1743,23 @@ func NewGetDatabaseRequest(server string, spaceId SpaceId, databaseRef DatabaseR
 }
 
 // NewForkDatabaseRequest calls the generic ForkDatabase builder with application/json body
-func NewForkDatabaseRequest(server string, spaceId SpaceId, databaseRef DatabaseRef, body ForkDatabaseJSONRequestBody) (*http.Request, error) {
+func NewForkDatabaseRequest(server string, spaceID SpaceID, databaseRef DatabaseRef, body ForkDatabaseJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewForkDatabaseRequestWithBody(server, spaceId, databaseRef, "application/json", bodyReader)
+	return NewForkDatabaseRequestWithBody(server, spaceID, databaseRef, "application/json", bodyReader)
 }
 
 // NewForkDatabaseRequestWithBody generates requests for ForkDatabase with any type of body
-func NewForkDatabaseRequestWithBody(server string, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader) (*http.Request, error) {
+func NewForkDatabaseRequestWithBody(server string, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1797,12 +1797,12 @@ func NewForkDatabaseRequestWithBody(server string, spaceId SpaceId, databaseRef 
 }
 
 // NewDatabaseLogsRequest generates requests for DatabaseLogs
-func NewDatabaseLogsRequest(server string, spaceId SpaceId, databaseRef DatabaseRef, params *DatabaseLogsParams) (*http.Request, error) {
+func NewDatabaseLogsRequest(server string, spaceID SpaceID, databaseRef DatabaseRef, params *DatabaseLogsParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1924,23 +1924,23 @@ func NewDatabaseLogsRequest(server string, spaceId SpaceId, databaseRef Database
 }
 
 // NewUpdatePasswordRequest calls the generic UpdatePassword builder with application/json body
-func NewUpdatePasswordRequest(server string, spaceId SpaceId, databaseRef DatabaseRef, body UpdatePasswordJSONRequestBody) (*http.Request, error) {
+func NewUpdatePasswordRequest(server string, spaceID SpaceID, databaseRef DatabaseRef, body UpdatePasswordJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewUpdatePasswordRequestWithBody(server, spaceId, databaseRef, "application/json", bodyReader)
+	return NewUpdatePasswordRequestWithBody(server, spaceID, databaseRef, "application/json", bodyReader)
 }
 
 // NewUpdatePasswordRequestWithBody generates requests for UpdatePassword with any type of body
-func NewUpdatePasswordRequestWithBody(server string, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader) (*http.Request, error) {
+func NewUpdatePasswordRequestWithBody(server string, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -1978,12 +1978,12 @@ func NewUpdatePasswordRequestWithBody(server string, spaceId SpaceId, databaseRe
 }
 
 // NewPauseDatabaseRequest generates requests for PauseDatabase
-func NewPauseDatabaseRequest(server string, spaceId SpaceId, databaseRef DatabaseRef) (*http.Request, error) {
+func NewPauseDatabaseRequest(server string, spaceID SpaceID, databaseRef DatabaseRef) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2019,23 +2019,23 @@ func NewPauseDatabaseRequest(server string, spaceId SpaceId, databaseRef Databas
 }
 
 // NewRenameDatabaseRequest calls the generic RenameDatabase builder with application/json body
-func NewRenameDatabaseRequest(server string, spaceId SpaceId, databaseRef DatabaseRef, body RenameDatabaseJSONRequestBody) (*http.Request, error) {
+func NewRenameDatabaseRequest(server string, spaceID SpaceID, databaseRef DatabaseRef, body RenameDatabaseJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewRenameDatabaseRequestWithBody(server, spaceId, databaseRef, "application/json", bodyReader)
+	return NewRenameDatabaseRequestWithBody(server, spaceID, databaseRef, "application/json", bodyReader)
 }
 
 // NewRenameDatabaseRequestWithBody generates requests for RenameDatabase with any type of body
-func NewRenameDatabaseRequestWithBody(server string, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader) (*http.Request, error) {
+func NewRenameDatabaseRequestWithBody(server string, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2073,12 +2073,12 @@ func NewRenameDatabaseRequestWithBody(server string, spaceId SpaceId, databaseRe
 }
 
 // NewResumeDatabaseRequest generates requests for ResumeDatabase
-func NewResumeDatabaseRequest(server string, spaceId SpaceId, databaseRef DatabaseRef) (*http.Request, error) {
+func NewResumeDatabaseRequest(server string, spaceID SpaceID, databaseRef DatabaseRef) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2114,23 +2114,23 @@ func NewResumeDatabaseRequest(server string, spaceId SpaceId, databaseRef Databa
 }
 
 // NewShareDatabaseRequest calls the generic ShareDatabase builder with application/json body
-func NewShareDatabaseRequest(server string, spaceId SpaceId, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody) (*http.Request, error) {
+func NewShareDatabaseRequest(server string, spaceID SpaceID, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewShareDatabaseRequestWithBody(server, spaceId, databaseRef, "application/json", bodyReader)
+	return NewShareDatabaseRequestWithBody(server, spaceID, databaseRef, "application/json", bodyReader)
 }
 
 // NewShareDatabaseRequestWithBody generates requests for ShareDatabase with any type of body
-func NewShareDatabaseRequestWithBody(server string, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader) (*http.Request, error) {
+func NewShareDatabaseRequestWithBody(server string, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2168,12 +2168,12 @@ func NewShareDatabaseRequestWithBody(server string, spaceId SpaceId, databaseRef
 }
 
 // NewListInvitesRequest generates requests for ListInvites
-func NewListInvitesRequest(server string, spaceId SpaceId) (*http.Request, error) {
+func NewListInvitesRequest(server string, spaceID SpaceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2202,23 +2202,23 @@ func NewListInvitesRequest(server string, spaceId SpaceId) (*http.Request, error
 }
 
 // NewCreateInviteRequest calls the generic CreateInvite builder with application/json body
-func NewCreateInviteRequest(server string, spaceId SpaceId, body CreateInviteJSONRequestBody) (*http.Request, error) {
+func NewCreateInviteRequest(server string, spaceID SpaceID, body CreateInviteJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCreateInviteRequestWithBody(server, spaceId, "application/json", bodyReader)
+	return NewCreateInviteRequestWithBody(server, spaceID, "application/json", bodyReader)
 }
 
 // NewCreateInviteRequestWithBody generates requests for CreateInvite with any type of body
-func NewCreateInviteRequestWithBody(server string, spaceId SpaceId, contentType string, body io.Reader) (*http.Request, error) {
+func NewCreateInviteRequestWithBody(server string, spaceID SpaceID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2249,12 +2249,12 @@ func NewCreateInviteRequestWithBody(server string, spaceId SpaceId, contentType 
 }
 
 // NewCancelInviteRequest generates requests for CancelInvite
-func NewCancelInviteRequest(server string, spaceId SpaceId, email InviteEmail) (*http.Request, error) {
+func NewCancelInviteRequest(server string, spaceID SpaceID, email InviteEmail) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2290,12 +2290,12 @@ func NewCancelInviteRequest(server string, spaceId SpaceId, email InviteEmail) (
 }
 
 // NewListInvoicesRequest generates requests for ListInvoices
-func NewListInvoicesRequest(server string, spaceId SpaceId) (*http.Request, error) {
+func NewListInvoicesRequest(server string, spaceID SpaceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2324,19 +2324,19 @@ func NewListInvoicesRequest(server string, spaceId SpaceId) (*http.Request, erro
 }
 
 // NewGetInvoiceRequest generates requests for GetInvoice
-func NewGetInvoiceRequest(server string, spaceId SpaceId, invoiceId InvoiceId) (*http.Request, error) {
+func NewGetInvoiceRequest(server string, spaceID SpaceID, invoiceID InvoiceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
 
 	var pathParam1 string
 
-	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "invoice_id", runtime.ParamLocationPath, invoiceId)
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "invoice_id", runtime.ParamLocationPath, invoiceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2365,12 +2365,12 @@ func NewGetInvoiceRequest(server string, spaceId SpaceId, invoiceId InvoiceId) (
 }
 
 // NewLeaveSpaceRequest generates requests for LeaveSpace
-func NewLeaveSpaceRequest(server string, spaceId SpaceId) (*http.Request, error) {
+func NewLeaveSpaceRequest(server string, spaceID SpaceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2399,12 +2399,12 @@ func NewLeaveSpaceRequest(server string, spaceId SpaceId) (*http.Request, error)
 }
 
 // NewListMembersRequest generates requests for ListMembers
-func NewListMembersRequest(server string, spaceId SpaceId) (*http.Request, error) {
+func NewListMembersRequest(server string, spaceID SpaceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2433,19 +2433,19 @@ func NewListMembersRequest(server string, spaceId SpaceId) (*http.Request, error
 }
 
 // NewRemoveMemberRequest generates requests for RemoveMember
-func NewRemoveMemberRequest(server string, spaceId SpaceId, userId MemberUserId) (*http.Request, error) {
+func NewRemoveMemberRequest(server string, spaceID SpaceID, userID MemberUserID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
 
 	var pathParam1 string
 
-	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "user_id", runtime.ParamLocationPath, userId)
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "user_id", runtime.ParamLocationPath, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -2474,30 +2474,30 @@ func NewRemoveMemberRequest(server string, spaceId SpaceId, userId MemberUserId)
 }
 
 // NewUpdateMemberRoleRequest calls the generic UpdateMemberRole builder with application/json body
-func NewUpdateMemberRoleRequest(server string, spaceId SpaceId, userId MemberUserId, body UpdateMemberRoleJSONRequestBody) (*http.Request, error) {
+func NewUpdateMemberRoleRequest(server string, spaceID SpaceID, userID MemberUserID, body UpdateMemberRoleJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewUpdateMemberRoleRequestWithBody(server, spaceId, userId, "application/json", bodyReader)
+	return NewUpdateMemberRoleRequestWithBody(server, spaceID, userID, "application/json", bodyReader)
 }
 
 // NewUpdateMemberRoleRequestWithBody generates requests for UpdateMemberRole with any type of body
-func NewUpdateMemberRoleRequestWithBody(server string, spaceId SpaceId, userId MemberUserId, contentType string, body io.Reader) (*http.Request, error) {
+func NewUpdateMemberRoleRequestWithBody(server string, spaceID SpaceID, userID MemberUserID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
 
 	var pathParam1 string
 
-	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "user_id", runtime.ParamLocationPath, userId)
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "user_id", runtime.ParamLocationPath, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -2528,23 +2528,23 @@ func NewUpdateMemberRoleRequestWithBody(server string, spaceId SpaceId, userId M
 }
 
 // NewUpdateOveragesRequest calls the generic UpdateOverages builder with application/json body
-func NewUpdateOveragesRequest(server string, spaceId SpaceId, body UpdateOveragesJSONRequestBody) (*http.Request, error) {
+func NewUpdateOveragesRequest(server string, spaceID SpaceID, body UpdateOveragesJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewUpdateOveragesRequestWithBody(server, spaceId, "application/json", bodyReader)
+	return NewUpdateOveragesRequestWithBody(server, spaceID, "application/json", bodyReader)
 }
 
 // NewUpdateOveragesRequestWithBody generates requests for UpdateOverages with any type of body
-func NewUpdateOveragesRequestWithBody(server string, spaceId SpaceId, contentType string, body io.Reader) (*http.Request, error) {
+func NewUpdateOveragesRequestWithBody(server string, spaceID SpaceID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2575,12 +2575,12 @@ func NewUpdateOveragesRequestWithBody(server string, spaceId SpaceId, contentTyp
 }
 
 // NewListPaymentMethodsRequest generates requests for ListPaymentMethods
-func NewListPaymentMethodsRequest(server string, spaceId SpaceId) (*http.Request, error) {
+func NewListPaymentMethodsRequest(server string, spaceID SpaceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2609,12 +2609,12 @@ func NewListPaymentMethodsRequest(server string, spaceId SpaceId) (*http.Request
 }
 
 // NewCreatePaymentMethodSetupRequest generates requests for CreatePaymentMethodSetup
-func NewCreatePaymentMethodSetupRequest(server string, spaceId SpaceId) (*http.Request, error) {
+func NewCreatePaymentMethodSetupRequest(server string, spaceID SpaceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2643,19 +2643,19 @@ func NewCreatePaymentMethodSetupRequest(server string, spaceId SpaceId) (*http.R
 }
 
 // NewDeletePaymentMethodRequest generates requests for DeletePaymentMethod
-func NewDeletePaymentMethodRequest(server string, spaceId SpaceId, paymentId PaymentId) (*http.Request, error) {
+func NewDeletePaymentMethodRequest(server string, spaceID SpaceID, paymentID PaymentID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
 
 	var pathParam1 string
 
-	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "payment_id", runtime.ParamLocationPath, paymentId)
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "payment_id", runtime.ParamLocationPath, paymentID)
 	if err != nil {
 		return nil, err
 	}
@@ -2684,19 +2684,19 @@ func NewDeletePaymentMethodRequest(server string, spaceId SpaceId, paymentId Pay
 }
 
 // NewGetPaymentMethodRequest generates requests for GetPaymentMethod
-func NewGetPaymentMethodRequest(server string, spaceId SpaceId, paymentId PaymentId) (*http.Request, error) {
+func NewGetPaymentMethodRequest(server string, spaceID SpaceID, paymentID PaymentID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
 
 	var pathParam1 string
 
-	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "payment_id", runtime.ParamLocationPath, paymentId)
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "payment_id", runtime.ParamLocationPath, paymentID)
 	if err != nil {
 		return nil, err
 	}
@@ -2725,19 +2725,19 @@ func NewGetPaymentMethodRequest(server string, spaceId SpaceId, paymentId Paymen
 }
 
 // NewCancelPaymentMethodDeletionRequest generates requests for CancelPaymentMethodDeletion
-func NewCancelPaymentMethodDeletionRequest(server string, spaceId SpaceId, paymentId PaymentId) (*http.Request, error) {
+func NewCancelPaymentMethodDeletionRequest(server string, spaceID SpaceID, paymentID PaymentID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
 
 	var pathParam1 string
 
-	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "payment_id", runtime.ParamLocationPath, paymentId)
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "payment_id", runtime.ParamLocationPath, paymentID)
 	if err != nil {
 		return nil, err
 	}
@@ -2766,19 +2766,19 @@ func NewCancelPaymentMethodDeletionRequest(server string, spaceId SpaceId, payme
 }
 
 // NewSetPaymentMethodPrimaryRequest generates requests for SetPaymentMethodPrimary
-func NewSetPaymentMethodPrimaryRequest(server string, spaceId SpaceId, paymentId PaymentId) (*http.Request, error) {
+func NewSetPaymentMethodPrimaryRequest(server string, spaceID SpaceID, paymentID PaymentID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
 
 	var pathParam1 string
 
-	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "payment_id", runtime.ParamLocationPath, paymentId)
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "payment_id", runtime.ParamLocationPath, paymentID)
 	if err != nil {
 		return nil, err
 	}
@@ -2807,23 +2807,23 @@ func NewSetPaymentMethodPrimaryRequest(server string, spaceId SpaceId, paymentId
 }
 
 // NewRenameSpaceRequest calls the generic RenameSpace builder with application/json body
-func NewRenameSpaceRequest(server string, spaceId SpaceId, body RenameSpaceJSONRequestBody) (*http.Request, error) {
+func NewRenameSpaceRequest(server string, spaceID SpaceID, body RenameSpaceJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewRenameSpaceRequestWithBody(server, spaceId, "application/json", bodyReader)
+	return NewRenameSpaceRequestWithBody(server, spaceID, "application/json", bodyReader)
 }
 
 // NewRenameSpaceRequestWithBody generates requests for RenameSpace with any type of body
-func NewRenameSpaceRequestWithBody(server string, spaceId SpaceId, contentType string, body io.Reader) (*http.Request, error) {
+func NewRenameSpaceRequestWithBody(server string, spaceID SpaceID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2854,12 +2854,12 @@ func NewRenameSpaceRequestWithBody(server string, spaceId SpaceId, contentType s
 }
 
 // NewListSharesRequest generates requests for ListShares
-func NewListSharesRequest(server string, spaceId SpaceId) (*http.Request, error) {
+func NewListSharesRequest(server string, spaceID SpaceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2888,12 +2888,12 @@ func NewListSharesRequest(server string, spaceId SpaceId) (*http.Request, error)
 }
 
 // NewRevokeShareRequest generates requests for RevokeShare
-func NewRevokeShareRequest(server string, spaceId SpaceId, shareToken ShareToken) (*http.Request, error) {
+func NewRevokeShareRequest(server string, spaceID SpaceID, shareToken ShareToken) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2929,12 +2929,12 @@ func NewRevokeShareRequest(server string, spaceId SpaceId, shareToken ShareToken
 }
 
 // NewSpaceStatusRequest generates requests for SpaceStatus
-func NewSpaceStatusRequest(server string, spaceId SpaceId) (*http.Request, error) {
+func NewSpaceStatusRequest(server string, spaceID SpaceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -2963,12 +2963,12 @@ func NewSpaceStatusRequest(server string, spaceId SpaceId) (*http.Request, error
 }
 
 // NewSpaceUsageRequest generates requests for SpaceUsage
-func NewSpaceUsageRequest(server string, spaceId SpaceId) (*http.Request, error) {
+func NewSpaceUsageRequest(server string, spaceID SpaceID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "space_id", runtime.ParamLocationPath, spaceID)
 	if err != nil {
 		return nil, err
 	}
@@ -3069,10 +3069,10 @@ type ClientWithResponsesInterface interface {
 	ListReceivedInvitesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListReceivedInvitesResponse, error)
 
 	// AcceptInviteWithResponse request
-	AcceptInviteWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*AcceptInviteResponse, error)
+	AcceptInviteWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*AcceptInviteResponse, error)
 
 	// DeclineInviteWithResponse request
-	DeclineInviteWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*DeclineInviteResponse, error)
+	DeclineInviteWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*DeclineInviteResponse, error)
 
 	// GetPricingWithResponse request
 	GetPricingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPricingResponse, error)
@@ -3086,132 +3086,132 @@ type ClientWithResponsesInterface interface {
 	CreateSpaceWithResponse(ctx context.Context, body CreateSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateSpaceResponse, error)
 
 	// GetSpaceWithResponse request
-	GetSpaceWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*GetSpaceResponse, error)
+	GetSpaceWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*GetSpaceResponse, error)
 
-	// ListApiKeysWithResponse request
-	ListApiKeysWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListApiKeysResponse, error)
+	// ListAPIKeysWithResponse request
+	ListAPIKeysWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*ListAPIKeysResponse, error)
 
-	// CreateApiKeyWithBodyWithResponse request with any body
-	CreateApiKeyWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateApiKeyResponse, error)
+	// CreateAPIKeyWithBodyWithResponse request with any body
+	CreateAPIKeyWithBodyWithResponse(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAPIKeyResponse, error)
 
-	CreateApiKeyWithResponse(ctx context.Context, spaceId SpaceId, body CreateApiKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateApiKeyResponse, error)
+	CreateAPIKeyWithResponse(ctx context.Context, spaceID SpaceID, body CreateAPIKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAPIKeyResponse, error)
 
-	// DeleteApiKeyWithResponse request
-	DeleteApiKeyWithResponse(ctx context.Context, spaceId SpaceId, prefix ApiKeyPrefix, reqEditors ...RequestEditorFn) (*DeleteApiKeyResponse, error)
+	// DeleteAPIKeyWithResponse request
+	DeleteAPIKeyWithResponse(ctx context.Context, spaceID SpaceID, prefix APIKeyPrefix, reqEditors ...RequestEditorFn) (*DeleteAPIKeyResponse, error)
 
 	// ListDatabasesWithResponse request
-	ListDatabasesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListDatabasesResponse, error)
+	ListDatabasesWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*ListDatabasesResponse, error)
 
 	// CreateDatabaseWithBodyWithResponse request with any body
-	CreateDatabaseWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDatabaseResponse, error)
+	CreateDatabaseWithBodyWithResponse(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDatabaseResponse, error)
 
-	CreateDatabaseWithResponse(ctx context.Context, spaceId SpaceId, body CreateDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDatabaseResponse, error)
+	CreateDatabaseWithResponse(ctx context.Context, spaceID SpaceID, body CreateDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDatabaseResponse, error)
 
 	// DeleteDatabaseWithResponse request
-	DeleteDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*DeleteDatabaseResponse, error)
+	DeleteDatabaseWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*DeleteDatabaseResponse, error)
 
 	// GetDatabaseWithResponse request
-	GetDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*GetDatabaseResponse, error)
+	GetDatabaseWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*GetDatabaseResponse, error)
 
 	// ForkDatabaseWithBodyWithResponse request with any body
-	ForkDatabaseWithBodyWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ForkDatabaseResponse, error)
+	ForkDatabaseWithBodyWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ForkDatabaseResponse, error)
 
-	ForkDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ForkDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ForkDatabaseResponse, error)
+	ForkDatabaseWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body ForkDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ForkDatabaseResponse, error)
 
 	// DatabaseLogsWithResponse request
-	DatabaseLogsWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, params *DatabaseLogsParams, reqEditors ...RequestEditorFn) (*DatabaseLogsResponse, error)
+	DatabaseLogsWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, params *DatabaseLogsParams, reqEditors ...RequestEditorFn) (*DatabaseLogsResponse, error)
 
 	// UpdatePasswordWithBodyWithResponse request with any body
-	UpdatePasswordWithBodyWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePasswordResponse, error)
+	UpdatePasswordWithBodyWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePasswordResponse, error)
 
-	UpdatePasswordWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePasswordResponse, error)
+	UpdatePasswordWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePasswordResponse, error)
 
 	// PauseDatabaseWithResponse request
-	PauseDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*PauseDatabaseResponse, error)
+	PauseDatabaseWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*PauseDatabaseResponse, error)
 
 	// RenameDatabaseWithBodyWithResponse request with any body
-	RenameDatabaseWithBodyWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameDatabaseResponse, error)
+	RenameDatabaseWithBodyWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameDatabaseResponse, error)
 
-	RenameDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body RenameDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameDatabaseResponse, error)
+	RenameDatabaseWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body RenameDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameDatabaseResponse, error)
 
 	// ResumeDatabaseWithResponse request
-	ResumeDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*ResumeDatabaseResponse, error)
+	ResumeDatabaseWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*ResumeDatabaseResponse, error)
 
 	// ShareDatabaseWithBodyWithResponse request with any body
-	ShareDatabaseWithBodyWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ShareDatabaseResponse, error)
+	ShareDatabaseWithBodyWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ShareDatabaseResponse, error)
 
-	ShareDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ShareDatabaseResponse, error)
+	ShareDatabaseWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ShareDatabaseResponse, error)
 
 	// ListInvitesWithResponse request
-	ListInvitesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListInvitesResponse, error)
+	ListInvitesWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*ListInvitesResponse, error)
 
 	// CreateInviteWithBodyWithResponse request with any body
-	CreateInviteWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateInviteResponse, error)
+	CreateInviteWithBodyWithResponse(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateInviteResponse, error)
 
-	CreateInviteWithResponse(ctx context.Context, spaceId SpaceId, body CreateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateInviteResponse, error)
+	CreateInviteWithResponse(ctx context.Context, spaceID SpaceID, body CreateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateInviteResponse, error)
 
 	// CancelInviteWithResponse request
-	CancelInviteWithResponse(ctx context.Context, spaceId SpaceId, email InviteEmail, reqEditors ...RequestEditorFn) (*CancelInviteResponse, error)
+	CancelInviteWithResponse(ctx context.Context, spaceID SpaceID, email InviteEmail, reqEditors ...RequestEditorFn) (*CancelInviteResponse, error)
 
 	// ListInvoicesWithResponse request
-	ListInvoicesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListInvoicesResponse, error)
+	ListInvoicesWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*ListInvoicesResponse, error)
 
 	// GetInvoiceWithResponse request
-	GetInvoiceWithResponse(ctx context.Context, spaceId SpaceId, invoiceId InvoiceId, reqEditors ...RequestEditorFn) (*GetInvoiceResponse, error)
+	GetInvoiceWithResponse(ctx context.Context, spaceID SpaceID, invoiceID InvoiceID, reqEditors ...RequestEditorFn) (*GetInvoiceResponse, error)
 
 	// LeaveSpaceWithResponse request
-	LeaveSpaceWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*LeaveSpaceResponse, error)
+	LeaveSpaceWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*LeaveSpaceResponse, error)
 
 	// ListMembersWithResponse request
-	ListMembersWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListMembersResponse, error)
+	ListMembersWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*ListMembersResponse, error)
 
 	// RemoveMemberWithResponse request
-	RemoveMemberWithResponse(ctx context.Context, spaceId SpaceId, userId MemberUserId, reqEditors ...RequestEditorFn) (*RemoveMemberResponse, error)
+	RemoveMemberWithResponse(ctx context.Context, spaceID SpaceID, userID MemberUserID, reqEditors ...RequestEditorFn) (*RemoveMemberResponse, error)
 
 	// UpdateMemberRoleWithBodyWithResponse request with any body
-	UpdateMemberRoleWithBodyWithResponse(ctx context.Context, spaceId SpaceId, userId MemberUserId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateMemberRoleResponse, error)
+	UpdateMemberRoleWithBodyWithResponse(ctx context.Context, spaceID SpaceID, userID MemberUserID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateMemberRoleResponse, error)
 
-	UpdateMemberRoleWithResponse(ctx context.Context, spaceId SpaceId, userId MemberUserId, body UpdateMemberRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateMemberRoleResponse, error)
+	UpdateMemberRoleWithResponse(ctx context.Context, spaceID SpaceID, userID MemberUserID, body UpdateMemberRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateMemberRoleResponse, error)
 
 	// UpdateOveragesWithBodyWithResponse request with any body
-	UpdateOveragesWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOveragesResponse, error)
+	UpdateOveragesWithBodyWithResponse(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOveragesResponse, error)
 
-	UpdateOveragesWithResponse(ctx context.Context, spaceId SpaceId, body UpdateOveragesJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateOveragesResponse, error)
+	UpdateOveragesWithResponse(ctx context.Context, spaceID SpaceID, body UpdateOveragesJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateOveragesResponse, error)
 
 	// ListPaymentMethodsWithResponse request
-	ListPaymentMethodsWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListPaymentMethodsResponse, error)
+	ListPaymentMethodsWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*ListPaymentMethodsResponse, error)
 
 	// CreatePaymentMethodSetupWithResponse request
-	CreatePaymentMethodSetupWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*CreatePaymentMethodSetupResponse, error)
+	CreatePaymentMethodSetupWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*CreatePaymentMethodSetupResponse, error)
 
 	// DeletePaymentMethodWithResponse request
-	DeletePaymentMethodWithResponse(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*DeletePaymentMethodResponse, error)
+	DeletePaymentMethodWithResponse(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*DeletePaymentMethodResponse, error)
 
 	// GetPaymentMethodWithResponse request
-	GetPaymentMethodWithResponse(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*GetPaymentMethodResponse, error)
+	GetPaymentMethodWithResponse(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*GetPaymentMethodResponse, error)
 
 	// CancelPaymentMethodDeletionWithResponse request
-	CancelPaymentMethodDeletionWithResponse(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*CancelPaymentMethodDeletionResponse, error)
+	CancelPaymentMethodDeletionWithResponse(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*CancelPaymentMethodDeletionResponse, error)
 
 	// SetPaymentMethodPrimaryWithResponse request
-	SetPaymentMethodPrimaryWithResponse(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*SetPaymentMethodPrimaryResponse, error)
+	SetPaymentMethodPrimaryWithResponse(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*SetPaymentMethodPrimaryResponse, error)
 
 	// RenameSpaceWithBodyWithResponse request with any body
-	RenameSpaceWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameSpaceResponse, error)
+	RenameSpaceWithBodyWithResponse(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameSpaceResponse, error)
 
-	RenameSpaceWithResponse(ctx context.Context, spaceId SpaceId, body RenameSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameSpaceResponse, error)
+	RenameSpaceWithResponse(ctx context.Context, spaceID SpaceID, body RenameSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameSpaceResponse, error)
 
 	// ListSharesWithResponse request
-	ListSharesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListSharesResponse, error)
+	ListSharesWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*ListSharesResponse, error)
 
 	// RevokeShareWithResponse request
-	RevokeShareWithResponse(ctx context.Context, spaceId SpaceId, shareToken ShareToken, reqEditors ...RequestEditorFn) (*RevokeShareResponse, error)
+	RevokeShareWithResponse(ctx context.Context, spaceID SpaceID, shareToken ShareToken, reqEditors ...RequestEditorFn) (*RevokeShareResponse, error)
 
 	// SpaceStatusWithResponse request
-	SpaceStatusWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*SpaceStatusResponse, error)
+	SpaceStatusWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*SpaceStatusResponse, error)
 
 	// SpaceUsageWithResponse request
-	SpaceUsageWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*SpaceUsageResponse, error)
+	SpaceUsageWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*SpaceUsageResponse, error)
 }
 
 type AnalyticsIdentifyResponse struct {
@@ -3510,15 +3510,15 @@ func (r GetSpaceResponse) StatusCode() int {
 	return 0
 }
 
-type ListApiKeysResponse struct {
+type ListAPIKeysResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]ApiKey
+	JSON200      *[]APIKey
 	JSONDefault  *Error
 }
 
 // Status returns HTTPResponse.Status
-func (r ListApiKeysResponse) Status() string {
+func (r ListAPIKeysResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -3526,22 +3526,22 @@ func (r ListApiKeysResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r ListApiKeysResponse) StatusCode() int {
+func (r ListAPIKeysResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type CreateApiKeyResponse struct {
+type CreateAPIKeyResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON201      *ApiKeyCredentials
+	JSON201      *APIKeyCredentials
 	JSONDefault  *Error
 }
 
 // Status returns HTTPResponse.Status
-func (r CreateApiKeyResponse) Status() string {
+func (r CreateAPIKeyResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -3549,21 +3549,21 @@ func (r CreateApiKeyResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r CreateApiKeyResponse) StatusCode() int {
+func (r CreateAPIKeyResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DeleteApiKeyResponse struct {
+type DeleteAPIKeyResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSONDefault  *Error
 }
 
 // Status returns HTTPResponse.Status
-func (r DeleteApiKeyResponse) Status() string {
+func (r DeleteAPIKeyResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -3571,7 +3571,7 @@ func (r DeleteApiKeyResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DeleteApiKeyResponse) StatusCode() int {
+func (r DeleteAPIKeyResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -4404,8 +4404,8 @@ func (c *ClientWithResponses) ListReceivedInvitesWithResponse(ctx context.Contex
 }
 
 // AcceptInviteWithResponse request returning *AcceptInviteResponse
-func (c *ClientWithResponses) AcceptInviteWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*AcceptInviteResponse, error) {
-	rsp, err := c.AcceptInvite(ctx, spaceId, reqEditors...)
+func (c *ClientWithResponses) AcceptInviteWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*AcceptInviteResponse, error) {
+	rsp, err := c.AcceptInvite(ctx, spaceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4413,8 +4413,8 @@ func (c *ClientWithResponses) AcceptInviteWithResponse(ctx context.Context, spac
 }
 
 // DeclineInviteWithResponse request returning *DeclineInviteResponse
-func (c *ClientWithResponses) DeclineInviteWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*DeclineInviteResponse, error) {
-	rsp, err := c.DeclineInvite(ctx, spaceId, reqEditors...)
+func (c *ClientWithResponses) DeclineInviteWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*DeclineInviteResponse, error) {
+	rsp, err := c.DeclineInvite(ctx, spaceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4457,52 +4457,52 @@ func (c *ClientWithResponses) CreateSpaceWithResponse(ctx context.Context, body 
 }
 
 // GetSpaceWithResponse request returning *GetSpaceResponse
-func (c *ClientWithResponses) GetSpaceWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*GetSpaceResponse, error) {
-	rsp, err := c.GetSpace(ctx, spaceId, reqEditors...)
+func (c *ClientWithResponses) GetSpaceWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*GetSpaceResponse, error) {
+	rsp, err := c.GetSpace(ctx, spaceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseGetSpaceResponse(rsp)
 }
 
-// ListApiKeysWithResponse request returning *ListApiKeysResponse
-func (c *ClientWithResponses) ListApiKeysWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListApiKeysResponse, error) {
-	rsp, err := c.ListApiKeys(ctx, spaceId, reqEditors...)
+// ListAPIKeysWithResponse request returning *ListAPIKeysResponse
+func (c *ClientWithResponses) ListAPIKeysWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*ListAPIKeysResponse, error) {
+	rsp, err := c.ListAPIKeys(ctx, spaceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseListApiKeysResponse(rsp)
+	return ParseListAPIKeysResponse(rsp)
 }
 
-// CreateApiKeyWithBodyWithResponse request with arbitrary body returning *CreateApiKeyResponse
-func (c *ClientWithResponses) CreateApiKeyWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateApiKeyResponse, error) {
-	rsp, err := c.CreateApiKeyWithBody(ctx, spaceId, contentType, body, reqEditors...)
+// CreateAPIKeyWithBodyWithResponse request with arbitrary body returning *CreateAPIKeyResponse
+func (c *ClientWithResponses) CreateAPIKeyWithBodyWithResponse(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAPIKeyResponse, error) {
+	rsp, err := c.CreateAPIKeyWithBody(ctx, spaceID, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseCreateApiKeyResponse(rsp)
+	return ParseCreateAPIKeyResponse(rsp)
 }
 
-func (c *ClientWithResponses) CreateApiKeyWithResponse(ctx context.Context, spaceId SpaceId, body CreateApiKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateApiKeyResponse, error) {
-	rsp, err := c.CreateApiKey(ctx, spaceId, body, reqEditors...)
+func (c *ClientWithResponses) CreateAPIKeyWithResponse(ctx context.Context, spaceID SpaceID, body CreateAPIKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAPIKeyResponse, error) {
+	rsp, err := c.CreateAPIKey(ctx, spaceID, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseCreateApiKeyResponse(rsp)
+	return ParseCreateAPIKeyResponse(rsp)
 }
 
-// DeleteApiKeyWithResponse request returning *DeleteApiKeyResponse
-func (c *ClientWithResponses) DeleteApiKeyWithResponse(ctx context.Context, spaceId SpaceId, prefix ApiKeyPrefix, reqEditors ...RequestEditorFn) (*DeleteApiKeyResponse, error) {
-	rsp, err := c.DeleteApiKey(ctx, spaceId, prefix, reqEditors...)
+// DeleteAPIKeyWithResponse request returning *DeleteAPIKeyResponse
+func (c *ClientWithResponses) DeleteAPIKeyWithResponse(ctx context.Context, spaceID SpaceID, prefix APIKeyPrefix, reqEditors ...RequestEditorFn) (*DeleteAPIKeyResponse, error) {
+	rsp, err := c.DeleteAPIKey(ctx, spaceID, prefix, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDeleteApiKeyResponse(rsp)
+	return ParseDeleteAPIKeyResponse(rsp)
 }
 
 // ListDatabasesWithResponse request returning *ListDatabasesResponse
-func (c *ClientWithResponses) ListDatabasesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListDatabasesResponse, error) {
-	rsp, err := c.ListDatabases(ctx, spaceId, reqEditors...)
+func (c *ClientWithResponses) ListDatabasesWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*ListDatabasesResponse, error) {
+	rsp, err := c.ListDatabases(ctx, spaceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4510,16 +4510,16 @@ func (c *ClientWithResponses) ListDatabasesWithResponse(ctx context.Context, spa
 }
 
 // CreateDatabaseWithBodyWithResponse request with arbitrary body returning *CreateDatabaseResponse
-func (c *ClientWithResponses) CreateDatabaseWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDatabaseResponse, error) {
-	rsp, err := c.CreateDatabaseWithBody(ctx, spaceId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CreateDatabaseWithBodyWithResponse(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDatabaseResponse, error) {
+	rsp, err := c.CreateDatabaseWithBody(ctx, spaceID, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseCreateDatabaseResponse(rsp)
 }
 
-func (c *ClientWithResponses) CreateDatabaseWithResponse(ctx context.Context, spaceId SpaceId, body CreateDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDatabaseResponse, error) {
-	rsp, err := c.CreateDatabase(ctx, spaceId, body, reqEditors...)
+func (c *ClientWithResponses) CreateDatabaseWithResponse(ctx context.Context, spaceID SpaceID, body CreateDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDatabaseResponse, error) {
+	rsp, err := c.CreateDatabase(ctx, spaceID, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4527,8 +4527,8 @@ func (c *ClientWithResponses) CreateDatabaseWithResponse(ctx context.Context, sp
 }
 
 // DeleteDatabaseWithResponse request returning *DeleteDatabaseResponse
-func (c *ClientWithResponses) DeleteDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*DeleteDatabaseResponse, error) {
-	rsp, err := c.DeleteDatabase(ctx, spaceId, databaseRef, reqEditors...)
+func (c *ClientWithResponses) DeleteDatabaseWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*DeleteDatabaseResponse, error) {
+	rsp, err := c.DeleteDatabase(ctx, spaceID, databaseRef, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4536,8 +4536,8 @@ func (c *ClientWithResponses) DeleteDatabaseWithResponse(ctx context.Context, sp
 }
 
 // GetDatabaseWithResponse request returning *GetDatabaseResponse
-func (c *ClientWithResponses) GetDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*GetDatabaseResponse, error) {
-	rsp, err := c.GetDatabase(ctx, spaceId, databaseRef, reqEditors...)
+func (c *ClientWithResponses) GetDatabaseWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*GetDatabaseResponse, error) {
+	rsp, err := c.GetDatabase(ctx, spaceID, databaseRef, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4545,16 +4545,16 @@ func (c *ClientWithResponses) GetDatabaseWithResponse(ctx context.Context, space
 }
 
 // ForkDatabaseWithBodyWithResponse request with arbitrary body returning *ForkDatabaseResponse
-func (c *ClientWithResponses) ForkDatabaseWithBodyWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ForkDatabaseResponse, error) {
-	rsp, err := c.ForkDatabaseWithBody(ctx, spaceId, databaseRef, contentType, body, reqEditors...)
+func (c *ClientWithResponses) ForkDatabaseWithBodyWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ForkDatabaseResponse, error) {
+	rsp, err := c.ForkDatabaseWithBody(ctx, spaceID, databaseRef, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseForkDatabaseResponse(rsp)
 }
 
-func (c *ClientWithResponses) ForkDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ForkDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ForkDatabaseResponse, error) {
-	rsp, err := c.ForkDatabase(ctx, spaceId, databaseRef, body, reqEditors...)
+func (c *ClientWithResponses) ForkDatabaseWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body ForkDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ForkDatabaseResponse, error) {
+	rsp, err := c.ForkDatabase(ctx, spaceID, databaseRef, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4562,8 +4562,8 @@ func (c *ClientWithResponses) ForkDatabaseWithResponse(ctx context.Context, spac
 }
 
 // DatabaseLogsWithResponse request returning *DatabaseLogsResponse
-func (c *ClientWithResponses) DatabaseLogsWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, params *DatabaseLogsParams, reqEditors ...RequestEditorFn) (*DatabaseLogsResponse, error) {
-	rsp, err := c.DatabaseLogs(ctx, spaceId, databaseRef, params, reqEditors...)
+func (c *ClientWithResponses) DatabaseLogsWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, params *DatabaseLogsParams, reqEditors ...RequestEditorFn) (*DatabaseLogsResponse, error) {
+	rsp, err := c.DatabaseLogs(ctx, spaceID, databaseRef, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4571,16 +4571,16 @@ func (c *ClientWithResponses) DatabaseLogsWithResponse(ctx context.Context, spac
 }
 
 // UpdatePasswordWithBodyWithResponse request with arbitrary body returning *UpdatePasswordResponse
-func (c *ClientWithResponses) UpdatePasswordWithBodyWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePasswordResponse, error) {
-	rsp, err := c.UpdatePasswordWithBody(ctx, spaceId, databaseRef, contentType, body, reqEditors...)
+func (c *ClientWithResponses) UpdatePasswordWithBodyWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePasswordResponse, error) {
+	rsp, err := c.UpdatePasswordWithBody(ctx, spaceID, databaseRef, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseUpdatePasswordResponse(rsp)
 }
 
-func (c *ClientWithResponses) UpdatePasswordWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePasswordResponse, error) {
-	rsp, err := c.UpdatePassword(ctx, spaceId, databaseRef, body, reqEditors...)
+func (c *ClientWithResponses) UpdatePasswordWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body UpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePasswordResponse, error) {
+	rsp, err := c.UpdatePassword(ctx, spaceID, databaseRef, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4588,8 +4588,8 @@ func (c *ClientWithResponses) UpdatePasswordWithResponse(ctx context.Context, sp
 }
 
 // PauseDatabaseWithResponse request returning *PauseDatabaseResponse
-func (c *ClientWithResponses) PauseDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*PauseDatabaseResponse, error) {
-	rsp, err := c.PauseDatabase(ctx, spaceId, databaseRef, reqEditors...)
+func (c *ClientWithResponses) PauseDatabaseWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*PauseDatabaseResponse, error) {
+	rsp, err := c.PauseDatabase(ctx, spaceID, databaseRef, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4597,16 +4597,16 @@ func (c *ClientWithResponses) PauseDatabaseWithResponse(ctx context.Context, spa
 }
 
 // RenameDatabaseWithBodyWithResponse request with arbitrary body returning *RenameDatabaseResponse
-func (c *ClientWithResponses) RenameDatabaseWithBodyWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameDatabaseResponse, error) {
-	rsp, err := c.RenameDatabaseWithBody(ctx, spaceId, databaseRef, contentType, body, reqEditors...)
+func (c *ClientWithResponses) RenameDatabaseWithBodyWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameDatabaseResponse, error) {
+	rsp, err := c.RenameDatabaseWithBody(ctx, spaceID, databaseRef, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseRenameDatabaseResponse(rsp)
 }
 
-func (c *ClientWithResponses) RenameDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body RenameDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameDatabaseResponse, error) {
-	rsp, err := c.RenameDatabase(ctx, spaceId, databaseRef, body, reqEditors...)
+func (c *ClientWithResponses) RenameDatabaseWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body RenameDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameDatabaseResponse, error) {
+	rsp, err := c.RenameDatabase(ctx, spaceID, databaseRef, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4614,8 +4614,8 @@ func (c *ClientWithResponses) RenameDatabaseWithResponse(ctx context.Context, sp
 }
 
 // ResumeDatabaseWithResponse request returning *ResumeDatabaseResponse
-func (c *ClientWithResponses) ResumeDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*ResumeDatabaseResponse, error) {
-	rsp, err := c.ResumeDatabase(ctx, spaceId, databaseRef, reqEditors...)
+func (c *ClientWithResponses) ResumeDatabaseWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, reqEditors ...RequestEditorFn) (*ResumeDatabaseResponse, error) {
+	rsp, err := c.ResumeDatabase(ctx, spaceID, databaseRef, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4623,16 +4623,16 @@ func (c *ClientWithResponses) ResumeDatabaseWithResponse(ctx context.Context, sp
 }
 
 // ShareDatabaseWithBodyWithResponse request with arbitrary body returning *ShareDatabaseResponse
-func (c *ClientWithResponses) ShareDatabaseWithBodyWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ShareDatabaseResponse, error) {
-	rsp, err := c.ShareDatabaseWithBody(ctx, spaceId, databaseRef, contentType, body, reqEditors...)
+func (c *ClientWithResponses) ShareDatabaseWithBodyWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ShareDatabaseResponse, error) {
+	rsp, err := c.ShareDatabaseWithBody(ctx, spaceID, databaseRef, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseShareDatabaseResponse(rsp)
 }
 
-func (c *ClientWithResponses) ShareDatabaseWithResponse(ctx context.Context, spaceId SpaceId, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ShareDatabaseResponse, error) {
-	rsp, err := c.ShareDatabase(ctx, spaceId, databaseRef, body, reqEditors...)
+func (c *ClientWithResponses) ShareDatabaseWithResponse(ctx context.Context, spaceID SpaceID, databaseRef DatabaseRef, body ShareDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ShareDatabaseResponse, error) {
+	rsp, err := c.ShareDatabase(ctx, spaceID, databaseRef, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4640,8 +4640,8 @@ func (c *ClientWithResponses) ShareDatabaseWithResponse(ctx context.Context, spa
 }
 
 // ListInvitesWithResponse request returning *ListInvitesResponse
-func (c *ClientWithResponses) ListInvitesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListInvitesResponse, error) {
-	rsp, err := c.ListInvites(ctx, spaceId, reqEditors...)
+func (c *ClientWithResponses) ListInvitesWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*ListInvitesResponse, error) {
+	rsp, err := c.ListInvites(ctx, spaceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4649,16 +4649,16 @@ func (c *ClientWithResponses) ListInvitesWithResponse(ctx context.Context, space
 }
 
 // CreateInviteWithBodyWithResponse request with arbitrary body returning *CreateInviteResponse
-func (c *ClientWithResponses) CreateInviteWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateInviteResponse, error) {
-	rsp, err := c.CreateInviteWithBody(ctx, spaceId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CreateInviteWithBodyWithResponse(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateInviteResponse, error) {
+	rsp, err := c.CreateInviteWithBody(ctx, spaceID, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseCreateInviteResponse(rsp)
 }
 
-func (c *ClientWithResponses) CreateInviteWithResponse(ctx context.Context, spaceId SpaceId, body CreateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateInviteResponse, error) {
-	rsp, err := c.CreateInvite(ctx, spaceId, body, reqEditors...)
+func (c *ClientWithResponses) CreateInviteWithResponse(ctx context.Context, spaceID SpaceID, body CreateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateInviteResponse, error) {
+	rsp, err := c.CreateInvite(ctx, spaceID, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4666,8 +4666,8 @@ func (c *ClientWithResponses) CreateInviteWithResponse(ctx context.Context, spac
 }
 
 // CancelInviteWithResponse request returning *CancelInviteResponse
-func (c *ClientWithResponses) CancelInviteWithResponse(ctx context.Context, spaceId SpaceId, email InviteEmail, reqEditors ...RequestEditorFn) (*CancelInviteResponse, error) {
-	rsp, err := c.CancelInvite(ctx, spaceId, email, reqEditors...)
+func (c *ClientWithResponses) CancelInviteWithResponse(ctx context.Context, spaceID SpaceID, email InviteEmail, reqEditors ...RequestEditorFn) (*CancelInviteResponse, error) {
+	rsp, err := c.CancelInvite(ctx, spaceID, email, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4675,8 +4675,8 @@ func (c *ClientWithResponses) CancelInviteWithResponse(ctx context.Context, spac
 }
 
 // ListInvoicesWithResponse request returning *ListInvoicesResponse
-func (c *ClientWithResponses) ListInvoicesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListInvoicesResponse, error) {
-	rsp, err := c.ListInvoices(ctx, spaceId, reqEditors...)
+func (c *ClientWithResponses) ListInvoicesWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*ListInvoicesResponse, error) {
+	rsp, err := c.ListInvoices(ctx, spaceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4684,8 +4684,8 @@ func (c *ClientWithResponses) ListInvoicesWithResponse(ctx context.Context, spac
 }
 
 // GetInvoiceWithResponse request returning *GetInvoiceResponse
-func (c *ClientWithResponses) GetInvoiceWithResponse(ctx context.Context, spaceId SpaceId, invoiceId InvoiceId, reqEditors ...RequestEditorFn) (*GetInvoiceResponse, error) {
-	rsp, err := c.GetInvoice(ctx, spaceId, invoiceId, reqEditors...)
+func (c *ClientWithResponses) GetInvoiceWithResponse(ctx context.Context, spaceID SpaceID, invoiceID InvoiceID, reqEditors ...RequestEditorFn) (*GetInvoiceResponse, error) {
+	rsp, err := c.GetInvoice(ctx, spaceID, invoiceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4693,8 +4693,8 @@ func (c *ClientWithResponses) GetInvoiceWithResponse(ctx context.Context, spaceI
 }
 
 // LeaveSpaceWithResponse request returning *LeaveSpaceResponse
-func (c *ClientWithResponses) LeaveSpaceWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*LeaveSpaceResponse, error) {
-	rsp, err := c.LeaveSpace(ctx, spaceId, reqEditors...)
+func (c *ClientWithResponses) LeaveSpaceWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*LeaveSpaceResponse, error) {
+	rsp, err := c.LeaveSpace(ctx, spaceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4702,8 +4702,8 @@ func (c *ClientWithResponses) LeaveSpaceWithResponse(ctx context.Context, spaceI
 }
 
 // ListMembersWithResponse request returning *ListMembersResponse
-func (c *ClientWithResponses) ListMembersWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListMembersResponse, error) {
-	rsp, err := c.ListMembers(ctx, spaceId, reqEditors...)
+func (c *ClientWithResponses) ListMembersWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*ListMembersResponse, error) {
+	rsp, err := c.ListMembers(ctx, spaceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4711,8 +4711,8 @@ func (c *ClientWithResponses) ListMembersWithResponse(ctx context.Context, space
 }
 
 // RemoveMemberWithResponse request returning *RemoveMemberResponse
-func (c *ClientWithResponses) RemoveMemberWithResponse(ctx context.Context, spaceId SpaceId, userId MemberUserId, reqEditors ...RequestEditorFn) (*RemoveMemberResponse, error) {
-	rsp, err := c.RemoveMember(ctx, spaceId, userId, reqEditors...)
+func (c *ClientWithResponses) RemoveMemberWithResponse(ctx context.Context, spaceID SpaceID, userID MemberUserID, reqEditors ...RequestEditorFn) (*RemoveMemberResponse, error) {
+	rsp, err := c.RemoveMember(ctx, spaceID, userID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4720,16 +4720,16 @@ func (c *ClientWithResponses) RemoveMemberWithResponse(ctx context.Context, spac
 }
 
 // UpdateMemberRoleWithBodyWithResponse request with arbitrary body returning *UpdateMemberRoleResponse
-func (c *ClientWithResponses) UpdateMemberRoleWithBodyWithResponse(ctx context.Context, spaceId SpaceId, userId MemberUserId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateMemberRoleResponse, error) {
-	rsp, err := c.UpdateMemberRoleWithBody(ctx, spaceId, userId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) UpdateMemberRoleWithBodyWithResponse(ctx context.Context, spaceID SpaceID, userID MemberUserID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateMemberRoleResponse, error) {
+	rsp, err := c.UpdateMemberRoleWithBody(ctx, spaceID, userID, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseUpdateMemberRoleResponse(rsp)
 }
 
-func (c *ClientWithResponses) UpdateMemberRoleWithResponse(ctx context.Context, spaceId SpaceId, userId MemberUserId, body UpdateMemberRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateMemberRoleResponse, error) {
-	rsp, err := c.UpdateMemberRole(ctx, spaceId, userId, body, reqEditors...)
+func (c *ClientWithResponses) UpdateMemberRoleWithResponse(ctx context.Context, spaceID SpaceID, userID MemberUserID, body UpdateMemberRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateMemberRoleResponse, error) {
+	rsp, err := c.UpdateMemberRole(ctx, spaceID, userID, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4737,16 +4737,16 @@ func (c *ClientWithResponses) UpdateMemberRoleWithResponse(ctx context.Context, 
 }
 
 // UpdateOveragesWithBodyWithResponse request with arbitrary body returning *UpdateOveragesResponse
-func (c *ClientWithResponses) UpdateOveragesWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOveragesResponse, error) {
-	rsp, err := c.UpdateOveragesWithBody(ctx, spaceId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) UpdateOveragesWithBodyWithResponse(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateOveragesResponse, error) {
+	rsp, err := c.UpdateOveragesWithBody(ctx, spaceID, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseUpdateOveragesResponse(rsp)
 }
 
-func (c *ClientWithResponses) UpdateOveragesWithResponse(ctx context.Context, spaceId SpaceId, body UpdateOveragesJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateOveragesResponse, error) {
-	rsp, err := c.UpdateOverages(ctx, spaceId, body, reqEditors...)
+func (c *ClientWithResponses) UpdateOveragesWithResponse(ctx context.Context, spaceID SpaceID, body UpdateOveragesJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateOveragesResponse, error) {
+	rsp, err := c.UpdateOverages(ctx, spaceID, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4754,8 +4754,8 @@ func (c *ClientWithResponses) UpdateOveragesWithResponse(ctx context.Context, sp
 }
 
 // ListPaymentMethodsWithResponse request returning *ListPaymentMethodsResponse
-func (c *ClientWithResponses) ListPaymentMethodsWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListPaymentMethodsResponse, error) {
-	rsp, err := c.ListPaymentMethods(ctx, spaceId, reqEditors...)
+func (c *ClientWithResponses) ListPaymentMethodsWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*ListPaymentMethodsResponse, error) {
+	rsp, err := c.ListPaymentMethods(ctx, spaceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4763,8 +4763,8 @@ func (c *ClientWithResponses) ListPaymentMethodsWithResponse(ctx context.Context
 }
 
 // CreatePaymentMethodSetupWithResponse request returning *CreatePaymentMethodSetupResponse
-func (c *ClientWithResponses) CreatePaymentMethodSetupWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*CreatePaymentMethodSetupResponse, error) {
-	rsp, err := c.CreatePaymentMethodSetup(ctx, spaceId, reqEditors...)
+func (c *ClientWithResponses) CreatePaymentMethodSetupWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*CreatePaymentMethodSetupResponse, error) {
+	rsp, err := c.CreatePaymentMethodSetup(ctx, spaceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4772,8 +4772,8 @@ func (c *ClientWithResponses) CreatePaymentMethodSetupWithResponse(ctx context.C
 }
 
 // DeletePaymentMethodWithResponse request returning *DeletePaymentMethodResponse
-func (c *ClientWithResponses) DeletePaymentMethodWithResponse(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*DeletePaymentMethodResponse, error) {
-	rsp, err := c.DeletePaymentMethod(ctx, spaceId, paymentId, reqEditors...)
+func (c *ClientWithResponses) DeletePaymentMethodWithResponse(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*DeletePaymentMethodResponse, error) {
+	rsp, err := c.DeletePaymentMethod(ctx, spaceID, paymentID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4781,8 +4781,8 @@ func (c *ClientWithResponses) DeletePaymentMethodWithResponse(ctx context.Contex
 }
 
 // GetPaymentMethodWithResponse request returning *GetPaymentMethodResponse
-func (c *ClientWithResponses) GetPaymentMethodWithResponse(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*GetPaymentMethodResponse, error) {
-	rsp, err := c.GetPaymentMethod(ctx, spaceId, paymentId, reqEditors...)
+func (c *ClientWithResponses) GetPaymentMethodWithResponse(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*GetPaymentMethodResponse, error) {
+	rsp, err := c.GetPaymentMethod(ctx, spaceID, paymentID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4790,8 +4790,8 @@ func (c *ClientWithResponses) GetPaymentMethodWithResponse(ctx context.Context, 
 }
 
 // CancelPaymentMethodDeletionWithResponse request returning *CancelPaymentMethodDeletionResponse
-func (c *ClientWithResponses) CancelPaymentMethodDeletionWithResponse(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*CancelPaymentMethodDeletionResponse, error) {
-	rsp, err := c.CancelPaymentMethodDeletion(ctx, spaceId, paymentId, reqEditors...)
+func (c *ClientWithResponses) CancelPaymentMethodDeletionWithResponse(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*CancelPaymentMethodDeletionResponse, error) {
+	rsp, err := c.CancelPaymentMethodDeletion(ctx, spaceID, paymentID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4799,8 +4799,8 @@ func (c *ClientWithResponses) CancelPaymentMethodDeletionWithResponse(ctx contex
 }
 
 // SetPaymentMethodPrimaryWithResponse request returning *SetPaymentMethodPrimaryResponse
-func (c *ClientWithResponses) SetPaymentMethodPrimaryWithResponse(ctx context.Context, spaceId SpaceId, paymentId PaymentId, reqEditors ...RequestEditorFn) (*SetPaymentMethodPrimaryResponse, error) {
-	rsp, err := c.SetPaymentMethodPrimary(ctx, spaceId, paymentId, reqEditors...)
+func (c *ClientWithResponses) SetPaymentMethodPrimaryWithResponse(ctx context.Context, spaceID SpaceID, paymentID PaymentID, reqEditors ...RequestEditorFn) (*SetPaymentMethodPrimaryResponse, error) {
+	rsp, err := c.SetPaymentMethodPrimary(ctx, spaceID, paymentID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4808,16 +4808,16 @@ func (c *ClientWithResponses) SetPaymentMethodPrimaryWithResponse(ctx context.Co
 }
 
 // RenameSpaceWithBodyWithResponse request with arbitrary body returning *RenameSpaceResponse
-func (c *ClientWithResponses) RenameSpaceWithBodyWithResponse(ctx context.Context, spaceId SpaceId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameSpaceResponse, error) {
-	rsp, err := c.RenameSpaceWithBody(ctx, spaceId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) RenameSpaceWithBodyWithResponse(ctx context.Context, spaceID SpaceID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameSpaceResponse, error) {
+	rsp, err := c.RenameSpaceWithBody(ctx, spaceID, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseRenameSpaceResponse(rsp)
 }
 
-func (c *ClientWithResponses) RenameSpaceWithResponse(ctx context.Context, spaceId SpaceId, body RenameSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameSpaceResponse, error) {
-	rsp, err := c.RenameSpace(ctx, spaceId, body, reqEditors...)
+func (c *ClientWithResponses) RenameSpaceWithResponse(ctx context.Context, spaceID SpaceID, body RenameSpaceJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameSpaceResponse, error) {
+	rsp, err := c.RenameSpace(ctx, spaceID, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4825,8 +4825,8 @@ func (c *ClientWithResponses) RenameSpaceWithResponse(ctx context.Context, space
 }
 
 // ListSharesWithResponse request returning *ListSharesResponse
-func (c *ClientWithResponses) ListSharesWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*ListSharesResponse, error) {
-	rsp, err := c.ListShares(ctx, spaceId, reqEditors...)
+func (c *ClientWithResponses) ListSharesWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*ListSharesResponse, error) {
+	rsp, err := c.ListShares(ctx, spaceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4834,8 +4834,8 @@ func (c *ClientWithResponses) ListSharesWithResponse(ctx context.Context, spaceI
 }
 
 // RevokeShareWithResponse request returning *RevokeShareResponse
-func (c *ClientWithResponses) RevokeShareWithResponse(ctx context.Context, spaceId SpaceId, shareToken ShareToken, reqEditors ...RequestEditorFn) (*RevokeShareResponse, error) {
-	rsp, err := c.RevokeShare(ctx, spaceId, shareToken, reqEditors...)
+func (c *ClientWithResponses) RevokeShareWithResponse(ctx context.Context, spaceID SpaceID, shareToken ShareToken, reqEditors ...RequestEditorFn) (*RevokeShareResponse, error) {
+	rsp, err := c.RevokeShare(ctx, spaceID, shareToken, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4843,8 +4843,8 @@ func (c *ClientWithResponses) RevokeShareWithResponse(ctx context.Context, space
 }
 
 // SpaceStatusWithResponse request returning *SpaceStatusResponse
-func (c *ClientWithResponses) SpaceStatusWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*SpaceStatusResponse, error) {
-	rsp, err := c.SpaceStatus(ctx, spaceId, reqEditors...)
+func (c *ClientWithResponses) SpaceStatusWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*SpaceStatusResponse, error) {
+	rsp, err := c.SpaceStatus(ctx, spaceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -4852,8 +4852,8 @@ func (c *ClientWithResponses) SpaceStatusWithResponse(ctx context.Context, space
 }
 
 // SpaceUsageWithResponse request returning *SpaceUsageResponse
-func (c *ClientWithResponses) SpaceUsageWithResponse(ctx context.Context, spaceId SpaceId, reqEditors ...RequestEditorFn) (*SpaceUsageResponse, error) {
-	rsp, err := c.SpaceUsage(ctx, spaceId, reqEditors...)
+func (c *ClientWithResponses) SpaceUsageWithResponse(ctx context.Context, spaceID SpaceID, reqEditors ...RequestEditorFn) (*SpaceUsageResponse, error) {
+	rsp, err := c.SpaceUsage(ctx, spaceID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -5265,22 +5265,22 @@ func ParseGetSpaceResponse(rsp *http.Response) (*GetSpaceResponse, error) {
 	return response, nil
 }
 
-// ParseListApiKeysResponse parses an HTTP response from a ListApiKeysWithResponse call
-func ParseListApiKeysResponse(rsp *http.Response) (*ListApiKeysResponse, error) {
+// ParseListAPIKeysResponse parses an HTTP response from a ListAPIKeysWithResponse call
+func ParseListAPIKeysResponse(rsp *http.Response) (*ListAPIKeysResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &ListApiKeysResponse{
+	response := &ListAPIKeysResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []ApiKey
+		var dest []APIKey
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -5298,22 +5298,22 @@ func ParseListApiKeysResponse(rsp *http.Response) (*ListApiKeysResponse, error) 
 	return response, nil
 }
 
-// ParseCreateApiKeyResponse parses an HTTP response from a CreateApiKeyWithResponse call
-func ParseCreateApiKeyResponse(rsp *http.Response) (*CreateApiKeyResponse, error) {
+// ParseCreateAPIKeyResponse parses an HTTP response from a CreateAPIKeyWithResponse call
+func ParseCreateAPIKeyResponse(rsp *http.Response) (*CreateAPIKeyResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &CreateApiKeyResponse{
+	response := &CreateAPIKeyResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest ApiKeyCredentials
+		var dest APIKeyCredentials
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -5331,15 +5331,15 @@ func ParseCreateApiKeyResponse(rsp *http.Response) (*CreateApiKeyResponse, error
 	return response, nil
 }
 
-// ParseDeleteApiKeyResponse parses an HTTP response from a DeleteApiKeyWithResponse call
-func ParseDeleteApiKeyResponse(rsp *http.Response) (*DeleteApiKeyResponse, error) {
+// ParseDeleteAPIKeyResponse parses an HTTP response from a DeleteAPIKeyWithResponse call
+func ParseDeleteAPIKeyResponse(rsp *http.Response) (*DeleteAPIKeyResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DeleteApiKeyResponse{
+	response := &DeleteAPIKeyResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

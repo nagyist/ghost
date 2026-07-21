@@ -133,7 +133,7 @@ func (m *Manager) LoadAll(ctx context.Context) {
 		if svc == nil {
 			continue // not ready, unreachable, or no @mcp functions
 		}
-		m.services[svc.database.Id] = svc
+		m.services[svc.database.ID] = svc
 		m.registerServiceTools(svc)
 	}
 }
@@ -166,7 +166,7 @@ func (m *Manager) Load(ctx context.Context, databaseRef string) ([]string, error
 	}
 	database := *resp.JSON200
 
-	svc, ok := m.services[database.Id]
+	svc, ok := m.services[database.ID]
 	if ok {
 		// Already loaded: re-introspect and swap the registered tools.
 		tools, err := introspect(ctx, m.logger.With(slog.String("database", svc.database.Name)), svc.pool)
@@ -190,7 +190,7 @@ func (m *Manager) Load(ctx context.Context, databaseRef string) ([]string, error
 			return nil, err
 		}
 
-		m.services[database.Id] = svc
+		m.services[database.ID] = svc
 		m.registerServiceTools(svc)
 	}
 
@@ -198,7 +198,7 @@ func (m *Manager) Load(ctx context.Context, databaseRef string) ([]string, error
 	// nothing for its connection to serve, so don't hold one open. A later
 	// Load simply reconnects.
 	if len(svc.toolNames) == 0 {
-		delete(m.services, database.Id)
+		delete(m.services, database.ID)
 		svc.pool.Close()
 	}
 
@@ -312,7 +312,7 @@ func (m *Manager) registerServiceTools(svc *service) {
 			continue
 		}
 		m.server.AddTool(def, handler)
-		m.toolNames[toolName] = svc.database.Id
+		m.toolNames[toolName] = svc.database.ID
 		svc.toolNames = append(svc.toolNames, toolName)
 
 		m.logger.Info("Registered function tool",
@@ -357,7 +357,7 @@ func listDatabases(ctx context.Context, client api.ClientWithResponsesInterface,
 	for i, d := range *resp.JSON200 {
 		databases[i] = api.Database{
 			Host:       d.Host,
-			Id:         d.Id,
+			ID:         d.ID,
 			Name:       d.Name,
 			Password:   d.Password,
 			Port:       d.Port,

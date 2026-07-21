@@ -13,10 +13,10 @@ func TestPricingCmd(t *testing.T) {
 	pricing := api.Pricing{
 		Dedicated: api.DedicatedPricing{
 			Compute: []api.ComputePrice{
-				{Size: "1x", MilliCpu: 500, MemoryGib: 2, PricePerHour: 0.0137, PricePerMonth: 10},
-				{Size: "2x", MilliCpu: 1000, MemoryGib: 4, PricePerHour: 0.0274, PricePerMonth: 20},
-				{Size: "4x", MilliCpu: 2000, MemoryGib: 8, PricePerHour: 0.0548, PricePerMonth: 40},
-				{Size: "8x", MilliCpu: 4000, MemoryGib: 16, PricePerHour: 0.1096, PricePerMonth: 80},
+				{Size: "1x", MilliCPU: 500, MemoryGib: 2, PricePerHour: 0.0137, PricePerMonth: 10},
+				{Size: "2x", MilliCPU: 1000, MemoryGib: 4, PricePerHour: 0.0274, PricePerMonth: 20},
+				{Size: "4x", MilliCPU: 2000, MemoryGib: 8, PricePerHour: 0.0548, PricePerMonth: 40},
+				{Size: "8x", MilliCPU: 4000, MemoryGib: 16, PricePerHour: 0.1096, PricePerMonth: 80},
 			},
 			Storage: api.StoragePrice{
 				PricePerGibHour:        0.0003424657534,

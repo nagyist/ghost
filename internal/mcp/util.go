@@ -23,7 +23,7 @@ const defaultRowLimit = 50
 
 // resolveDatabase fetches the database by ref (which may be a name or an id)
 // and returns it. Callers that need the canonical id (e.g. the web UI, which
-// selects the database by id and reflects it in the URL) read database.Id;
+// selects the database by id and reflects it in the URL) read database.ID;
 // callers that connect to the database can also run common.CheckReady on the
 // returned value before proceeding.
 func resolveDatabase(ctx context.Context, client api.ClientWithResponsesInterface, spaceID, databaseRef string) (api.Database, error) {

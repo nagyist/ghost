@@ -60,7 +60,7 @@ By default, you will be prompted to confirm, unless you use the --confirm flag.`
 
 			resp, err := client.CancelInviteWithResponse(
 				cmd.Context(),
-				api.SpaceId(spaceID),
+				api.SpaceID(spaceID),
 				api.InviteEmail(email),
 			)
 			if err != nil {

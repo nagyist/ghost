@@ -16,7 +16,7 @@ func TestShareRevokeCmd(t *testing.T) {
 
 	revoked := api.DatabaseShare{
 		ShareToken:   "tok_xyz",
-		DatabaseId:   "abc1234567",
+		DatabaseID:   "abc1234567",
 		DatabaseName: "mydb",
 		CreatedAt:    createdAt,
 		RevokedAt:    &revokedAt,

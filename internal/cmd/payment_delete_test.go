@@ -11,7 +11,7 @@ import (
 
 func TestPaymentDeleteCmd(t *testing.T) {
 	pm := api.PaymentMethod{
-		Id: "pm_123", Brand: "Visa", Last4: "4242", ExpMonth: 12, ExpYear: 2025, Primary: true,
+		ID: "pm_123", Brand: "Visa", Last4: "4242", ExpMonth: 12, ExpYear: 2025, Primary: true,
 	}
 
 	setupGet := func(m *mock.MockClientWithResponsesInterface) {

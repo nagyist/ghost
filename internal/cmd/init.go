@@ -278,8 +278,8 @@ func detectLoginState(ctx context.Context, app *common.App) initStepState {
 	email := ""
 	if resp.JSON200.User != nil {
 		email = resp.JSON200.User.Email
-	} else if resp.JSON200.ApiKey != nil {
-		email = resp.JSON200.ApiKey.UserEmail
+	} else if resp.JSON200.APIKey != nil {
+		email = resp.JSON200.APIKey.UserEmail
 	}
 	if email != "" {
 		state.status = "already configured (" + email + ")"

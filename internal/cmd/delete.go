@@ -60,7 +60,7 @@ the deletion, unless you use the --confirm flag.`,
 				if !util.IsTerminal(cmd.InOrStdin()) {
 					return errors.New("cannot prompt for confirmation: stdin is not a terminal; use --confirm to skip")
 				}
-				cmd.PrintErrf("Delete '%s' (%s)? This cannot be undone. [y/N] ", database.Name, database.Id)
+				cmd.PrintErrf("Delete '%s' (%s)? This cannot be undone. [y/N] ", database.Name, database.ID)
 
 				confirmation, err := util.ReadLine(cmd.Context(), cmd.InOrStdin())
 				if err != nil {
@@ -77,8 +77,8 @@ the deletion, unless you use the --confirm flag.`,
 			// Make the delete request using the resolved ID
 			resp, err := client.DeleteDatabaseWithResponse(
 				cmd.Context(),
-				api.SpaceId(spaceID),
-				api.DatabaseRef(database.Id),
+				api.SpaceID(spaceID),
+				api.DatabaseRef(database.ID),
 			)
 			if err != nil {
 				return fmt.Errorf("failed to delete database: %w", err)
@@ -94,7 +94,7 @@ the deletion, unless you use the --confirm flag.`,
 				cmd.PrintErrf("Warning: failed to remove .pgpass entry: %v\n", err)
 			}
 
-			cmd.Printf("Deleted '%s' (%s)\n", database.Name, database.Id)
+			cmd.Printf("Deleted '%s' (%s)\n", database.Name, database.ID)
 			return nil
 		},
 	}

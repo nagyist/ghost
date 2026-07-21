@@ -36,7 +36,7 @@ func TestInviteCmd(t *testing.T) {
 		m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
-				JSON200:      &api.SpaceDetail{Id: "test-space", Name: "Test Space"},
+				JSON200:      &api.SpaceDetail{ID: "test-space", Name: "Test Space"},
 			}, nil)
 	}
 

@@ -59,10 +59,10 @@ func buildSpaceListCmd(app *common.App) *cobra.Command {
 			output := make([]Space, len(spaces))
 			for i, s := range spaces {
 				output[i] = Space{
-					ID:      s.Id,
+					ID:      s.ID,
 					Name:    s.Name,
 					Role:    util.Deref(s.Role),
-					Current: s.Id == spaceID,
+					Current: s.ID == spaceID,
 				}
 			}
 

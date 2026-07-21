@@ -88,8 +88,8 @@ func (s *Server) handleRename(ctx context.Context, req *mcp.CallToolRequest, inp
 
 	resp, err := client.RenameDatabaseWithResponse(
 		ctx,
-		api.SpaceId(spaceID),
-		api.DatabaseRef(database.Id),
+		api.SpaceID(spaceID),
+		api.DatabaseRef(database.ID),
 		api.RenameDatabaseRequest{Name: input.Name},
 	)
 	if err != nil {
@@ -102,7 +102,7 @@ func (s *Server) handleRename(ctx context.Context, req *mcp.CallToolRequest, inp
 
 	return nil, RenameOutput{
 		Success: true,
-		ID:      database.Id,
+		ID:      database.ID,
 		OldName: database.Name,
 		Name:    input.Name,
 	}, nil

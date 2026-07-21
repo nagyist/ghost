@@ -64,7 +64,7 @@ default, you will be prompted to confirm, unless you use the --confirm flag.`,
 				}
 			}
 
-			resp, err := client.DeclineInviteWithResponse(cmd.Context(), api.SpaceId(spaceID))
+			resp, err := client.DeclineInviteWithResponse(cmd.Context(), api.SpaceID(spaceID))
 			if err != nil {
 				return fmt.Errorf("failed to decline invitation: %w", err)
 			}
@@ -101,7 +101,7 @@ func findReceivedInvite(ctx context.Context, client api.ClientWithResponsesInter
 	}
 
 	for _, invitation := range *resp.JSON200 {
-		if invitation.SpaceId == spaceID {
+		if invitation.SpaceID == spaceID {
 			return &invitation, nil
 		}
 	}

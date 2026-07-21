@@ -83,7 +83,7 @@ func outputPaymentMethods(w io.Writer, methods []api.PaymentMethod) error {
 		if pm.PendingDeletion {
 			pendingDeletion = "yes"
 		}
-		table.Append(pm.Id, pm.Brand, pm.Last4, expires, primary, pendingDeletion)
+		table.Append(pm.ID, pm.Brand, pm.Last4, expires, primary, pendingDeletion)
 	}
 
 	return table.Render()

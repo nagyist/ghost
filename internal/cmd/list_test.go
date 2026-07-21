@@ -14,23 +14,23 @@ func TestListCmd(t *testing.T) {
 	standardDbs := []api.DatabaseWithUsage{
 		sampleDatabaseWithUsage(),
 		sampleDatabaseWithUsage(func(db *api.DatabaseWithUsage) {
-			db.Id = "def4567890"
+			db.ID = "def4567890"
 			db.Name = "otherdb"
 			db.Status = api.DatabaseStatusPaused
 			db.ComputeMinutes = new(int64(0))
 		}),
 		sampleDatabaseWithUsage(func(db *api.DatabaseWithUsage) {
-			db.Id = "ghi7890123"
+			db.ID = "ghi7890123"
 			db.Name = "newdb"
 			db.ComputeMinutes = nil
 		}),
 	}
 
 	dedicatedDb := sampleDatabaseWithUsage(func(db *api.DatabaseWithUsage) {
-		db.Id = "ded1234567"
+		db.ID = "ded1234567"
 		db.Name = "dedicateddb"
 		db.Type = api.DatabaseTypeDedicated
-		db.Size = new(api.DatabaseSizeN2x)
+		db.Size = new(api.DatabaseSizeN2X)
 		db.ComputeMinutes = nil
 	})
 

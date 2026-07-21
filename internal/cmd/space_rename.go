@@ -31,7 +31,7 @@ func buildSpaceRenameCmd(app *common.App) *cobra.Command {
 
 			resp, err := client.RenameSpaceWithResponse(
 				cmd.Context(),
-				api.SpaceId(spaceID),
+				api.SpaceID(spaceID),
 				api.RenameSpaceRequest{Name: newName},
 			)
 			if err != nil {
@@ -45,7 +45,7 @@ func buildSpaceRenameCmd(app *common.App) *cobra.Command {
 			}
 
 			result := resp.JSON200
-			cmd.Printf("Renamed space '%s' (%s) to '%s'\n", result.OldName, result.Id, result.NewName)
+			cmd.Printf("Renamed space '%s' (%s) to '%s'\n", result.OldName, result.ID, result.NewName)
 			return nil
 		},
 	}

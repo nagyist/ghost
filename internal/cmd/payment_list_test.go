@@ -12,8 +12,8 @@ import (
 func TestPaymentListCmd(t *testing.T) {
 	methods := api.PaymentMethodsResponse{
 		PaymentMethods: []api.PaymentMethod{
-			{Id: "pm_123", Brand: "Visa", Last4: "4242", ExpMonth: 12, ExpYear: 2025, Primary: true},
-			{Id: "pm_456", Brand: "Mastercard", Last4: "5555", ExpMonth: 6, ExpYear: 2026, PendingDeletion: true},
+			{ID: "pm_123", Brand: "Visa", Last4: "4242", ExpMonth: 12, ExpYear: 2025, Primary: true},
+			{ID: "pm_456", Brand: "Mastercard", Last4: "5555", ExpMonth: 6, ExpYear: 2026, PendingDeletion: true},
 		},
 	}
 

@@ -238,7 +238,7 @@ func (h *Handler) databasesHandler(w http.ResponseWriter, r *http.Request) {
 	databases := make([]Database, len(*resp.JSON200))
 	for i, db := range *resp.JSON200 {
 		databases[i] = Database{
-			ID:     db.Id,
+			ID:     db.ID,
 			Name:   db.Name,
 			Status: string(db.Status),
 			Type:   string(db.Type),
@@ -852,7 +852,7 @@ func (h *Handler) connectionStringForService(ctx context.Context, serviceID stri
 	password, err := common.GetPassword(database, defaultRole)
 	if err != nil {
 		if errors.Is(err, common.ErrPasswordNotFound) {
-			return "", connectErr("no password found for database %s; run `ghost password %s` or add an entry to ~/.pgpass", database.Name, database.Id)
+			return "", connectErr("no password found for database %s; run `ghost password %s` or add an entry to ~/.pgpass", database.Name, database.ID)
 		}
 		return "", connectErr("retrieving password: %v", err)
 	}

@@ -17,7 +17,7 @@ func TestInviteDeclineCmd(t *testing.T) {
 	setupList := func(m *mock.MockClientWithResponsesInterface) {
 		invitations := []api.ReceivedInvite{
 			{
-				SpaceId:      "space-abc",
+				SpaceID:      "space-abc",
 				SpaceName:    "Alice's space",
 				InviterEmail: "alice@example.com",
 				InviterName:  "Alice Smith",
@@ -32,8 +32,8 @@ func TestInviteDeclineCmd(t *testing.T) {
 			}, nil)
 	}
 	setupDecline := func(m *mock.MockClientWithResponsesInterface) {
-		result := api.InviteActionResult{SpaceId: "space-abc", SpaceName: "Alice's space"}
-		m.EXPECT().DeclineInviteWithResponse(validCtx, api.SpaceId("space-abc")).
+		result := api.InviteActionResult{SpaceID: "space-abc", SpaceName: "Alice's space"}
+		m.EXPECT().DeclineInviteWithResponse(validCtx, api.SpaceID("space-abc")).
 			Return(&api.DeclineInviteResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &result,
@@ -85,7 +85,7 @@ func TestInviteDeclineCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
-				m.EXPECT().DeclineInviteWithResponse(validCtx, api.SpaceId("space-abc")).
+				m.EXPECT().DeclineInviteWithResponse(validCtx, api.SpaceID("space-abc")).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to decline invitation: connection refused",
@@ -96,7 +96,7 @@ func TestInviteDeclineCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
-				m.EXPECT().DeclineInviteWithResponse(validCtx, api.SpaceId("space-abc")).
+				m.EXPECT().DeclineInviteWithResponse(validCtx, api.SpaceID("space-abc")).
 					Return(&api.DeclineInviteResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,

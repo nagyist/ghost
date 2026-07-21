@@ -79,7 +79,7 @@ func outputReceivedInvites(w io.Writer, invites []api.ReceivedInvite) error {
 		if from == "" {
 			from = inv.InviterName
 		}
-		table.Append(inv.SpaceId, inv.SpaceName, from, string(inv.Role), inv.CreatedAt.Format(time.RFC3339))
+		table.Append(inv.SpaceID, inv.SpaceName, from, string(inv.Role), inv.CreatedAt.Format(time.RFC3339))
 	}
 	return table.Render()
 }

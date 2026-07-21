@@ -32,7 +32,7 @@ func buildPauseCmd(app *common.App) *cobra.Command {
 			// Make the pause request
 			resp, err := client.PauseDatabaseWithResponse(
 				cmd.Context(),
-				api.SpaceId(spaceID),
+				api.SpaceID(spaceID),
 				api.DatabaseRef(databaseRef),
 			)
 			if err != nil {
@@ -49,7 +49,7 @@ func buildPauseCmd(app *common.App) *cobra.Command {
 			}
 			database := *resp.JSON202
 
-			cmd.Printf("Pausing '%s' (%s)...\n", database.Name, database.Id)
+			cmd.Printf("Pausing '%s' (%s)...\n", database.Name, database.ID)
 
 			return nil
 		},

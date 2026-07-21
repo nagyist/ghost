@@ -133,7 +133,7 @@ func (s *Server) handleVisualizeQuery(ctx context.Context, input VisualizeInput)
 
 	var result visualizeResult
 	if err := s.browser.request(ctx, commandVisualize, visualizeCommand{
-		DatabaseRef: database.Id,
+		DatabaseRef: database.ID,
 		SQL:         input.SQL,
 		ChartConfig: input.ChartConfig,
 		Limit:       input.Limit,

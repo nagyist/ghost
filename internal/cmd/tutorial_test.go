@@ -19,12 +19,12 @@ func TestTutorialCmd(t *testing.T) {
 
 	setupSuccessfulTutorial := func(m *mock.MockClientWithResponsesInterface, includeDeletes bool) {
 		originalDatabase := sampleDatabase(func(db *api.Database) {
-			db.Id = "orig1234567"
+			db.ID = "orig1234567"
 			db.Name = "tutorial-test"
 			db.Password = &password
 		})
 		forkDatabase := sampleDatabase(func(db *api.Database) {
-			db.Id = "fork1234567"
+			db.ID = "fork1234567"
 			db.Name = "tutorial-test-fork"
 			db.Password = &password
 		})
@@ -194,7 +194,7 @@ func TestTutorialCmd(t *testing.T) {
 
 	setupCancelDuringCreate := func(m *mock.MockClientWithResponsesInterface, includeCleanupDelete bool) {
 		originalDatabase := sampleDatabase(func(db *api.Database) {
-			db.Id = "orig1234567"
+			db.ID = "orig1234567"
 			db.Name = "tutorial-test"
 			db.Password = &password
 		})

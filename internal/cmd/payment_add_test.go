@@ -58,7 +58,7 @@ func TestPaymentAddCmd(t *testing.T) {
 				m.EXPECT().CreatePaymentMethodSetupWithResponse(validCtx, "test-space").
 					Return(&api.CreatePaymentMethodSetupResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
-						JSON200:      &api.PaymentSetupResponse{PaymentUrl: "/pay/123"},
+						JSON200:      &api.PaymentSetupResponse{PaymentURL: "/pay/123"},
 					}, nil)
 			},
 			wantStdout: "Opening browser to add payment method...\nComplete the payment form in your browser.\n",
@@ -71,7 +71,7 @@ func TestPaymentAddCmd(t *testing.T) {
 				m.EXPECT().CreatePaymentMethodSetupWithResponse(validCtx, "test-space").
 					Return(&api.CreatePaymentMethodSetupResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
-						JSON200:      &api.PaymentSetupResponse{PaymentUrl: "/pay/123"},
+						JSON200:      &api.PaymentSetupResponse{PaymentURL: "/pay/123"},
 					}, nil)
 			},
 			wantStdout: "Opening browser to add payment method...\nComplete the payment form in your browser.\n",

@@ -21,8 +21,8 @@ func TestInviteAcceptCmd(t *testing.T) {
 	}
 
 	setupAccept := func(m *mock.MockClientWithResponsesInterface) {
-		result := api.InviteActionResult{SpaceId: "space-abc", SpaceName: "New Space"}
-		m.EXPECT().AcceptInviteWithResponse(validCtx, api.SpaceId("space-abc")).
+		result := api.InviteActionResult{SpaceID: "space-abc", SpaceName: "New Space"}
+		m.EXPECT().AcceptInviteWithResponse(validCtx, api.SpaceID("space-abc")).
 			Return(&api.AcceptInviteResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200:      &result,
@@ -55,7 +55,7 @@ func TestInviteAcceptCmd(t *testing.T) {
 			args: []string{"invite", "accept", "space-abc"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().AcceptInviteWithResponse(validCtx, api.SpaceId("space-abc")).
+				m.EXPECT().AcceptInviteWithResponse(validCtx, api.SpaceID("space-abc")).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to accept invitation: connection refused",
@@ -65,7 +65,7 @@ func TestInviteAcceptCmd(t *testing.T) {
 			args: []string{"invite", "accept", "space-abc"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().AcceptInviteWithResponse(validCtx, api.SpaceId("space-abc")).
+				m.EXPECT().AcceptInviteWithResponse(validCtx, api.SpaceID("space-abc")).
 					Return(&api.AcceptInviteResponse{
 						HTTPResponse: httpResponse(http.StatusNotFound),
 						JSONDefault:  &api.Error{Message: "no pending invitation with that ID was found"},
@@ -78,7 +78,7 @@ func TestInviteAcceptCmd(t *testing.T) {
 			args: []string{"invite", "accept", "space-abc"},
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().AcceptInviteWithResponse(validCtx, api.SpaceId("space-abc")).
+				m.EXPECT().AcceptInviteWithResponse(validCtx, api.SpaceID("space-abc")).
 					Return(&api.AcceptInviteResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,

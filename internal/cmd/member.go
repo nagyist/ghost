@@ -36,7 +36,7 @@ to remove a member from the space.`,
 // findMemberByEmail resolves an email address to a member of the space by
 // listing the space's members. Emails are matched case-insensitively.
 func findMemberByEmail(ctx context.Context, client api.ClientWithResponsesInterface, spaceID, email string) (*api.Member, error) {
-	resp, err := client.ListMembersWithResponse(ctx, api.SpaceId(spaceID))
+	resp, err := client.ListMembersWithResponse(ctx, api.SpaceID(spaceID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to list members: %w", err)
 	}

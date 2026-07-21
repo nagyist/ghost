@@ -36,7 +36,7 @@ func buildMemberListCmd(app *common.App) *cobra.Command {
 				return err
 			}
 
-			resp, err := client.ListMembersWithResponse(cmd.Context(), api.SpaceId(spaceID))
+			resp, err := client.ListMembersWithResponse(cmd.Context(), api.SpaceID(spaceID))
 			if err != nil {
 				return fmt.Errorf("failed to list members: %w", err)
 			}

@@ -17,7 +17,7 @@ func TestUsageCmd(t *testing.T) {
 		m.EXPECT().GetSpaceWithResponse(validCtx, id).
 			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
-				JSON200:      &api.SpaceDetail{Id: id, Name: name},
+				JSON200:      &api.SpaceDetail{ID: id, Name: name},
 			}, nil).AnyTimes()
 	}
 
@@ -37,7 +37,7 @@ func TestUsageCmd(t *testing.T) {
 		databases := []api.DatabaseWithUsage{
 			sampleDatabaseWithUsage(),
 			sampleDatabaseWithUsage(func(db *api.DatabaseWithUsage) {
-				db.Id = "def4567890"
+				db.ID = "def4567890"
 				db.Name = "otherdb"
 				db.Status = api.DatabaseStatusPaused
 			}),

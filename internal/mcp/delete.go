@@ -87,8 +87,8 @@ func (s *Server) handleDelete(ctx context.Context, req *mcp.CallToolRequest, inp
 	// Make the delete request using the resolved ID (no confirmation prompt for MCP - agents handle this)
 	resp, err := client.DeleteDatabaseWithResponse(
 		ctx,
-		api.SpaceId(spaceID),
-		api.DatabaseRef(database.Id),
+		api.SpaceID(spaceID),
+		api.DatabaseRef(database.ID),
 	)
 	if err != nil {
 		return nil, DeleteOutput{}, fmt.Errorf("failed to delete database: %w", err)
@@ -107,7 +107,7 @@ func (s *Server) handleDelete(ctx context.Context, req *mcp.CallToolRequest, inp
 
 	return nil, DeleteOutput{
 		Success:  true,
-		ID:       database.Id,
+		ID:       database.ID,
 		Name:     database.Name,
 		Warnings: warnings,
 	}, nil

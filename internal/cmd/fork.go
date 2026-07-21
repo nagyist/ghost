@@ -111,11 +111,11 @@ func forkDatabase(cmd *cobra.Command, app *common.App, args forkDatabaseArgs) er
 
 	// Check if the source database is ready
 	if err := common.CheckReady(sourceDatabase); err != nil {
-		return handleDatabaseError(err, sourceDatabase.Id)
+		return handleDatabaseError(err, sourceDatabase.ID)
 	}
 
 	// Make API call to fork database
-	forkResp, err := client.ForkDatabaseWithResponse(cmd.Context(), spaceID, sourceDatabase.Id, args.req)
+	forkResp, err := client.ForkDatabaseWithResponse(cmd.Context(), spaceID, sourceDatabase.ID, args.req)
 	if err != nil {
 		return fmt.Errorf("failed to fork database: %w", err)
 	}
@@ -160,7 +160,7 @@ func forkDatabase(cmd *cobra.Command, app *common.App, args forkDatabaseArgs) er
 	output := DatabaseForkOutput{
 		SourceName: sourceDatabase.Name,
 		Name:       forkedDatabase.Name,
-		ID:         forkedDatabase.Id,
+		ID:         forkedDatabase.ID,
 		Size:       util.DerefStr(args.req.Size), // TODO: use API response size when available
 		Connection: connStr,
 		Type:       forkedDatabase.Type,
@@ -187,7 +187,7 @@ func forkDatabase(cmd *cobra.Command, app *common.App, args forkDatabaseArgs) er
 	return common.WaitForDatabaseWithProgress(cmd.Context(), cmd.InOrStdin(), cmd.ErrOrStderr(), common.WaitForDatabaseArgs{
 		Client:      client,
 		SpaceID:     spaceID,
-		DatabaseRef: forkedDatabase.Id,
+		DatabaseRef: forkedDatabase.ID,
 	})
 }
 

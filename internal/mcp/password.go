@@ -106,7 +106,7 @@ func (s *Server) handlePassword(ctx context.Context, req *mcp.CallToolRequest, i
 
 	// Update the password via API
 	updateReq := api.UpdatePasswordRequest{Password: password}
-	resp, err := client.UpdatePasswordWithResponse(ctx, spaceID, database.Id, updateReq)
+	resp, err := client.UpdatePasswordWithResponse(ctx, spaceID, database.ID, updateReq)
 	if err != nil {
 		return nil, PasswordOutput{}, fmt.Errorf("failed to update password: %w", err)
 	}
@@ -132,7 +132,7 @@ func (s *Server) handlePassword(ctx context.Context, req *mcp.CallToolRequest, i
 	}
 
 	return nil, PasswordOutput{
-		ID:               database.Id,
+		ID:               database.ID,
 		Name:             database.Name,
 		Password:         password,
 		ConnectionString: connStr,

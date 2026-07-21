@@ -92,7 +92,7 @@ func (s *Server) handleList(ctx context.Context, req *mcp.CallToolRequest, input
 	output := make([]DatabaseInfo, len(databases))
 	for i, database := range databases {
 		output[i] = DatabaseInfo{
-			ID:             database.Id,
+			ID:             database.ID,
 			Name:           database.Name,
 			Type:           database.Type,
 			Size:           database.Size,

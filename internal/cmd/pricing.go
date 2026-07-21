@@ -89,7 +89,7 @@ is included; $%.6f/GiB/hour ($%.2f/GiB/month) above that.
 	for _, c := range pricing.Dedicated.Compute {
 		table.Append(
 			string(c.Size),
-			fmt.Sprintf("%.1f", float64(c.MilliCpu)/1000),
+			fmt.Sprintf("%.1f", float64(c.MilliCPU)/1000),
 			fmt.Sprintf("%d GiB", c.MemoryGib),
 			fmt.Sprintf("$%.4f", c.PricePerHour),
 			fmt.Sprintf("$%.2f", c.PricePerMonth),

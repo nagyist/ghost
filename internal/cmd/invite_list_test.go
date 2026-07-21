@@ -27,7 +27,7 @@ func TestInviteListCmd(t *testing.T) {
 	setupReceived := func(m *mock.MockClientWithResponsesInterface) {
 		invitations := []api.ReceivedInvite{
 			{
-				SpaceId:      "space-abc",
+				SpaceID:      "space-abc",
 				SpaceName:    "Alice's space",
 				InviterEmail: "alice@example.com",
 				InviterName:  "Alice Smith",
@@ -46,7 +46,7 @@ func TestInviteListCmd(t *testing.T) {
 		m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
-				JSON200:      &api.SpaceDetail{Id: "test-space", Name: "Test Space"},
+				JSON200:      &api.SpaceDetail{ID: "test-space", Name: "Test Space"},
 			}, nil)
 	}
 	setupSentEmpty := func(m *mock.MockClientWithResponsesInterface) {

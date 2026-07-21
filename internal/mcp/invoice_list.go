@@ -88,7 +88,7 @@ func (s *Server) handleInvoiceList(ctx context.Context, req *mcp.CallToolRequest
 	}
 	for i, inv := range invoices {
 		output.Invoices[i] = InvoiceSummary{
-			ID:            inv.Id,
+			ID:            inv.ID,
 			InvoiceNumber: inv.InvoiceNumber,
 			InvoiceDate:   inv.InvoiceDate,
 			Total:         inv.Total,

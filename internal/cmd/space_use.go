@@ -62,12 +62,12 @@ to see your spaces and their IDs.`,
 			}
 			space := resp.JSON200
 
-			creds.SpaceID = space.Id
+			creds.SpaceID = space.ID
 			if err := cfg.StoreCredentials(creds); err != nil {
 				return fmt.Errorf("failed to store credentials: %w", err)
 			}
 
-			cmd.Printf("Switched to space '%s' (%s)\n", space.Name, space.Id)
+			cmd.Printf("Switched to space '%s' (%s)\n", space.Name, space.ID)
 			return nil
 		},
 	}

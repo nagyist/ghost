@@ -25,7 +25,7 @@ func TestSpaceUseCmd(t *testing.T) {
 		m.EXPECT().GetSpaceWithResponse(validCtx, id).
 			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
-				JSON200:      &api.SpaceDetail{Id: id, Name: name},
+				JSON200:      &api.SpaceDetail{ID: id, Name: name},
 			}, nil)
 	}
 	// setupGetSpaceNotFound mocks a 404 for the requested space.

@@ -11,7 +11,7 @@ import (
 )
 
 func TestApiKeyListCmd(t *testing.T) {
-	keys := []api.ApiKey{
+	keys := []api.APIKey{
 		{Prefix: "gt_abc", Name: "My Key", CreatedAt: time.Date(2024, 1, 15, 10, 30, 0, 0, time.UTC)},
 	}
 
@@ -26,7 +26,7 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "network error",
 			args: []string{"api-key", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
+				m.EXPECT().ListAPIKeysWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to list API keys: connection refused",
@@ -35,8 +35,8 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "API error",
 			args: []string{"api-key", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
-					Return(&api.ListApiKeysResponse{
+				m.EXPECT().ListAPIKeysWithResponse(validCtx, "test-space").
+					Return(&api.ListAPIKeysResponse{
 						HTTPResponse: httpResponse(http.StatusInternalServerError),
 						JSONDefault:  &api.Error{Message: "internal error"},
 					}, nil)
@@ -47,8 +47,8 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "nil response body",
 			args: []string{"api-key", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
-					Return(&api.ListApiKeysResponse{
+				m.EXPECT().ListAPIKeysWithResponse(validCtx, "test-space").
+					Return(&api.ListAPIKeysResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,
 					}, nil)
@@ -59,9 +59,9 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "empty list",
 			args: []string{"api-key", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				empty := []api.ApiKey{}
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
-					Return(&api.ListApiKeysResponse{
+				empty := []api.APIKey{}
+				m.EXPECT().ListAPIKeysWithResponse(validCtx, "test-space").
+					Return(&api.ListAPIKeysResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &empty,
 					}, nil)
@@ -72,8 +72,8 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "text output",
 			args: []string{"api-key", "list"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
-					Return(&api.ListApiKeysResponse{
+				m.EXPECT().ListAPIKeysWithResponse(validCtx, "test-space").
+					Return(&api.ListAPIKeysResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &keys,
 					}, nil)
@@ -85,8 +85,8 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "json output",
 			args: []string{"api-key", "list", "--json"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
-					Return(&api.ListApiKeysResponse{
+				m.EXPECT().ListAPIKeysWithResponse(validCtx, "test-space").
+					Return(&api.ListAPIKeysResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &keys,
 					}, nil)
@@ -104,8 +104,8 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "yaml output",
 			args: []string{"api-key", "list", "--yaml"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
-					Return(&api.ListApiKeysResponse{
+				m.EXPECT().ListAPIKeysWithResponse(validCtx, "test-space").
+					Return(&api.ListAPIKeysResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &keys,
 					}, nil)
@@ -119,8 +119,8 @@ func TestApiKeyListCmd(t *testing.T) {
 			name: "ls alias",
 			args: []string{"api-key", "ls"},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
-				m.EXPECT().ListApiKeysWithResponse(validCtx, "test-space").
-					Return(&api.ListApiKeysResponse{
+				m.EXPECT().ListAPIKeysWithResponse(validCtx, "test-space").
+					Return(&api.ListAPIKeysResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      &keys,
 					}, nil)

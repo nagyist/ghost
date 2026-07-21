@@ -60,7 +60,7 @@ func toShareOutput(s api.DatabaseShare, baseURL string, now time.Time) (ShareOut
 	return ShareOutput{
 		URL:          u,
 		ShareToken:   s.ShareToken,
-		DatabaseID:   s.DatabaseId,
+		DatabaseID:   s.DatabaseID,
 		DatabaseName: s.DatabaseName,
 		Status:       shareStatus(s, now),
 		CreatedAt:    s.CreatedAt,
@@ -120,7 +120,7 @@ func (s *Server) handleShare(ctx context.Context, req *mcp.CallToolRequest, inpu
 		return nil, ShareOutput{}, handleDatabaseError(err)
 	}
 
-	resp, err := client.ShareDatabaseWithResponse(ctx, spaceID, database.Id, api.ShareDatabaseJSONRequestBody{
+	resp, err := client.ShareDatabaseWithResponse(ctx, spaceID, database.ID, api.ShareDatabaseJSONRequestBody{
 		ExpiresAt: expiresAt,
 	})
 	if err != nil {

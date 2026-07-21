@@ -64,7 +64,7 @@ func (s *Server) handleAPIKeyDelete(ctx context.Context, req *mcp.CallToolReques
 		return nil, APIKeyDeleteOutput{}, err
 	}
 
-	resp, err := client.DeleteApiKeyWithResponse(ctx, spaceID, api.ApiKeyPrefix(input.Prefix))
+	resp, err := client.DeleteAPIKeyWithResponse(ctx, spaceID, api.APIKeyPrefix(input.Prefix))
 	if err != nil {
 		return nil, APIKeyDeleteOutput{}, fmt.Errorf("failed to delete API key: %w", err)
 	}

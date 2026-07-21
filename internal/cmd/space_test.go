@@ -18,11 +18,11 @@ func TestSpaceCmd(t *testing.T) {
 			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200: &api.SpaceDetail{
-					Id:   "test-space",
+					ID:   "test-space",
 					Name: "Test Space",
 					Role: new(api.MemberRoleDeveloper),
 					Owner: &api.Member{
-						UserId: 42,
+						UserID: 42,
 						Name:   "Jane Doe",
 						Email:  "jane@example.com",
 						Role:   api.MemberRoleOwner,
@@ -37,7 +37,7 @@ func TestSpaceCmd(t *testing.T) {
 			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200: &api.SpaceDetail{
-					Id:   "test-space",
+					ID:   "test-space",
 					Name: "Test Space",
 				},
 			}, nil)

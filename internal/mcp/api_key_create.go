@@ -74,7 +74,7 @@ func (s *Server) handleAPIKeyCreate(ctx context.Context, req *mcp.CallToolReques
 		}
 	}
 
-	resp, err := client.CreateApiKeyWithResponse(ctx, spaceID, api.CreateApiKeyJSONRequestBody{Name: name})
+	resp, err := client.CreateAPIKeyWithResponse(ctx, spaceID, api.CreateAPIKeyJSONRequestBody{Name: name})
 	if err != nil {
 		return nil, APIKeyCreateOutput{}, fmt.Errorf("failed to create API key: %w", err)
 	}
@@ -87,6 +87,6 @@ func (s *Server) handleAPIKeyCreate(ctx context.Context, req *mcp.CallToolReques
 
 	return nil, APIKeyCreateOutput{
 		Name:   name,
-		APIKey: resp.JSON201.ApiKey,
+		APIKey: resp.JSON201.APIKey,
 	}, nil
 }

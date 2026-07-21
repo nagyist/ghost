@@ -70,7 +70,7 @@ func (s *Server) handlePause(ctx context.Context, req *mcp.CallToolRequest, inpu
 	// Make the pause request
 	resp, err := client.PauseDatabaseWithResponse(
 		ctx,
-		api.SpaceId(spaceID),
+		api.SpaceID(spaceID),
 		api.DatabaseRef(input.Ref),
 	)
 	if err != nil {
@@ -89,7 +89,7 @@ func (s *Server) handlePause(ctx context.Context, req *mcp.CallToolRequest, inpu
 
 	return nil, PauseOutput{
 		Success: true,
-		ID:      database.Id,
+		ID:      database.ID,
 		Name:    database.Name,
 	}, nil
 }

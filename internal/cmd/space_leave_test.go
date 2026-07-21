@@ -25,22 +25,22 @@ func TestSpaceLeaveCmd(t *testing.T) {
 		m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 			Return(&api.GetSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
-				JSON200:      &api.SpaceDetail{Id: "test-space", Name: "Test Space"},
+				JSON200:      &api.SpaceDetail{ID: "test-space", Name: "Test Space"},
 			}, nil)
 	}
 	// setupLeave mocks a successful leave of the current space.
 	setupLeave := func(m *mock.MockClientWithResponsesInterface) {
-		m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceId("test-space")).
+		m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceID("test-space")).
 			Return(&api.LeaveSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
-				JSON200:      &api.LeaveSpaceResult{SpaceId: "test-space", SpaceName: "Test Space"},
+				JSON200:      &api.LeaveSpaceResult{SpaceID: "test-space", SpaceName: "Test Space"},
 			}, nil)
 	}
 	// setupListOwned mocks the post-leave space list, returning the user's owned
 	// space so the command switches the current space to it.
 	setupListOwned := func(m *mock.MockClientWithResponsesInterface) {
 		ownerRole := api.MemberRoleOwner
-		spaces := []api.Space{{Id: "home-proj", Name: "My Space", Role: &ownerRole}}
+		spaces := []api.Space{{ID: "home-proj", Name: "My Space", Role: &ownerRole}}
 		m.EXPECT().ListSpacesWithResponse(validCtx).
 			Return(&api.ListSpacesResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
@@ -122,7 +122,7 @@ func TestSpaceLeaveCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpace(m)
-				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceId("test-space")).
+				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceID("test-space")).
 					Return(nil, errors.New("connection refused"))
 			},
 			wantErr: "failed to leave space: connection refused",
@@ -133,7 +133,7 @@ func TestSpaceLeaveCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpace(m)
-				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceId("test-space")).
+				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceID("test-space")).
 					Return(&api.LeaveSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusBadRequest),
 						JSONDefault:  &api.Error{Message: "the space owner cannot leave their own space"},
@@ -147,7 +147,7 @@ func TestSpaceLeaveCmd(t *testing.T) {
 			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpace(m)
-				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceId("test-space")).
+				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceID("test-space")).
 					Return(&api.LeaveSpaceResponse{
 						HTTPResponse: httpResponse(http.StatusOK),
 						JSON200:      nil,

@@ -142,7 +142,7 @@ func (s *Server) forkDatabase(ctx context.Context, args forkDatabaseArgs) (forkD
 		return forkDatabaseResult{}, errors.New("empty response from API")
 	}
 	database := *forkResp.JSON202
-	databaseID := database.Id
+	databaseID := database.ID
 
 	// Save password to .pgpass file
 	var warnings []string

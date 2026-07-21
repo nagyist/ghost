@@ -15,7 +15,7 @@ func TestForkCmd(t *testing.T) {
 	sourceDb := sampleDatabase()
 
 	forkedDb := sampleDatabase(func(db *api.Database) {
-		db.Id = "forked1234"
+		db.ID = "forked1234"
 		db.Name = "mydb-fork"
 		db.Host = "fork.example.com"
 		db.Password = &password

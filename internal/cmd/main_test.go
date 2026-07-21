@@ -262,7 +262,7 @@ func httpResponse(statusCode int) *http.Response {
 func sampleDatabase(overrides ...func(*api.Database)) api.Database {
 	storageMib := int64(1024)
 	db := api.Database{
-		Id:         "abc1234567",
+		ID:         "abc1234567",
 		Name:       "mydb",
 		Status:     api.DatabaseStatusRunning,
 		Type:       api.DatabaseTypeStandard,
@@ -281,7 +281,7 @@ func sampleDatabase(overrides ...func(*api.Database)) api.Database {
 func sampleDatabaseWithUsage(overrides ...func(*api.DatabaseWithUsage)) api.DatabaseWithUsage {
 	storageMib := int64(1024)
 	db := api.DatabaseWithUsage{
-		Id:             "abc1234567",
+		ID:             "abc1234567",
 		Name:           "mydb",
 		Status:         api.DatabaseStatusRunning,
 		Type:           api.DatabaseTypeStandard,

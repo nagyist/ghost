@@ -78,13 +78,13 @@ func outputID(cmd *cobra.Command, info *api.AuthInfo) {
 	case info.User != nil:
 		cmd.Printf("Type: OAuth\n")
 		cmd.Printf("User: %s (%s)\n", info.User.Name, info.User.Email)
-	case info.ApiKey != nil:
+	case info.APIKey != nil:
 		cmd.Printf("Type: API Key\n")
-		cmd.Printf("Name: %s\n", info.ApiKey.Name)
-		cmd.Printf("Prefix: %s\n", info.ApiKey.Prefix)
-		cmd.Printf("Space: %s (%s)\n", info.ApiKey.SpaceName, info.ApiKey.SpaceId)
-		cmd.Printf("User: %s (%s)\n", info.ApiKey.UserName, info.ApiKey.UserEmail)
-		cmd.Printf("Created: %s\n", info.ApiKey.CreatedAt)
+		cmd.Printf("Name: %s\n", info.APIKey.Name)
+		cmd.Printf("Prefix: %s\n", info.APIKey.Prefix)
+		cmd.Printf("Space: %s (%s)\n", info.APIKey.SpaceName, info.APIKey.SpaceID)
+		cmd.Printf("User: %s (%s)\n", info.APIKey.UserName, info.APIKey.UserEmail)
+		cmd.Printf("Created: %s\n", info.APIKey.CreatedAt)
 	default:
 		// No user or API key details (shouldn't happen for a valid response),
 		// but report the type so the output isn't empty.

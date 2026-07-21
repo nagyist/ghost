@@ -162,7 +162,7 @@ func createDatabase(cmd *cobra.Command, app *common.App, args createDatabaseArgs
 	// Convert to output format
 	output := DatabaseCreateOutput{
 		Name:       database.Name,
-		ID:         database.Id,
+		ID:         database.ID,
 		Size:       util.DerefStr(args.req.Size), // TODO: use API response size when available
 		Connection: connStr,
 		Type:       database.Type,
@@ -189,7 +189,7 @@ func createDatabase(cmd *cobra.Command, app *common.App, args createDatabaseArgs
 	return common.WaitForDatabaseWithProgress(cmd.Context(), cmd.InOrStdin(), cmd.ErrOrStderr(), common.WaitForDatabaseArgs{
 		Client:      client,
 		SpaceID:     spaceID,
-		DatabaseRef: database.Id,
+		DatabaseRef: database.ID,
 	})
 }
 

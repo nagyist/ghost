@@ -37,7 +37,7 @@ func buildResumeCmd(app *common.App) *cobra.Command {
 			// Make the resume request
 			resp, err := client.ResumeDatabaseWithResponse(
 				cmd.Context(),
-				api.SpaceId(spaceID),
+				api.SpaceID(spaceID),
 				api.DatabaseRef(databaseRef),
 			)
 			if err != nil {
@@ -57,7 +57,7 @@ func buildResumeCmd(app *common.App) *cobra.Command {
 			}
 			database := *resp.JSON202
 
-			cmd.Printf("Resuming '%s' (%s)...\n", database.Name, database.Id)
+			cmd.Printf("Resuming '%s' (%s)...\n", database.Name, database.ID)
 
 			// Get password for database
 			password, err := common.GetPassword(database, "tsdbadmin")
@@ -82,7 +82,7 @@ func buildResumeCmd(app *common.App) *cobra.Command {
 			return common.WaitForDatabaseWithProgress(cmd.Context(), cmd.InOrStdin(), cmd.ErrOrStderr(), common.WaitForDatabaseArgs{
 				Client:      client,
 				SpaceID:     spaceID,
-				DatabaseRef: database.Id,
+				DatabaseRef: database.ID,
 			})
 		},
 	}

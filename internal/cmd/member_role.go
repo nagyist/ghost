@@ -57,8 +57,8 @@ the owner's role cannot be changed.`,
 
 			resp, err := client.UpdateMemberRoleWithResponse(
 				cmd.Context(),
-				api.SpaceId(spaceID),
-				api.MemberUserId(member.UserId),
+				api.SpaceID(spaceID),
+				api.MemberUserID(member.UserID),
 				api.UpdateMemberRoleRequest{Role: api.MemberRole(role)},
 			)
 			if err != nil {

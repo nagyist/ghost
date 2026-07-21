@@ -59,7 +59,7 @@ Returns the most recent invoices.`,
 			output := make([]InvoiceOutput, len(invoices))
 			for i, inv := range invoices {
 				output[i] = InvoiceOutput{
-					ID:            inv.Id,
+					ID:            inv.ID,
 					InvoiceNumber: inv.InvoiceNumber,
 					InvoiceDate:   inv.InvoiceDate.Format("2006-01-02"),
 					Total:         inv.Total,

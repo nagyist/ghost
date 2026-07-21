@@ -55,7 +55,7 @@ invitations you've received across all spaces.`,
 
 			g, gctx := errgroup.WithContext(cmd.Context())
 			g.Go(func() error {
-				resp, err := client.ListInvitesWithResponse(gctx, api.SpaceId(spaceID))
+				resp, err := client.ListInvitesWithResponse(gctx, api.SpaceID(spaceID))
 				if err != nil {
 					return fmt.Errorf("failed to list sent invites: %w", err)
 				}

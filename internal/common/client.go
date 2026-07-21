@@ -88,7 +88,7 @@ func newAPIClient(ctx context.Context, cfg *config.Config) (api.ClientWithRespon
 		validatedAPIKeyCache[apiKeyEnv] = authInfo
 	}
 
-	return client, authInfo.ApiKey.SpaceId, nil
+	return client, authInfo.APIKey.SpaceID, nil
 }
 
 func refreshTokenIfNeeded(ctx context.Context, cfg *config.Config, token *oauth2.Token, spaceID string) (*oauth2.Token, error) {
@@ -163,10 +163,10 @@ func identifyWithAPIKey(ctx context.Context, cfg *config.Config, client api.Clie
 	authInfo := resp.JSON200
 
 	// Identify the user with analytics
-	a := analytics.New(cfg, client, authInfo.ApiKey.SpaceId)
+	a := analytics.New(cfg, client, authInfo.APIKey.SpaceID)
 	a.Identify(
-		analytics.Property("userId", authInfo.ApiKey.UserId),
-		analytics.Property("email", authInfo.ApiKey.UserEmail),
+		analytics.Property("userId", authInfo.APIKey.UserID),
+		analytics.Property("email", authInfo.APIKey.UserEmail),
 	)
 
 	return authInfo, nil

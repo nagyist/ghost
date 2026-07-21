@@ -439,7 +439,7 @@ func (m paymentInteractiveModel) refreshMethods() tea.Cmd {
 
 func (m paymentInteractiveModel) setPrimary(pm api.PaymentMethod) tea.Cmd {
 	return func() tea.Msg {
-		resp, err := m.client.SetPaymentMethodPrimaryWithResponse(m.ctx, m.spaceID, pm.Id)
+		resp, err := m.client.SetPaymentMethodPrimaryWithResponse(m.ctx, m.spaceID, pm.ID)
 		if err != nil {
 			return paymentActionResultMsg{err: fmt.Errorf("failed to set primary: %w", err)}
 		}
@@ -454,7 +454,7 @@ func (m paymentInteractiveModel) setPrimary(pm api.PaymentMethod) tea.Cmd {
 
 func (m paymentInteractiveModel) deletePaymentMethod(pm api.PaymentMethod) tea.Cmd {
 	return func() tea.Msg {
-		resp, err := m.client.DeletePaymentMethodWithResponse(m.ctx, m.spaceID, pm.Id)
+		resp, err := m.client.DeletePaymentMethodWithResponse(m.ctx, m.spaceID, pm.ID)
 		if err != nil {
 			return paymentActionResultMsg{err: fmt.Errorf("failed to delete: %w", err)}
 		}
@@ -469,7 +469,7 @@ func (m paymentInteractiveModel) deletePaymentMethod(pm api.PaymentMethod) tea.C
 
 func (m paymentInteractiveModel) cancelDeletion(pm api.PaymentMethod) tea.Cmd {
 	return func() tea.Msg {
-		resp, err := m.client.CancelPaymentMethodDeletionWithResponse(m.ctx, m.spaceID, pm.Id)
+		resp, err := m.client.CancelPaymentMethodDeletionWithResponse(m.ctx, m.spaceID, pm.ID)
 		if err != nil {
 			return paymentActionResultMsg{err: fmt.Errorf("failed to cancel deletion: %w", err)}
 		}
@@ -495,7 +495,7 @@ func (m paymentInteractiveModel) addPaymentMethod() tea.Cmd {
 			return paymentActionResultMsg{err: errors.New("empty response from API")}
 		}
 
-		paymentURL := m.apiURL + resp.JSON200.PaymentUrl
+		paymentURL := m.apiURL + resp.JSON200.PaymentURL
 		if err := common.OpenBrowser(paymentURL); err != nil {
 			return paymentActionResultMsg{
 				err: fmt.Errorf("could not open browser; visit %s manually", paymentURL),
@@ -573,7 +573,7 @@ func (m paymentInteractiveModel) renderCard(index int, pm api.PaymentMethod, sel
 
 	// Indent detail lines to align with the text after "N. "
 	padding := strings.Repeat(" ", len(indicator)+len(fmt.Sprintf("%d. ", index+1)))
-	s.WriteString("\n" + padding + subtleStyle.Render(fmt.Sprintf("Expires %02d/%d  %s", pm.ExpMonth, pm.ExpYear, pm.Id)))
+	s.WriteString("\n" + padding + subtleStyle.Render(fmt.Sprintf("Expires %02d/%d  %s", pm.ExpMonth, pm.ExpYear, pm.ID)))
 
 	return s.String()
 }

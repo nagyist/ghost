@@ -14,8 +14,8 @@ func TestMemberRemoveCmd(t *testing.T) {
 
 	setupList := func(m *mock.MockClientWithResponsesInterface) {
 		members := []api.Member{
-			{UserId: 101, Name: "Alice Smith", Email: "alice@example.com", Role: api.MemberRoleOwner},
-			{UserId: 102, Name: "Bob Jones", Email: "bob@example.com", Role: api.MemberRoleDeveloper},
+			{UserID: 101, Name: "Alice Smith", Email: "alice@example.com", Role: api.MemberRoleOwner},
+			{UserID: 102, Name: "Bob Jones", Email: "bob@example.com", Role: api.MemberRoleDeveloper},
 		}
 		m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 			Return(&api.ListMembersResponse{
@@ -24,7 +24,7 @@ func TestMemberRemoveCmd(t *testing.T) {
 			}, nil)
 	}
 	setupRemove := func(m *mock.MockClientWithResponsesInterface) {
-		removed := api.Member{UserId: 102, Name: "Bob Jones", Email: "bob@example.com", Role: api.MemberRoleDeveloper}
+		removed := api.Member{UserID: 102, Name: "Bob Jones", Email: "bob@example.com", Role: api.MemberRoleDeveloper}
 		m.EXPECT().RemoveMemberWithResponse(validCtx, "test-space", int64(102)).
 			Return(&api.RemoveMemberResponse{
 				HTTPResponse: httpResponse(http.StatusOK),

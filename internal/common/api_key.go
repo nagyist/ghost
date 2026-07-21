@@ -33,9 +33,9 @@ func DefaultAPIKeyName(ctx context.Context, client api.ClientWithResponsesInterf
 		if authInfo.User != nil {
 			userName = authInfo.User.Name
 		}
-	case api.AuthInfoTypeApiKey:
-		if authInfo.ApiKey != nil {
-			userName = authInfo.ApiKey.UserName
+	case api.AuthInfoTypeAPIKey:
+		if authInfo.APIKey != nil {
+			userName = authInfo.APIKey.UserName
 		}
 	}
 

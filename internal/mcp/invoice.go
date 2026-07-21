@@ -97,8 +97,8 @@ func (s *Server) handleInvoice(ctx context.Context, req *mcp.CallToolRequest, in
 			UnitPrice:   li.UnitPrice,
 			LineTotal:   li.LineTotal,
 		}
-		if li.DatabaseId != nil {
-			item.DatabaseID = *li.DatabaseId
+		if li.DatabaseID != nil {
+			item.DatabaseID = *li.DatabaseID
 		}
 		if li.DetailedSpec != nil {
 			item.DetailedSpec = *li.DetailedSpec

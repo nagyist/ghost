@@ -66,8 +66,8 @@ confirm the removal, unless you use the --confirm flag.`,
 
 			resp, err := client.RemoveMemberWithResponse(
 				cmd.Context(),
-				api.SpaceId(spaceID),
-				api.MemberUserId(member.UserId),
+				api.SpaceID(spaceID),
+				api.MemberUserID(member.UserID),
 			)
 			if err != nil {
 				return fmt.Errorf("failed to remove member: %w", err)

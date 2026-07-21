@@ -37,7 +37,7 @@ func buildPaymentAddCmd(app *common.App) *cobra.Command {
 				return errors.New("empty response from API")
 			}
 
-			paymentURL := cfg.APIURL + resp.JSON200.PaymentUrl
+			paymentURL := cfg.APIURL + resp.JSON200.PaymentURL
 
 			cmd.Println("Opening browser to add payment method...")
 			if err := common.OpenBrowser(paymentURL); err != nil {

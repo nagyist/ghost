@@ -14,7 +14,7 @@ import (
 
 // ApiKeyCreateOutput represents the output format for the api-key create command.
 type ApiKeyCreateOutput struct {
-	ApiKey string `json:"api_key"`
+	APIKey string `json:"api_key"`
 }
 
 func buildApiKeyCreateCmd(app *common.App) *cobra.Command {
@@ -60,7 +60,7 @@ GHOST_API_KEY environment variable.`,
 			}
 
 			// Create the API key
-			resp, err := client.CreateApiKeyWithResponse(cmd.Context(), spaceID, api.CreateApiKeyJSONRequestBody{
+			resp, err := client.CreateAPIKeyWithResponse(cmd.Context(), spaceID, api.CreateAPIKeyJSONRequestBody{
 				Name: name,
 			})
 			if err != nil {
@@ -76,7 +76,7 @@ GHOST_API_KEY environment variable.`,
 			}
 
 			output := ApiKeyCreateOutput{
-				ApiKey: resp.JSON201.ApiKey,
+				APIKey: resp.JSON201.APIKey,
 			}
 
 			switch {
@@ -85,10 +85,10 @@ GHOST_API_KEY environment variable.`,
 			case yamlOutput:
 				return util.SerializeToYAML(cmd.OutOrStdout(), output)
 			case envOutput:
-				cmd.Printf("GHOST_API_KEY=%s\n", output.ApiKey)
+				cmd.Printf("GHOST_API_KEY=%s\n", output.APIKey)
 			default:
 				cmd.Printf("Created API key '%s'\n", name)
-				cmd.Printf("API key: %s\n", output.ApiKey)
+				cmd.Printf("API key: %s\n", output.APIKey)
 				cmd.Println()
 				cmd.Println("This key will not be shown again. Make sure to save it.")
 			}

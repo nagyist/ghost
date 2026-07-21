@@ -18,21 +18,21 @@ func TestShareListCmd(t *testing.T) {
 
 	active := api.DatabaseShare{
 		ShareToken:   "tok_a",
-		DatabaseId:   "abc1234567",
+		DatabaseID:   "abc1234567",
 		DatabaseName: "mydb",
 		CreatedAt:    createdAt,
 		ExpiresAt:    &futureExpiry,
 	}
 	expired := api.DatabaseShare{
 		ShareToken:   "tok_e",
-		DatabaseId:   "def7654321",
+		DatabaseID:   "def7654321",
 		DatabaseName: "otherdb",
 		CreatedAt:    createdAt,
 		ExpiresAt:    &pastExpiry,
 	}
 	revoked := api.DatabaseShare{
 		ShareToken:   "tok_r",
-		DatabaseId:   "ghi9999999",
+		DatabaseID:   "ghi9999999",
 		DatabaseName: "thirddb",
 		CreatedAt:    createdAt,
 		RevokedAt:    &revokedAt,

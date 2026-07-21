@@ -52,7 +52,7 @@ func buildApiKeyDeleteCmd(app *common.App) *cobra.Command {
 				}
 			}
 
-			resp, err := client.DeleteApiKeyWithResponse(cmd.Context(), spaceID, prefix)
+			resp, err := client.DeleteAPIKeyWithResponse(cmd.Context(), spaceID, prefix)
 			if err != nil {
 				return fmt.Errorf("failed to delete API key: %w", err)
 			}

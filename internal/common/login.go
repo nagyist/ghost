@@ -367,10 +367,10 @@ func (l *oauthLogin) findOrCreateSpace(ctx context.Context, client api.ClientWit
 		if createResp.JSON201 == nil {
 			return "", errors.New("failed to create space: empty response from API")
 		}
-		fmt.Fprintf(l.out, "Created space: %s\n", createResp.JSON201.Id)
+		fmt.Fprintf(l.out, "Created space: %s\n", createResp.JSON201.ID)
 		ownedSpace = createResp.JSON201
 	} else {
-		fmt.Fprintf(l.out, "Found space: %s\n", ownedSpace.Id)
+		fmt.Fprintf(l.out, "Found space: %s\n", ownedSpace.ID)
 	}
 
 	// Default to the owned space. If the user also belongs to other spaces,
@@ -378,12 +378,12 @@ func (l *oauthLogin) findOrCreateSpace(ctx context.Context, client api.ClientWit
 	if len(joined) > 0 {
 		fmt.Fprintln(l.out, "\nYou also belong to:")
 		for _, space := range joined {
-			fmt.Fprintf(l.out, "  %s (%s)\n", space.Name, space.Id)
+			fmt.Fprintf(l.out, "  %s (%s)\n", space.Name, space.ID)
 		}
 		fmt.Fprintln(l.out, "Run 'ghost space use <id>' to switch the current space.")
 	}
 
-	return ownedSpace.Id, nil
+	return ownedSpace.ID, nil
 }
 
 // identifyWithUserToken calls the /auth/info endpoint to validate a user token
@@ -413,7 +413,7 @@ func identifyWithUserToken(ctx context.Context, cfg *config.Config, client api.C
 	// Identify the user with analytics
 	a := analytics.New(cfg, client, spaceID)
 	a.Identify(
-		analytics.Property("userId", authInfo.User.Id),
+		analytics.Property("userId", authInfo.User.ID),
 		analytics.Property("email", authInfo.User.Email),
 	)
 

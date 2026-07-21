@@ -125,7 +125,7 @@ func TestLoginCmd(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		postLoginMock := mock.NewMockClientWithResponsesInterface(ctrl)
 
-		spaces := []api.Space{{Id: "space-123", Name: "My Space", Role: new(api.MemberRoleOwner)}}
+		spaces := []api.Space{{ID: "space-123", Name: "My Space", Role: new(api.MemberRoleOwner)}}
 		postLoginMock.EXPECT().ListSpacesWithResponse(validCtx).
 			Return(&api.ListSpacesResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
@@ -136,7 +136,7 @@ func TestLoginCmd(t *testing.T) {
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200: &api.AuthInfo{
 					Type: api.AuthInfoTypeUser,
-					User: &api.UserInfo{Name: "Test User", Email: "test@example.com", Id: "user-123"},
+					User: &api.UserInfo{Name: "Test User", Email: "test@example.com", ID: "user-123"},
 				},
 			}, nil)
 
@@ -171,14 +171,14 @@ Successfully logged in as test@example.com
 		postLoginMock.EXPECT().CreateSpaceWithResponse(validCtx, api.CreateSpaceJSONRequestBody{}).
 			Return(&api.CreateSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusCreated),
-				JSON201:      &api.Space{Id: "space-new", Name: "Ghost"},
+				JSON201:      &api.Space{ID: "space-new", Name: "Ghost"},
 			}, nil)
 		postLoginMock.EXPECT().AuthInfoWithResponse(validCtx).
 			Return(&api.AuthInfoResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200: &api.AuthInfo{
 					Type: api.AuthInfoTypeUser,
-					User: &api.UserInfo{Name: "New User", Email: "new@example.com", Id: "user-456"},
+					User: &api.UserInfo{Name: "New User", Email: "new@example.com", ID: "user-456"},
 				},
 			}, nil)
 
@@ -206,7 +206,7 @@ Successfully logged in as new@example.com
 
 		// The user owns no space but has joined one (e.g. via invitation
 		// auto-accepted at signup), so a personal space is created for them.
-		joinedOnly := []api.Space{{Id: "space-joined", Name: "Team Space", Role: new(api.MemberRoleDeveloper)}}
+		joinedOnly := []api.Space{{ID: "space-joined", Name: "Team Space", Role: new(api.MemberRoleDeveloper)}}
 		postLoginMock.EXPECT().ListSpacesWithResponse(validCtx).
 			Return(&api.ListSpacesResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
@@ -215,14 +215,14 @@ Successfully logged in as new@example.com
 		postLoginMock.EXPECT().CreateSpaceWithResponse(validCtx, api.CreateSpaceJSONRequestBody{}).
 			Return(&api.CreateSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusCreated),
-				JSON201:      &api.Space{Id: "space-new", Name: "New User's space", Role: new(api.MemberRoleOwner)},
+				JSON201:      &api.Space{ID: "space-new", Name: "New User's space", Role: new(api.MemberRoleOwner)},
 			}, nil)
 		postLoginMock.EXPECT().AuthInfoWithResponse(validCtx).
 			Return(&api.AuthInfoResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200: &api.AuthInfo{
 					Type: api.AuthInfoTypeUser,
-					User: &api.UserInfo{Name: "New User", Email: "new@example.com", Id: "user-456"},
+					User: &api.UserInfo{Name: "New User", Email: "new@example.com", ID: "user-456"},
 				},
 			}, nil)
 
@@ -255,8 +255,8 @@ Successfully logged in as new@example.com
 		// The user owns a space and has also joined another; login defaults to
 		// the owned one and points at `ghost space use` for the other.
 		spaces := []api.Space{
-			{Id: "space-owned", Name: "My Space", Role: new(api.MemberRoleOwner)},
-			{Id: "space-joined", Name: "Team Space", Role: new(api.MemberRoleDeveloper)},
+			{ID: "space-owned", Name: "My Space", Role: new(api.MemberRoleOwner)},
+			{ID: "space-joined", Name: "Team Space", Role: new(api.MemberRoleDeveloper)},
 		}
 		postLoginMock.EXPECT().ListSpacesWithResponse(validCtx).
 			Return(&api.ListSpacesResponse{
@@ -268,7 +268,7 @@ Successfully logged in as new@example.com
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200: &api.AuthInfo{
 					Type: api.AuthInfoTypeUser,
-					User: &api.UserInfo{Name: "Test User", Email: "test@example.com", Id: "user-123"},
+					User: &api.UserInfo{Name: "Test User", Email: "test@example.com", ID: "user-123"},
 				},
 			}, nil)
 
@@ -298,7 +298,7 @@ Successfully logged in as test@example.com
 		ctrl := gomock.NewController(t)
 		postLoginMock := mock.NewMockClientWithResponsesInterface(ctrl)
 
-		spaces := []api.Space{{Id: "space-123", Name: "My Space", Role: new(api.MemberRoleOwner)}}
+		spaces := []api.Space{{ID: "space-123", Name: "My Space", Role: new(api.MemberRoleOwner)}}
 		postLoginMock.EXPECT().ListSpacesWithResponse(validCtx).
 			Return(&api.ListSpacesResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
@@ -309,7 +309,7 @@ Successfully logged in as test@example.com
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200: &api.AuthInfo{
 					Type: api.AuthInfoTypeUser,
-					User: &api.UserInfo{Name: "Test User", Email: "test@example.com", Id: "user-123"},
+					User: &api.UserInfo{Name: "Test User", Email: "test@example.com", ID: "user-123"},
 				},
 			}, nil)
 
@@ -347,14 +347,14 @@ Successfully logged in as test@example.com
 		postLoginMock.EXPECT().CreateSpaceWithResponse(validCtx, api.CreateSpaceJSONRequestBody{}).
 			Return(&api.CreateSpaceResponse{
 				HTTPResponse: httpResponse(http.StatusCreated),
-				JSON201:      &api.Space{Id: "space-new", Name: "Ghost"},
+				JSON201:      &api.Space{ID: "space-new", Name: "Ghost"},
 			}, nil)
 		postLoginMock.EXPECT().AuthInfoWithResponse(validCtx).
 			Return(&api.AuthInfoResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
 				JSON200: &api.AuthInfo{
 					Type: api.AuthInfoTypeUser,
-					User: &api.UserInfo{Name: "New User", Email: "new@example.com", Id: "user-456"},
+					User: &api.UserInfo{Name: "New User", Email: "new@example.com", ID: "user-456"},
 				},
 			}, nil)
 
@@ -530,7 +530,7 @@ Successfully logged in as new@example.com
 		ctrl := gomock.NewController(t)
 		postLoginMock := mock.NewMockClientWithResponsesInterface(ctrl)
 
-		spaces := []api.Space{{Id: "space-123", Name: "My Space", Role: new(api.MemberRoleOwner)}}
+		spaces := []api.Space{{ID: "space-123", Name: "My Space", Role: new(api.MemberRoleOwner)}}
 		postLoginMock.EXPECT().ListSpacesWithResponse(validCtx).
 			Return(&api.ListSpacesResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
@@ -560,7 +560,7 @@ Successfully logged in as new@example.com
 		ctrl := gomock.NewController(t)
 		postLoginMock := mock.NewMockClientWithResponsesInterface(ctrl)
 
-		spaces := []api.Space{{Id: "space-123", Name: "My Space", Role: new(api.MemberRoleOwner)}}
+		spaces := []api.Space{{ID: "space-123", Name: "My Space", Role: new(api.MemberRoleOwner)}}
 		postLoginMock.EXPECT().ListSpacesWithResponse(validCtx).
 			Return(&api.ListSpacesResponse{
 				HTTPResponse: httpResponse(http.StatusOK),
@@ -587,7 +587,7 @@ Successfully logged in as new@example.com
 		ctrl := gomock.NewController(t)
 		postLoginMock := mock.NewMockClientWithResponsesInterface(ctrl)
 
-		spaces := []api.Space{{Id: "space-123", Name: "My Space", Role: new(api.MemberRoleOwner)}}
+		spaces := []api.Space{{ID: "space-123", Name: "My Space", Role: new(api.MemberRoleOwner)}}
 		postLoginMock.EXPECT().ListSpacesWithResponse(validCtx).
 			Return(&api.ListSpacesResponse{
 				HTTPResponse: httpResponse(http.StatusOK),

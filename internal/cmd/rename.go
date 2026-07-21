@@ -47,8 +47,8 @@ func buildRenameCmd(app *common.App) *cobra.Command {
 
 			resp, err := client.RenameDatabaseWithResponse(
 				cmd.Context(),
-				api.SpaceId(spaceID),
-				api.DatabaseRef(database.Id),
+				api.SpaceID(spaceID),
+				api.DatabaseRef(database.ID),
 				api.RenameDatabaseRequest{Name: newName},
 			)
 			if err != nil {
@@ -59,7 +59,7 @@ func buildRenameCmd(app *common.App) *cobra.Command {
 				return common.ExitWithErrorFromStatusCode(resp.StatusCode(), resp.JSONDefault)
 			}
 
-			cmd.Printf("Renamed '%s' (%s) to '%s'\n", database.Name, database.Id, newName)
+			cmd.Printf("Renamed '%s' (%s) to '%s'\n", database.Name, database.ID, newName)
 
 			return nil
 		},

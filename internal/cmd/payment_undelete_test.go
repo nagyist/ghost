@@ -11,11 +11,11 @@ import (
 
 func TestPaymentUndeleteCmd(t *testing.T) {
 	pmPending := api.PaymentMethod{
-		Id: "pm_123", Brand: "Visa", Last4: "4242", ExpMonth: 12, ExpYear: 2025, PendingDeletion: true,
+		ID: "pm_123", Brand: "Visa", Last4: "4242", ExpMonth: 12, ExpYear: 2025, PendingDeletion: true,
 	}
 
 	pmNotPending := api.PaymentMethod{
-		Id: "pm_123", Brand: "Visa", Last4: "4242", ExpMonth: 12, ExpYear: 2025, PendingDeletion: false,
+		ID: "pm_123", Brand: "Visa", Last4: "4242", ExpMonth: 12, ExpYear: 2025, PendingDeletion: false,
 	}
 
 	tests := []cmdTest{

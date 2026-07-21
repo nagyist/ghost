@@ -14,8 +14,8 @@ func TestSpaceListCmd(t *testing.T) {
 
 	successSetup := func(m *mock.MockClientWithResponsesInterface) {
 		spaces := []api.Space{
-			{Id: "test-space", Name: "Test Space", Role: new(api.MemberRoleOwner)},
-			{Id: "other-proj", Name: "Other Space", Role: new(api.MemberRoleDeveloper)},
+			{ID: "test-space", Name: "Test Space", Role: new(api.MemberRoleOwner)},
+			{ID: "other-proj", Name: "Other Space", Role: new(api.MemberRoleDeveloper)},
 		}
 		m.EXPECT().ListSpacesWithResponse(validCtx).
 			Return(&api.ListSpacesResponse{

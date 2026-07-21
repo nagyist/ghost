@@ -14,14 +14,14 @@ func TestInvoiceListCmd(t *testing.T) {
 	invoices := api.InvoicesResponse{
 		Invoices: []api.Invoice{
 			{
-				Id:            "BJ9xX3JDEzMQ9vCx",
+				ID:            "BJ9xX3JDEzMQ9vCx",
 				InvoiceNumber: "INV-12345",
 				InvoiceDate:   time.Date(2026, 4, 1, 0, 0, 0, 0, time.UTC),
 				Total:         27.50,
 				Status:        api.InvoiceStatusPaid,
 			},
 			{
-				Id:            "k2mN7pQrS4tLvZwY",
+				ID:            "k2mN7pQrS4tLvZwY",
 				InvoiceNumber: "INV-12344",
 				InvoiceDate:   time.Date(2026, 3, 1, 0, 0, 0, 0, time.UTC),
 				Total:         24.10,
