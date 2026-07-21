@@ -53,7 +53,7 @@ func newSQLTool() *mcp.Tool {
 			ReadOnlyHint:    false,
 			DestructiveHint: new(true),
 			IdempotentHint:  false,
-			OpenWorldHint:   new(true),
+			OpenWorldHint:   new(false),
 			Title:           "Execute SQL",
 		},
 	}

@@ -9,7 +9,7 @@ import (
 )
 
 func TestMCPGetCmd(t *testing.T) {
-	ghostListText := `List Databases [read-only] [open-world]
+	ghostListText := `List Databases [read-only]
 
 Tool name: ghost_list
 
@@ -30,7 +30,7 @@ Output:
 
 	ghostListJSON := `{
   "annotations": {
-    "openWorldHint": true,
+    "openWorldHint": false,
     "readOnlyHint": true,
     "title": "List Databases"
   },
@@ -111,7 +111,7 @@ Output:
 `
 
 	ghostListYAML := `annotations:
-  openWorldHint: true
+  openWorldHint: false
   readOnlyHint: true
   title: List Databases
 description: List all databases, including each database's current status, storage usage, and compute minutes used in the current billing cycle.

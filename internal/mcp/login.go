@@ -45,7 +45,7 @@ Note: this tool requires user interaction in the browser. The user must complete
 			ReadOnlyHint:    false,
 			DestructiveHint: new(false),
 			IdempotentHint:  true,
-			OpenWorldHint:   new(true),
+			OpenWorldHint:   new(false),
 			Title:           "Login",
 		},
 	}

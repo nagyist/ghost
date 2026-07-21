@@ -63,7 +63,7 @@ Note: new databases may take a few minutes to start up. Use ghost_list to check 
 			ReadOnlyHint:    false,
 			DestructiveHint: new(false),
 			IdempotentHint:  false,
-			OpenWorldHint:   new(true),
+			OpenWorldHint:   new(false),
 			Title:           "Create Dedicated Database",
 		},
 	}

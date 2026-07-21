@@ -48,7 +48,7 @@ func newAPIKeyDeleteTool() *mcp.Tool {
 			ReadOnlyHint:    false,
 			DestructiveHint: new(true),
 			IdempotentHint:  true,
-			OpenWorldHint:   new(true),
+			OpenWorldHint:   new(false),
 			Title:           "Delete API Key",
 		},
 	}

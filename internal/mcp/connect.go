@@ -46,7 +46,7 @@ func newConnectTool() *mcp.Tool {
 		OutputSchema: ConnectOutput{}.Schema(),
 		Annotations: &mcp.ToolAnnotations{
 			ReadOnlyHint:  true,
-			OpenWorldHint: new(true),
+			OpenWorldHint: new(false),
 			Title:         "Get Connection String",
 		},
 	}

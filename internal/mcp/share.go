@@ -82,7 +82,7 @@ The share URL can be handed to anyone — they don't need access to this space. 
 			ReadOnlyHint:    false,
 			DestructiveHint: new(false),
 			IdempotentHint:  false,
-			OpenWorldHint:   new(true),
+			OpenWorldHint:   new(false),
 			Title:           "Share Database",
 		},
 	}

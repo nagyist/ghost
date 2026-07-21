@@ -63,7 +63,7 @@ func newUIStateTool() *mcp.Tool {
 		OutputSchema: UIStateOutput{}.Schema(),
 		Annotations: &mcp.ToolAnnotations{
 			ReadOnlyHint:  true,
-			OpenWorldHint: new(true),
+			OpenWorldHint: new(false),
 			Title:         "Get UI State",
 		},
 	}

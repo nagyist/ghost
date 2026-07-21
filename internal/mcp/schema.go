@@ -42,7 +42,7 @@ func newSchemaTool() *mcp.Tool {
 		InputSchema: SchemaInput{}.Schema(),
 		Annotations: &mcp.ToolAnnotations{
 			ReadOnlyHint:  true,
-			OpenWorldHint: new(true),
+			OpenWorldHint: new(false),
 			Title:         "Show Database Schema",
 		},
 	}

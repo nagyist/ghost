@@ -60,7 +60,7 @@ func newListTool() *mcp.Tool {
 		OutputSchema: ListOutput{}.Schema(),
 		Annotations: &mcp.ToolAnnotations{
 			ReadOnlyHint:  true,
-			OpenWorldHint: new(true),
+			OpenWorldHint: new(false),
 			Title:         "List Databases",
 		},
 	}

@@ -50,7 +50,7 @@ func newAPIKeyCreateTool() *mcp.Tool {
 			ReadOnlyHint:    false,
 			DestructiveHint: new(false),
 			IdempotentHint:  false,
-			OpenWorldHint:   new(true),
+			OpenWorldHint:   new(false),
 			Title:           "Create API Key",
 		},
 	}

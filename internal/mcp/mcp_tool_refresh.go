@@ -45,7 +45,7 @@ func newMCPToolRefreshTool() *mcp.Tool {
 			// registered tools, not the database.
 			ReadOnlyHint:   true,
 			IdempotentHint: true,
-			OpenWorldHint:  new(true),
+			OpenWorldHint:  new(false),
 			Title:          "Refresh Function Tools",
 		},
 	}

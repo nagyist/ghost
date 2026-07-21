@@ -68,7 +68,7 @@ Dedicated databases are always-on instances separate from the shared compute poo
 		OutputSchema: PricingOutput{}.Schema(),
 		Annotations: &mcp.ToolAnnotations{
 			ReadOnlyHint:  true,
-			OpenWorldHint: new(true),
+			OpenWorldHint: new(false),
 			Title:         "Get Pricing",
 		},
 	}

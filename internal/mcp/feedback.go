@@ -49,7 +49,7 @@ func newFeedbackTool() *mcp.Tool {
 			ReadOnlyHint:    false,
 			DestructiveHint: new(false),
 			IdempotentHint:  false,
-			OpenWorldHint:   new(true),
+			OpenWorldHint:   new(false),
 			Title:           "Submit Feedback",
 		},
 	}

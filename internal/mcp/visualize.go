@@ -62,7 +62,7 @@ func newVisualizeTool() *mcp.Tool {
 			ReadOnlyHint:    false,
 			DestructiveHint: new(true),
 			IdempotentHint:  false,
-			OpenWorldHint:   new(true),
+			OpenWorldHint:   new(false),
 			Title:           "Visualize Query",
 		},
 	}

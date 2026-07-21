@@ -122,9 +122,9 @@ The typical workflow for API changes is:
 
 Database-scoped API endpoints accept either an ID or a name, so the path parameter is `database_ref` (generated as `api.DatabaseRef`). Use `databaseRef` for variables holding user input that could be either form; reserve `databaseID` for values resolved from `database.Id` on an API response.
 
-## Space ID Naming (`spaceID`, not `projectID`)
+## "Space" vs "Project" Nomenclature
 
-Ghost-facing code always refers to Tiger Cloud "projects" as "spaces". Name variables holding the current space's ID `spaceID`, not `projectID`, even though some older code still uses `projectID`. Don't mass-rename existing code (or the `config.Credentials.ProjectID` struct field) unless asked.
+Ghost and the Ghost API are a distinct layer from the underlying Tiger Cloud platform that hosts the databases — don't conflate them. What that platform calls a "project", Ghost-facing code calls a "space" (so use `spaceID`, not `projectID`). Go identifiers have been renamed to match (e.g. `config.Credentials.SpaceID`); the old name survives only as legacy `project_id`/`projectId` wire keys kept for backwards compatibility — in credential storage, analytics properties, and the local serve UI (`internal/serve/handler.go`, whose request structs keep the `ProjectID` field to match its `projectId` JSON key).
 
 ## Command Patterns
 
@@ -276,7 +276,7 @@ All interactive prompts (confirmation prompts, password prompts, interactive men
 
 Each MCP tool in `internal/mcp/` follows a consistent structure:
 
-- **Tool definition**: `newXxxTool() *mcp.Tool` — sets name (`ghost_xxx`), description, input/output schemas, and annotations (`ReadOnlyHint`, `DestructiveHint`, `IdempotentHint`).
+- **Tool definition**: `newXxxTool() *mcp.Tool` — sets name (`ghost_xxx`), description, input/output schemas, and annotations (`ReadOnlyHint`, `DestructiveHint`, `IdempotentHint`, `OpenWorldHint`). Ghost tools set `OpenWorldHint: false`: their domain of interaction is closed (the Ghost API and the user's own databases), not an open world of arbitrary external entities.
 - **Handler**: `(s *Server) handleXxx(ctx context.Context, req *mcp.CallToolRequest, input XxxInput) (*mcp.CallToolResult, XxxOutput, error)` — returns `nil, output, nil` on success.
 - **Input/Output types**: Structs with `json` tags and a `Schema() *jsonschema.Schema` method. Use the schema property helpers in `internal/mcp/util.go` (e.g. `databaseIDInputProperties`, `waitInputProperties`) for consistent descriptions and validation. Input and output helpers are separated — input helpers may set `Pattern`, `Enum`, `Default`, etc., while output helpers typically only set `Description`. Don't put example values inline in `Description` strings (e.g. `"Database status (running, paused, etc.)"`). Instead, use the `Examples` field for illustrative values (e.g. `Examples = []any{"running", "paused"}`) or the `Enum` field if the set of values is fixed and exhaustive.
 - **Registration**: `mcp.AddTool(s.mcpServer, newXxxTool(), s.handleXxx)` in `server.go`'s `registerTools()` method.

@@ -55,7 +55,7 @@ func newRenameTool() *mcp.Tool {
 			ReadOnlyHint:    false,
 			DestructiveHint: new(false),
 			IdempotentHint:  true,
-			OpenWorldHint:   new(true),
+			OpenWorldHint:   new(false),
 			Title:           "Rename Database",
 		},
 	}

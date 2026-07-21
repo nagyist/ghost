@@ -46,7 +46,7 @@ func newAPIKeyListTool() *mcp.Tool {
 		OutputSchema: APIKeyListOutput{}.Schema(),
 		Annotations: &mcp.ToolAnnotations{
 			ReadOnlyHint:  true,
-			OpenWorldHint: new(true),
+			OpenWorldHint: new(false),
 			Title:         "List API Keys",
 		},
 	}

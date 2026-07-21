@@ -41,7 +41,7 @@ func newShareListTool() *mcp.Tool {
 		OutputSchema: ShareListOutput{}.Schema(),
 		Annotations: &mcp.ToolAnnotations{
 			ReadOnlyHint:  true,
-			OpenWorldHint: new(true),
+			OpenWorldHint: new(false),
 			Title:         "List Database Shares",
 		},
 	}

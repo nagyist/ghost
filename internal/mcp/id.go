@@ -44,7 +44,7 @@ func newIDTool() *mcp.Tool {
 		OutputSchema: IDOutput{}.Schema(),
 		Annotations: &mcp.ToolAnnotations{
 			ReadOnlyHint:  true,
-			OpenWorldHint: new(true),
+			OpenWorldHint: new(false),
 			Title:         "Show Identity",
 		},
 	}

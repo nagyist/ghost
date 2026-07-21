@@ -61,7 +61,7 @@ func newInvoiceTool() *mcp.Tool {
 		OutputSchema: InvoiceOutput{}.Schema(),
 		Annotations: &mcp.ToolAnnotations{
 			ReadOnlyHint:  true,
-			OpenWorldHint: new(true),
+			OpenWorldHint: new(false),
 			Title:         "Get Invoice Detail",
 		},
 	}
