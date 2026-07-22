@@ -36,9 +36,10 @@ The output can be formatted as a table, JSON, or YAML.`,
 		ValidArgsFunction: cobra.NoFileCompletions,
 		SilenceUsage:      true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Create MCP server (see functionToolsMode for the --function-tools gating).
+			// Create MCP server (see functionToolsMode for the function_tools
+			// config and --function-tools flag gating).
 			server, err := mcp.NewServer(cmd.Context(), app, mcp.Options{
-				FunctionTools: functionToolsMode(functionTools),
+				FunctionTools: functionToolsMode(app.GetConfig(), functionTools),
 			})
 			if err != nil {
 				return fmt.Errorf("failed to create MCP server: %w", err)

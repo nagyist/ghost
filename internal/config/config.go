@@ -21,6 +21,7 @@ type Config struct {
 	Analytics           bool   `mapstructure:"analytics"`
 	Color               bool   `mapstructure:"color"`
 	DocsMCPURL          string `mapstructure:"docs_mcp_url"`
+	FunctionTools       bool   `mapstructure:"function_tools"`
 	Keyring             bool   `mapstructure:"keyring"`
 	ReadOnly            bool   `mapstructure:"read_only"`
 	ReleasesURL         string `mapstructure:"releases_url"`
@@ -37,6 +38,7 @@ type ConfigOutput struct {
 	Analytics           *bool   `mapstructure:"analytics" json:"analytics,omitempty"`
 	Color               *bool   `mapstructure:"color" json:"color,omitempty"`
 	DocsMCPURL          *string `mapstructure:"docs_mcp_url" json:"docs_mcp_url,omitempty"`
+	FunctionTools       *bool   `mapstructure:"function_tools" json:"function_tools,omitempty"`
 	Keyring             *bool   `mapstructure:"keyring" json:"keyring,omitempty"`
 	ReadOnly            *bool   `mapstructure:"read_only" json:"read_only,omitempty"`
 	ReleasesURL         *string `mapstructure:"releases_url" json:"releases_url,omitempty"`
@@ -55,6 +57,7 @@ const (
 	defaultAnalytics           = true
 	defaultColor               = true
 	defaultDocsMCPURL          = "https://mcp.tigerdata.com/docs?disabled_skills=ghost-database&disabled_prompts=ghost-database"
+	defaultFunctionTools       = true
 	defaultKeyring             = true
 	defaultReadOnly            = false
 	defaultReleasesURL         = "https://install.ghost.build"
@@ -66,6 +69,7 @@ const (
 var publicDefaultValues = map[string]any{
 	"analytics":              defaultAnalytics,
 	"color":                  defaultColor,
+	"function_tools":         defaultFunctionTools,
 	"read_only":              defaultReadOnly,
 	"ui_query_history_limit": defaultUIQueryHistoryLimit,
 	"version_check":          defaultVersionCheck,
@@ -306,7 +310,7 @@ func validateValue(key, val string) (any, error) {
 	switch key {
 	case "api_url", "docs_mcp_url", "releases_url", "share_url":
 		return val, nil
-	case "analytics", "color", "keyring", "read_only", "version_check":
+	case "analytics", "color", "function_tools", "keyring", "read_only", "version_check":
 		return parseBool(key, val)
 	case "ui_query_history_limit":
 		return parsePositiveInt(key, val)

@@ -43,9 +43,10 @@ func buildMCPGetCmd(app *common.App) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			capabilityName := args[0]
 
-			// Create MCP server (see functionToolsMode for the --function-tools gating).
+			// Create MCP server (see functionToolsMode for the function_tools
+			// config and --function-tools flag gating).
 			server, err := mcp.NewServer(cmd.Context(), app, mcp.Options{
-				FunctionTools: functionToolsMode(functionTools),
+				FunctionTools: functionToolsMode(app.GetConfig(), functionTools),
 			})
 			if err != nil {
 				return fmt.Errorf("failed to create MCP server: %w", err)

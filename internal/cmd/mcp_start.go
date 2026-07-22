@@ -129,14 +129,23 @@ func buildMCPHTTPCmd(app *common.App) *cobra.Command {
 // regular authoring server based on whether serveRef is set. local is
 // unconditional true for stdio: it's always a local, single-user session,
 // and serving mode registers no browser-backed tools regardless.
+//
+// The --serve consumer mode always serves the named database's function tools,
+// regardless of the function_tools config option — it's an explicit flag with
+// no other purpose. For the regular authoring server, the function_tools
+// config option gates whether the generated function tools are exposed.
 func newMCPServer(ctx context.Context, app *common.App, logger *slog.Logger, serveRef string, local bool) (*mcp.Server, error) {
 	if serveRef != "" {
 		return mcp.NewFunctionToolsServer(ctx, app, logger, serveRef)
 	}
+	functionTools := mcp.FunctionToolsDisabled
+	if app.GetConfig().FunctionTools {
+		functionTools = mcp.FunctionToolsEnabled
+	}
 	return mcp.NewServer(ctx, app, mcp.Options{
 		Logger:        logger,
 		Local:         local,
-		FunctionTools: mcp.FunctionToolsEnabled,
+		FunctionTools: functionTools,
 		WatchConfig:   true,
 	})
 }

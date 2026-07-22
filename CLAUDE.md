@@ -57,6 +57,7 @@ Key mechanics (see `internal/mcp/function`):
 - **Overloaded functions**: same-named `@mcp` functions each become their own tool, distinguished by a de-duplication suffix.
 - **Tool naming**: a tool's name joins the normalized database name and function name with `__` (`billing__get_user`), truncating and de-duplicating as needed. The function's own Postgres schema plays no part in the name.
 - **Two serving modes**: an authoring mode used by the main `ghost mcp` server, which exposes every database's function tools alongside the standard Ghost tools and management tooling; and a stripped consumer mode (`ghost mcp start --serve <database_ref>`) that exposes *only* one database's generated tools, unprefixed, with no other Ghost tools.
+- **`function_tools` config option**: the public `function_tools` option (default `true`) gates whether the *normal* MCP server exposes the function-tool feature. When `false`, `ghost mcp start` (without `--serve`) registers no function-tool manager, generated tools, or `ghost_mcp_tool_refresh`, and `mcp list`/`get` and shell completion likewise omit them. Two things intentionally bypass it: the `--serve` consumer mode always serves the named database's tools (it's an explicit flag with no other purpose), and the `--function-tools` flag on `mcp list`/`get` always forces full enablement (flags take precedence over config).
 - **Refresh**: function tools change via DDL, not management tools, so `ghost_mcp_tool_refresh` re-introspects a database on demand and swaps its registered tools; otherwise changes are picked up on the next server start.
 - **Annotations**: the read-only hint comes from the function's own volatility declaration (`IMMUTABLE`/`STABLE` = read-only).
 - **Analytics**: generated tool calls are tracked under the single event `Call function MCP tool` with the tool name as a property, never one event per user-defined tool name.
@@ -177,7 +178,7 @@ Gate every BubbleTea program on `util.IsTerminal(cmd.InOrStdin()) && util.IsTerm
 
 Configuration is managed via Viper. The config file is stored in the config directory (default `~/.config/ghost/`). There are two categories of config values:
 
-- **Public**: User-facing options (e.g. `analytics`, `color`, `read_only`, `version_check`). Shown by `ghost config` and included in shell completion for `ghost config set`.
+- **Public**: User-facing options (e.g. `analytics`, `color`, `function_tools`, `read_only`, `version_check`). Shown by `ghost config` and included in shell completion for `ghost config set`.
 - **Private/Internal**: Internal settings (e.g. `api_url`, `docs_mcp_url`, `releases_url`). Hidden from `ghost config` by default (use `--all` to see them) and not included in shell completions, but still settable via `ghost config set`.
 
 Many public config options have corresponding global CLI flags. All config values can be provided as `GHOST_*` environment variables (e.g. `GHOST_COLOR=false`). Precedence is: **flags > env vars > config file > defaults**.

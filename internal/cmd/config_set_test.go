@@ -37,6 +37,11 @@ func TestConfigSetCmd(t *testing.T) {
 			wantStdout: "Set color = false\n",
 		},
 		{
+			name:       "set function_tools false",
+			args:       []string{"config", "set", "function_tools", "false"},
+			wantStdout: "Set function_tools = false\n",
+		},
+		{
 			name:       "set read_only true",
 			args:       []string{"config", "set", "read_only", "true"},
 			wantStdout: "Set read_only = true\n",

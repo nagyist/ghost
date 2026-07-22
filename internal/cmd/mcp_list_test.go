@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/timescale/ghost/internal/api"
@@ -50,6 +51,11 @@ func TestMCPListCmd(t *testing.T) {
 		"tool    search_docs                             \n" +
 		"tool    view_skill                              \n"
 
+	// With function_tools disabled, the ghost_mcp_tool_refresh management tool
+	// is not registered, so it drops out of the listing.
+	wantTextNoRefresh := strings.Replace(wantText,
+		"tool    ghost_mcp_tool_refresh                  \n", "", 1)
+
 	tests := []cmdTest{
 		{
 			name:       "text output",
@@ -79,6 +85,30 @@ func TestMCPListCmd(t *testing.T) {
 			// way).
 			name: "function-tools flag with no databases",
 			args: []string{"mcp", "list", "--function-tools"},
+			setup: func(m *mock.MockClientWithResponsesInterface) {
+				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
+					Return(&api.ListDatabasesResponse{
+						HTTPResponse: httpResponse(http.StatusOK),
+						JSON200:      &[]api.DatabaseWithUsage{},
+					}, nil)
+			},
+			wantStdout: wantText,
+		},
+		{
+			// function_tools=false disables the feature entirely, so the
+			// ghost_mcp_tool_refresh management tool is not registered.
+			name:       "function_tools disabled",
+			args:       []string{"mcp", "list"},
+			opts:       []runOption{withEnv("GHOST_FUNCTION_TOOLS", "false")},
+			wantStdout: wantTextNoRefresh,
+		},
+		{
+			// The explicit --function-tools flag overrides function_tools=false:
+			// it still connects to every database and registers the management
+			// tool (flags take precedence over config).
+			name: "function-tools flag overrides disabled config",
+			args: []string{"mcp", "list", "--function-tools"},
+			opts: []runOption{withEnv("GHOST_FUNCTION_TOOLS", "false")},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{

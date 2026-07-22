@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/timescale/ghost/internal/common"
+	"github.com/timescale/ghost/internal/config"
 	"github.com/timescale/ghost/internal/mcp"
 )
 
@@ -38,14 +39,22 @@ func addFunctionToolsFlag(cmd *cobra.Command, functionTools *bool) {
 		"Also include each database's generated custom function tools (connects to every database in the space)")
 }
 
-// functionToolsMode picks the function-tool mode for `mcp list`/`mcp get`:
-// functionTools (the --function-tools flag) enables the full feature, which
-// connects to and introspects every database; otherwise only the refresh
-// management tool is registered, so listings stay accurate without connecting
-// to any database.
-func functionToolsMode(functionTools bool) mcp.FunctionToolsMode {
-	if functionTools {
+// functionToolsMode picks the function-tool mode for `mcp list`/`mcp get`.
+//
+// The explicit --function-tools flag (functionTools) always enables the full
+// feature — connecting to and introspecting every database — overriding the
+// function_tools config option, since it's an explicit request that has no
+// other purpose (flags take precedence over config). Otherwise the config
+// decides: when function_tools is disabled the feature is off entirely; when
+// enabled, only the refresh management tool is registered, so listings stay
+// accurate without connecting to any database.
+func functionToolsMode(cfg *config.Config, functionTools bool) mcp.FunctionToolsMode {
+	switch {
+	case functionTools:
 		return mcp.FunctionToolsEnabled
+	case cfg.FunctionTools:
+		return mcp.FunctionToolsManagementOnly
+	default:
+		return mcp.FunctionToolsDisabled
 	}
-	return mcp.FunctionToolsManagementOnly
 }

@@ -11,6 +11,7 @@ func TestConfigCmd(t *testing.T) {
 			args: []string{"config"},
 			wantStdout: "analytics               true   \n" +
 				"color                   true   \n" +
+				"function_tools          true   \n" +
 				"read_only               false  \n" +
 				"ui_query_history_limit  25     \n" +
 				"version_check           true   \n",
@@ -21,6 +22,7 @@ func TestConfigCmd(t *testing.T) {
 			wantStdout: `{
   "analytics": true,
   "color": true,
+  "function_tools": true,
   "read_only": false,
   "ui_query_history_limit": 25,
   "version_check": true
@@ -32,6 +34,7 @@ func TestConfigCmd(t *testing.T) {
 			args: []string{"config", "--yaml"},
 			wantStdout: `analytics: true
 color: true
+function_tools: true
 read_only: false
 ui_query_history_limit: 25
 version_check: true
@@ -43,6 +46,7 @@ version_check: true
 			opts: []runOption{withEnv("GHOST_COLOR", "false")},
 			wantStdout: "analytics               true   \n" +
 				"color                   false  \n" +
+				"function_tools          true   \n" +
 				"read_only               false  \n" +
 				"ui_query_history_limit  25     \n" +
 				"version_check           true   \n",
@@ -54,6 +58,7 @@ version_check: true
 			wantStdout: `{
   "analytics": true,
   "color": false,
+  "function_tools": true,
   "read_only": false,
   "ui_query_history_limit": 25,
   "version_check": true
@@ -66,6 +71,7 @@ version_check: true
 			opts: []runOption{withEnv("GHOST_COLOR", "false")},
 			wantStdout: `analytics: true
 color: false
+function_tools: true
 read_only: false
 ui_query_history_limit: 25
 version_check: true
@@ -76,6 +82,7 @@ version_check: true
 			args: []string{"config", "--all"},
 			wantStdout: "analytics               true                                                                                           \n" +
 				"color                   true                                                                                           \n" +
+				"function_tools          true                                                                                           \n" +
 				"read_only               false                                                                                          \n" +
 				"ui_query_history_limit  25                                                                                             \n" +
 				"version_check           true                                                                                           \n" +
@@ -93,6 +100,7 @@ version_check: true
   "analytics": true,
   "color": true,
   "docs_mcp_url": "https://mcp.tigerdata.com/docs?disabled_skills=ghost-database\u0026disabled_prompts=ghost-database",
+  "function_tools": true,
   "keyring": true,
   "read_only": false,
   "releases_url": "https://install.ghost.build",
@@ -109,6 +117,7 @@ version_check: true
 api_url: https://api.ghost.build/v0
 color: true
 docs_mcp_url: https://mcp.tigerdata.com/docs?disabled_skills=ghost-database&disabled_prompts=ghost-database
+function_tools: true
 keyring: true
 read_only: false
 releases_url: https://install.ghost.build
@@ -123,6 +132,7 @@ version_check: true
 			opts: []runOption{withEnv("GHOST_COLOR", "false")},
 			wantStdout: "analytics               true                                                                                           \n" +
 				"color                   false                                                                                          \n" +
+				"function_tools          true                                                                                           \n" +
 				"read_only               false                                                                                          \n" +
 				"ui_query_history_limit  25                                                                                             \n" +
 				"version_check           true                                                                                           \n" +
@@ -141,6 +151,7 @@ version_check: true
   "analytics": true,
   "color": false,
   "docs_mcp_url": "https://mcp.tigerdata.com/docs?disabled_skills=ghost-database\u0026disabled_prompts=ghost-database",
+  "function_tools": true,
   "keyring": true,
   "read_only": false,
   "releases_url": "https://install.ghost.build",
@@ -158,6 +169,7 @@ version_check: true
 api_url: https://api.ghost.build/v0
 color: false
 docs_mcp_url: https://mcp.tigerdata.com/docs?disabled_skills=ghost-database&disabled_prompts=ghost-database
+function_tools: true
 keyring: true
 read_only: false
 releases_url: https://install.ghost.build

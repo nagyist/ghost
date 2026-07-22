@@ -69,6 +69,9 @@ func outputConfigTable(w io.Writer, cfg *config.ConfigOutput) error {
 	if cfg.Color != nil {
 		table.Append("color", fmt.Sprintf("%t", *cfg.Color))
 	}
+	if cfg.FunctionTools != nil {
+		table.Append("function_tools", fmt.Sprintf("%t", *cfg.FunctionTools))
+	}
 	if cfg.ReadOnly != nil {
 		table.Append("read_only", fmt.Sprintf("%t", *cfg.ReadOnly))
 	}
