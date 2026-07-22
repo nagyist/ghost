@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"path/filepath"
 	"sync"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/timescale/ghost/internal/analytics"
@@ -42,6 +44,10 @@ type Server struct {
 	// config changes; see reconcileReadOnlyTools.
 	readOnlyMu              sync.Mutex
 	readOnlyToolsRegistered bool
+	// configWatcher watches the config directory to drive read-only tool
+	// reconciliation (see startConfigWatcher). Non-nil only when
+	// Options.WatchConfig is set; closed by Close, which stops its goroutine.
+	configWatcher *fsnotify.Watcher
 }
 
 // FunctionToolsMode selects how much of the generated function-tool feature
@@ -81,6 +87,12 @@ type Options struct {
 	// FunctionTools selects the function-tool feature's mode; see
 	// [FunctionToolsMode].
 	FunctionTools FunctionToolsMode
+	// WatchConfig starts a background watcher that reconciles the read-only
+	// tool set when the config file changes; see startConfigWatcher. Set only
+	// by long-running serve entrypoints (`ghost mcp start`); enumeration
+	// callers (mcp list/get, completion) leave it false so they neither create
+	// the config directory nor spawn a goroutine.
+	WatchConfig bool
 }
 
 // NewServer creates a new Ghost MCP server instance with the given [Options].
@@ -142,6 +154,12 @@ func NewServer(ctx context.Context, app *common.App, opts Options) (*Server, err
 
 	// Add analytics tracking middleware
 	server.mcpServer.AddReceivingMiddleware(server.analyticsMiddleware)
+
+	// Proactively reconcile the read-only tool set when the config file
+	// changes, for long-running serve sessions (see startConfigWatcher).
+	if opts.WatchConfig {
+		server.startConfigWatcher(ctx)
+	}
 
 	return server, nil
 }
@@ -273,6 +291,80 @@ func (s *Server) reconcileReadOnlyTools(readOnly bool) {
 	}
 }
 
+// startConfigWatcher watches the config file and reconciles the read-only tool
+// set whenever it changes, so a change to the read_only setting is picked up
+// promptly — adding or removing the write tools (and notifying clients)
+// without waiting for the next MCP request.
+//
+// The watcher and its goroutine are torn down by Close, so the caller must
+// ensure Close is called. Setup failures are logged but non-fatal: the
+// per-request reconcile still keeps the tool set correct at the point of use.
+func (s *Server) startConfigWatcher(ctx context.Context) {
+	// Ensure the config directory exists so it can be watched: it is created
+	// lazily on the first `ghost config set`, so it may not exist yet.
+	configFile, err := s.app.GetConfig().EnsureConfigDir()
+	if err != nil {
+		s.logger.Error("failed to create config directory for watching", slog.String("error", err.Error()))
+		return
+	}
+	configDir := filepath.Dir(configFile)
+
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		s.logger.Error("failed to create config watcher", slog.String("error", err.Error()))
+		return
+	}
+	s.configWatcher = watcher
+
+	// Watch the directory rather than the file itself, so config writes that
+	// replace the file via an atomic rename are still observed; events are then
+	// filtered down to the config file below.
+	//
+	// Note: this watches the config directory as it exists now. If that
+	// directory itself is later renamed or deleted, fsnotify drops the watch
+	// (or, on Windows, follows the old directory), and we do not re-add it, so
+	// proactive reconciliation stops until restart. This is a rare case and not
+	// a correctness issue: the per-request reconcile reads the config file by
+	// path, so it still picks up the current read_only value.
+	if err := watcher.Add(configDir); err != nil {
+		s.logger.Error("failed to watch config directory", slog.String("error", err.Error()))
+		return
+	}
+
+	go func() {
+		// The loop exits when Close closes the watcher, which closes both
+		// channels.
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				if !ok {
+					return
+				}
+				// Only react to the config file itself, and ignore chmod-only
+				// events; a create/write/rename/remove may have changed the
+				// read_only setting.
+				if filepath.Clean(event.Name) != configFile {
+					continue
+				}
+				if !event.Has(fsnotify.Create | fsnotify.Write | fsnotify.Rename | fsnotify.Remove) {
+					continue
+				}
+				cfg, _, _, err := s.app.Load(ctx)
+				if err != nil {
+					s.logger.Error("failed to reload config after change", slog.String("error", err.Error()))
+					continue
+				}
+				s.reconcileReadOnlyTools(cfg.ReadOnly)
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					return
+				}
+				s.logger.Error("config watcher error", slog.String("error", err.Error()))
+			}
+		}
+	}()
+}
+
 // analyticsMiddleware tracks analytics for all MCP requests
 func (s *Server) analyticsMiddleware(next mcp.MethodHandler) mcp.MethodHandler {
 	return func(ctx context.Context, method string, req mcp.Request) (result mcp.Result, runErr error) {
@@ -284,7 +376,8 @@ func (s *Server) analyticsMiddleware(next mcp.MethodHandler) mcp.MethodHandler {
 		}
 
 		// Add or remove the read-only-sensitive (write) tools to match the
-		// current read_only config, in case it changed since the last request.
+		// current read_only config. This runs on every request, independent of
+		// the config-file watcher (see startConfigWatcher for why both exist).
 		s.reconcileReadOnlyTools(cfg.ReadOnly)
 
 		a := analytics.New(cfg, client, spaceID)
@@ -349,6 +442,14 @@ func (s *Server) analyticsMiddleware(next mcp.MethodHandler) mcp.MethodHandler {
 // Close gracefully shuts down the MCP server and all proxy connections
 func (s *Server) Close() error {
 	var errs []error
+
+	// Stop the config watcher, if it was started. Closing the watcher closes
+	// its channels, which unwinds the goroutine in startConfigWatcher.
+	if s.configWatcher != nil {
+		if err := s.configWatcher.Close(); err != nil {
+			errs = append(errs, fmt.Errorf("failed to close config watcher: %w", err))
+		}
+	}
 
 	// Tear down the in-process web UI, if it was started.
 	if s.browser != nil {

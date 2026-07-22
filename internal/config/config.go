@@ -222,7 +222,7 @@ func (c *Config) Set(key, val string) error {
 	}
 
 	// Write to config file
-	configFile, err := c.ensureConfigDir()
+	configFile, err := c.EnsureConfigDir()
 	if err != nil {
 		return err
 	}
@@ -241,7 +241,7 @@ func (c *Config) Set(key, val string) error {
 }
 
 func (c *Config) Unset(key string) error {
-	configFile, err := c.ensureConfigDir()
+	configFile, err := c.EnsureConfigDir()
 	if err != nil {
 		return err
 	}
@@ -274,7 +274,7 @@ func (c *Config) Unset(key string) error {
 }
 
 func (c *Config) Reset() error {
-	configFile, err := c.ensureConfigDir()
+	configFile, err := c.EnsureConfigDir()
 	if err != nil {
 		return err
 	}
@@ -289,7 +289,9 @@ func (c *Config) Reset() error {
 	return c.reload()
 }
 
-func (c *Config) ensureConfigDir() (string, error) {
+// EnsureConfigDir creates the config directory if it does not already exist
+// and returns the path to the config file within it.
+func (c *Config) EnsureConfigDir() (string, error) {
 	if err := os.MkdirAll(c.ConfigDir, 0755); err != nil {
 		return "", fmt.Errorf("error creating config directory: %w", err)
 	}

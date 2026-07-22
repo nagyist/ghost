@@ -145,6 +145,7 @@ func newMCPServer(ctx context.Context, app *common.App, logger *slog.Logger, ser
 		Logger:        logger,
 		Local:         local,
 		FunctionTools: functionTools,
+		WatchConfig:   true,
 	})
 }
 
