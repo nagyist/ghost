@@ -34,9 +34,10 @@ ghost mcp list [flags]
 ### Options
 
 ```
-  -h, --help   help for list
-      --json   Output in JSON format
-      --yaml   Output in YAML format
+      --function-tools   Also include each database's generated custom function tools (connects to every database in the space)
+  -h, --help             help for list
+      --json             Output in JSON format
+      --yaml             Output in YAML format
 ```
 
 ### Options inherited from parent commands

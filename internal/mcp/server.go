@@ -51,9 +51,8 @@ type Server struct {
 }
 
 // FunctionToolsMode selects how much of the generated function-tool feature
-// (see internal/mcp/function) a [Server] turns on. This package has no
-// knowledge of GHOST_EXPERIMENTAL: gating the feature on it is entirely the
-// caller's responsibility (internal/cmd), which just picks the mode.
+// (see internal/mcp/function) a [Server] turns on. Picking the mode is the
+// caller's responsibility (internal/cmd); this package just acts on it.
 //
 // This only covers the regular (authoring) server; the stripped consumer
 // serving mode is a wholly separate constructor, [NewFunctionToolsServer].
@@ -105,8 +104,8 @@ func NewServer(ctx context.Context, app *common.App, opts Options) (*Server, err
 		"Consult these skills when designing schemas or setting up Postgres features like time-series, vector, or full-text search. " +
 		"A free monthly compute allowance is included (shared across your space; databases auto-pause when it's reached), so creating and forking databases for experimentation is low-risk."
 
-	// Describe the function-tool feature when it is enabled (experimental).
-	if app.Experimental {
+	// Describe the function-tool feature when it is part of this server.
+	if opts.FunctionTools != FunctionToolsDisabled {
 		instructions += functionToolsInstructions
 	}
 

@@ -38,7 +38,7 @@ The output can be formatted as a table, JSON, or YAML.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Create MCP server (see functionToolsMode for the --function-tools gating).
 			server, err := mcp.NewServer(cmd.Context(), app, mcp.Options{
-				FunctionTools: functionToolsMode(app, functionTools),
+				FunctionTools: functionToolsMode(functionTools),
 			})
 			if err != nil {
 				return fmt.Errorf("failed to create MCP server: %w", err)
@@ -71,7 +71,7 @@ The output can be formatted as a table, JSON, or YAML.`,
 	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output in JSON format")
 	cmd.Flags().BoolVar(&yamlOutput, "yaml", false, "Output in YAML format")
 	cmd.MarkFlagsMutuallyExclusive("json", "yaml")
-	addFunctionToolsFlag(cmd, app, &functionTools)
+	addFunctionToolsFlag(cmd, &functionTools)
 
 	return cmd
 }

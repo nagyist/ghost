@@ -53,6 +53,7 @@ ghost space [flags]
 ### SEE ALSO
 
 * [ghost](ghost.md)	 - CLI for managing Postgres databases
+* [ghost space leave](ghost_space_leave.md)	 - Leave the current space
 * [ghost space list](ghost_space_list.md)	 - List spaces
 * [ghost space rename](ghost_space_rename.md)	 - Rename the current space
 * [ghost space use](ghost_space_use.md)	 - Switch the current space

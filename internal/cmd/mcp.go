@@ -32,28 +32,20 @@ Exposes Ghost CLI functionality as MCP tools for Claude and other AI assistants.
 // list` and `mcp get`: it additionally includes each database's generated
 // (@mcp) function tools in the listing, by connecting to and introspecting
 // every database in the space rather than just registering the built-in
-// ghost_* tools and the refresh management tool. Like the rest of the
-// function-tool feature, it is experimental.
-func addFunctionToolsFlag(cmd *cobra.Command, app *common.App, functionTools *bool) {
-	if !app.Experimental {
-		return
-	}
+// ghost_* tools and the refresh management tool.
+func addFunctionToolsFlag(cmd *cobra.Command, functionTools *bool) {
 	cmd.Flags().BoolVar(functionTools, "function-tools", false,
 		"Also include each database's generated custom function tools (connects to every database in the space)")
 }
 
 // functionToolsMode picks the function-tool mode for `mcp list`/`mcp get`:
-// functionTools (only ever settable when app.Experimental — see
-// addFunctionToolsFlag) enables the full feature; otherwise the refresh
-// management tool is still registered when experimental, so listings stay
-// accurate, but no database is connected to.
-func functionToolsMode(app *common.App, functionTools bool) mcp.FunctionToolsMode {
-	switch {
-	case functionTools:
+// functionTools (the --function-tools flag) enables the full feature, which
+// connects to and introspects every database; otherwise only the refresh
+// management tool is registered, so listings stay accurate without connecting
+// to any database.
+func functionToolsMode(functionTools bool) mcp.FunctionToolsMode {
+	if functionTools {
 		return mcp.FunctionToolsEnabled
-	case app.Experimental:
-		return mcp.FunctionToolsManagementOnly
-	default:
-		return mcp.FunctionToolsDisabled
 	}
+	return mcp.FunctionToolsManagementOnly
 }

@@ -26,7 +26,8 @@ ghost mcp start stdio [flags]
 ### Options
 
 ```
-  -h, --help   help for stdio
+  -h, --help           help for stdio
+      --serve string   Serve only the named database's custom function tools (no other Ghost tools)
 ```
 
 ### Options inherited from parent commands

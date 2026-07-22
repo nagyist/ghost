@@ -35,9 +35,10 @@ ghost mcp start http [flags]
 ### Options
 
 ```
-  -h, --help          help for http
-      --host string   Host to bind to (default "localhost")
-      --port int      Port to run HTTP server on (default 8080)
+  -h, --help           help for http
+      --host string    Host to bind to (default "localhost")
+      --port int       Port to run HTTP server on (default 8080)
+      --serve string   Serve only the named database's custom function tools (no other Ghost tools)
 ```
 
 ### Options inherited from parent commands

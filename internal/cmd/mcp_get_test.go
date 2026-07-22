@@ -207,7 +207,6 @@ title: List Databases
 			// details are unaffected.
 			name: "function-tools flag with no databases",
 			args: []string{"mcp", "get", "ghost_list", "--function-tools"},
-			opts: []runOption{withEnv("GHOST_EXPERIMENTAL", "true")},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{

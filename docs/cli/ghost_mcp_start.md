@@ -32,7 +32,8 @@ ghost mcp start [flags]
 ### Options
 
 ```
-  -h, --help   help for start
+  -h, --help           help for start
+      --serve string   Serve only the named database's custom function tools (no other Ghost tools)
 ```
 
 ### Options inherited from parent commands

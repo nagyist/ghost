@@ -9,8 +9,6 @@ import (
 )
 
 func TestMCPListCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	wantText := "TYPE    NAME                                    \n" +
 		"prompt  design-postgis-tables                   \n" +
 		"prompt  design-postgres-tables                  \n" +
@@ -56,13 +54,11 @@ func TestMCPListCmd(t *testing.T) {
 		{
 			name:       "text output",
 			args:       []string{"mcp", "list"},
-			opts:       []runOption{experimental},
 			wantStdout: wantText,
 		},
 		{
 			name:       "ls alias",
 			args:       []string{"mcp", "ls"},
-			opts:       []runOption{experimental},
 			wantStdout: wantText,
 		},
 		{
@@ -70,13 +66,11 @@ func TestMCPListCmd(t *testing.T) {
 			// it doesn't error. The text test above validates the capability list.
 			name: "json output",
 			args: []string{"mcp", "list", "--json"},
-			opts: []runOption{experimental},
 		},
 		{
 			// Same rationale as JSON.
 			name: "yaml output",
 			args: []string{"mcp", "list", "--yaml"},
-			opts: []runOption{experimental},
 		},
 		{
 			// --function-tools connects to and lists every database in the
@@ -85,7 +79,6 @@ func TestMCPListCmd(t *testing.T) {
 			// way).
 			name: "function-tools flag with no databases",
 			args: []string{"mcp", "list", "--function-tools"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListDatabasesWithResponse(validCtx, "test-space").
 					Return(&api.ListDatabasesResponse{
