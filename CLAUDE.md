@@ -375,7 +375,7 @@ The tag push triggers the `Release` workflow, which runs GoReleaser to build bin
 
 After adding new commands, directories, or major functionality, update:
 
-- **`CLAUDE.md`** — Update the Repository Structure section (e.g., the command list in `internal/cmd/`) and add guidance for any new patterns introduced.
+- **`CLAUDE.md`** — Update the Repository Structure section (e.g., the command list in `internal/cmd/`) and add guidance for any new patterns introduced. **Keep it concise and high-level.** This file is pulled into every agent session, so unnecessary detail bloats context and distracts more than it helps. Convey the big picture — what we're building, the architecture, and the patterns to follow — and leave out anything readable from the code itself (implementation specifics, exact names, control flow, per-case behavior). Describe the intent and the pattern; let the code and its comments be the source of truth for the details.
 - **`README.md`** — Update the Commands table and Usage examples as needed.
 - **`docs/`** — Regenerate the CLI reference docs (see below).
 
