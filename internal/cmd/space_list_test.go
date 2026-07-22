@@ -10,8 +10,6 @@ import (
 )
 
 func TestSpaceListCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	successSetup := func(m *mock.MockClientWithResponsesInterface) {
 		spaces := []api.Space{
 			{ID: "test-space", Name: "Test Space", Role: new(api.MemberRoleOwner)},
@@ -28,13 +26,12 @@ func TestSpaceListCmd(t *testing.T) {
 		{
 			name:    "not logged in",
 			args:    []string{"space", "list"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error",
 			args: []string{"space", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListSpacesWithResponse(validCtx).
 					Return(nil, errors.New("connection refused"))
@@ -44,7 +41,6 @@ func TestSpaceListCmd(t *testing.T) {
 		{
 			name: "API error",
 			args: []string{"space", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListSpacesWithResponse(validCtx).
 					Return(&api.ListSpacesResponse{
@@ -57,7 +53,6 @@ func TestSpaceListCmd(t *testing.T) {
 		{
 			name: "nil response body",
 			args: []string{"space", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListSpacesWithResponse(validCtx).
 					Return(&api.ListSpacesResponse{
@@ -70,14 +65,12 @@ func TestSpaceListCmd(t *testing.T) {
 		{
 			name:       "text output",
 			args:       []string{"space", "list"},
-			opts:       []runOption{experimental},
 			setup:      successSetup,
 			wantStdout: "ID          NAME          ROLE       \ntest-space  Test Space *  owner      \nother-proj  Other Space   developer  \n",
 		},
 		{
 			name:  "json output",
 			args:  []string{"space", "list", "--json"},
-			opts:  []runOption{experimental},
 			setup: successSetup,
 			wantStdout: `[
   {
@@ -98,7 +91,6 @@ func TestSpaceListCmd(t *testing.T) {
 		{
 			name:  "yaml output",
 			args:  []string{"space", "list", "--yaml"},
-			opts:  []runOption{experimental},
 			setup: successSetup,
 			wantStdout: `- current: true
   id: test-space
@@ -113,7 +105,6 @@ func TestSpaceListCmd(t *testing.T) {
 		{
 			name:       "ls alias",
 			args:       []string{"space", "ls"},
-			opts:       []runOption{experimental},
 			setup:      successSetup,
 			wantStdout: "ID          NAME          ROLE       \ntest-space  Test Space *  owner      \nother-proj  Other Space   developer  \n",
 		},

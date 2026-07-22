@@ -28,8 +28,9 @@ func TestMain(m *testing.M) {
 	// never read, write, or delete real credentials.
 	keyring.MockInit()
 
-	// Clear GHOST_EXPERIMENTAL so tests run with a consistent baseline.
-	// Tests that need experimental features opt in with withEnv("GHOST_EXPERIMENTAL", "true").
+	// Clear GHOST_EXPERIMENTAL so tests run with a consistent baseline,
+	// regardless of the developer's environment. Tests that exercise
+	// experimental-gated behavior can opt in with withEnv("GHOST_EXPERIMENTAL", "true").
 	os.Unsetenv("GHOST_EXPERIMENTAL")
 
 	os.Exit(m.Run())

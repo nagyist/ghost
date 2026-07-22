@@ -10,8 +10,6 @@ import (
 )
 
 func TestSpaceCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	// userSetup mocks a space resolved via user auth: role and owner populated.
 	userSetup := func(m *mock.MockClientWithResponsesInterface) {
 		m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
@@ -47,13 +45,12 @@ func TestSpaceCmd(t *testing.T) {
 		{
 			name:    "not logged in",
 			args:    []string{"space"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error",
 			args: []string{"space"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
@@ -63,7 +60,6 @@ func TestSpaceCmd(t *testing.T) {
 		{
 			name: "API error",
 			args: []string{"space"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 					Return(&api.GetSpaceResponse{
@@ -76,7 +72,6 @@ func TestSpaceCmd(t *testing.T) {
 		{
 			name: "nil response body",
 			args: []string{"space"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 					Return(&api.GetSpaceResponse{
@@ -89,7 +84,6 @@ func TestSpaceCmd(t *testing.T) {
 		{
 			name:  "text output",
 			args:  []string{"space"},
-			opts:  []runOption{experimental},
 			setup: userSetup,
 			wantStdout: `Space: Test Space (test-space)
 Owner: Jane Doe (jane@example.com)
@@ -99,7 +93,6 @@ Role: developer
 		{
 			name:  "json output",
 			args:  []string{"space", "--json"},
-			opts:  []runOption{experimental},
 			setup: userSetup,
 			wantStdout: `{
   "id": "test-space",
@@ -117,7 +110,6 @@ Role: developer
 		{
 			name:  "yaml output",
 			args:  []string{"space", "--yaml"},
-			opts:  []runOption{experimental},
 			setup: userSetup,
 			wantStdout: `id: test-space
 name: Test Space
@@ -132,7 +124,6 @@ role: developer
 		{
 			name:  "api key omits owner and role",
 			args:  []string{"space"},
-			opts:  []runOption{experimental},
 			setup: apiKeySetup,
 			wantStdout: `Space: Test Space (test-space)
 `,

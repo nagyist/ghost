@@ -10,19 +10,16 @@ import (
 )
 
 func TestSpaceRenameCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	tests := []cmdTest{
 		{
 			name:    "not logged in",
 			args:    []string{"space", "rename", "New Space"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error",
 			args: []string{"space", "rename", "New Space"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().RenameSpaceWithResponse(validCtx, api.SpaceID("test-space"), api.RenameSpaceRequest{Name: "New Space"}).
 					Return(nil, errors.New("connection refused"))
@@ -32,7 +29,6 @@ func TestSpaceRenameCmd(t *testing.T) {
 		{
 			name: "API error",
 			args: []string{"space", "rename", "New Space"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().RenameSpaceWithResponse(validCtx, api.SpaceID("test-space"), api.RenameSpaceRequest{Name: "New Space"}).
 					Return(&api.RenameSpaceResponse{
@@ -45,7 +41,6 @@ func TestSpaceRenameCmd(t *testing.T) {
 		{
 			name: "nil response body",
 			args: []string{"space", "rename", "New Space"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().RenameSpaceWithResponse(validCtx, api.SpaceID("test-space"), api.RenameSpaceRequest{Name: "New Space"}).
 					Return(&api.RenameSpaceResponse{
@@ -58,7 +53,6 @@ func TestSpaceRenameCmd(t *testing.T) {
 		{
 			name: "success",
 			args: []string{"space", "rename", "New Space"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().RenameSpaceWithResponse(validCtx, api.SpaceID("test-space"), api.RenameSpaceRequest{Name: "New Space"}).
 					Return(&api.RenameSpaceResponse{

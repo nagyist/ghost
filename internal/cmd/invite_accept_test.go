@@ -13,8 +13,6 @@ import (
 )
 
 func TestInviteAcceptCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	tokenCreds := config.Credentials{
 		Token:   &oauth2.Token{AccessToken: "test-token"},
 		SpaceID: "test-space",
@@ -47,13 +45,12 @@ func TestInviteAcceptCmd(t *testing.T) {
 		{
 			name:    "not logged in",
 			args:    []string{"invite", "accept", "space-abc"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error",
 			args: []string{"invite", "accept", "space-abc"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().AcceptInviteWithResponse(validCtx, api.SpaceID("space-abc")).
 					Return(nil, errors.New("connection refused"))
@@ -63,7 +60,6 @@ func TestInviteAcceptCmd(t *testing.T) {
 		{
 			name: "API error",
 			args: []string{"invite", "accept", "space-abc"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().AcceptInviteWithResponse(validCtx, api.SpaceID("space-abc")).
 					Return(&api.AcceptInviteResponse{
@@ -76,7 +72,6 @@ func TestInviteAcceptCmd(t *testing.T) {
 		{
 			name: "nil response body",
 			args: []string{"invite", "accept", "space-abc"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().AcceptInviteWithResponse(validCtx, api.SpaceID("space-abc")).
 					Return(&api.AcceptInviteResponse{
@@ -89,21 +84,19 @@ func TestInviteAcceptCmd(t *testing.T) {
 		{
 			name:       "non-terminal without switch flag prints hint",
 			args:       []string{"invite", "accept", "space-abc"},
-			opts:       []runOption{experimental},
 			setup:      setupAccept,
 			wantStdout: joinedAndHint,
 		},
 		{
 			name:       "switch=false prints hint",
 			args:       []string{"invite", "accept", "space-abc", "--switch=false"},
-			opts:       []runOption{experimental},
 			setup:      setupAccept,
 			wantStdout: joinedAndHint,
 		},
 		{
 			name:       "switch flag switches space",
 			args:       []string{"invite", "accept", "space-abc", "--switch"},
-			opts:       []runOption{experimental, withStoredCredentials(tokenCreds)},
+			opts:       []runOption{withStoredCredentials(tokenCreds)},
 			setup:      setupAccept,
 			wantStdout: joinedAndSwitched,
 			check:      checkStoredSpaceID("space-abc"),
@@ -111,7 +104,7 @@ func TestInviteAcceptCmd(t *testing.T) {
 		{
 			name:       "switch flag with API key env",
 			args:       []string{"invite", "accept", "space-abc", "--switch"},
-			opts:       []runOption{experimental, withEnv("GHOST_API_KEY", "gt_abc123")},
+			opts:       []runOption{withEnv("GHOST_API_KEY", "gt_abc123")},
 			setup:      setupAccept,
 			wantStdout: "Joined space 'New Space' (space-abc)\n",
 			wantErr:    "cannot switch spaces when authenticated with an API key; unset GHOST_API_KEY and run 'ghost login'",
@@ -119,7 +112,7 @@ func TestInviteAcceptCmd(t *testing.T) {
 		{
 			name:       "prompt accepted switches space",
 			args:       []string{"invite", "accept", "space-abc"},
-			opts:       []runOption{experimental, withStoredCredentials(tokenCreds), withStdin("y\n"), withIsTerminal(true)},
+			opts:       []runOption{withStoredCredentials(tokenCreds), withStdin("y\n"), withIsTerminal(true)},
 			setup:      setupAccept,
 			wantStderr: "Switch to this space now? [Y/n] ",
 			wantStdout: joinedAndSwitched,
@@ -128,7 +121,7 @@ func TestInviteAcceptCmd(t *testing.T) {
 		{
 			name:       "prompt empty defaults to yes",
 			args:       []string{"invite", "accept", "space-abc"},
-			opts:       []runOption{experimental, withStoredCredentials(tokenCreds), withStdin("\n"), withIsTerminal(true)},
+			opts:       []runOption{withStoredCredentials(tokenCreds), withStdin("\n"), withIsTerminal(true)},
 			setup:      setupAccept,
 			wantStderr: "Switch to this space now? [Y/n] ",
 			wantStdout: joinedAndSwitched,
@@ -137,7 +130,7 @@ func TestInviteAcceptCmd(t *testing.T) {
 		{
 			name:       "prompt declined prints hint",
 			args:       []string{"invite", "accept", "space-abc"},
-			opts:       []runOption{experimental, withStdin("n\n"), withIsTerminal(true)},
+			opts:       []runOption{withStdin("n\n"), withIsTerminal(true)},
 			setup:      setupAccept,
 			wantStderr: "Switch to this space now? [Y/n] ",
 			wantStdout: joinedAndHint,

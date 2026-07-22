@@ -11,7 +11,6 @@ import (
 )
 
 func TestInviteCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
 	createdAt := time.Date(2026, 1, 2, 15, 4, 5, 0, time.UTC)
 
 	setupCreate := func(role api.MemberRole) func(m *mock.MockClientWithResponsesInterface) {
@@ -58,25 +57,22 @@ func TestInviteCmd(t *testing.T) {
 		{
 			name:    "invalid role",
 			args:    []string{"invite", "bob@example.com", "--role", "superuser"},
-			opts:    []runOption{experimental},
 			wantErr: "invalid role 'superuser'; must be one of admin, developer, or viewer",
 		},
 		{
 			name:    "owner role rejected",
 			args:    []string{"invite", "bob@example.com", "--role", "owner"},
-			opts:    []runOption{experimental},
 			wantErr: "the owner role cannot be granted; every space has exactly one owner",
 		},
 		{
 			name:    "not logged in",
 			args:    []string{"invite", "bob@example.com"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error",
 			args: []string{"invite", "bob@example.com"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateInviteWithResponse(validCtx, "test-space", api.CreateInviteJSONRequestBody{
 					Email: "bob@example.com",
@@ -89,7 +85,6 @@ func TestInviteCmd(t *testing.T) {
 		{
 			name: "API error",
 			args: []string{"invite", "bob@example.com"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateInviteWithResponse(validCtx, "test-space", api.CreateInviteJSONRequestBody{
 					Email: "bob@example.com",
@@ -105,7 +100,6 @@ func TestInviteCmd(t *testing.T) {
 		{
 			name: "nil response body",
 			args: []string{"invite", "bob@example.com"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().CreateInviteWithResponse(validCtx, "test-space", api.CreateInviteJSONRequestBody{
 					Email: "bob@example.com",
@@ -121,7 +115,6 @@ func TestInviteCmd(t *testing.T) {
 		{
 			name: "text output",
 			args: []string{"invite", "bob@example.com"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupCreate(api.MemberRoleDeveloper)(m)
 				setupGetSpace(m)
@@ -131,7 +124,6 @@ func TestInviteCmd(t *testing.T) {
 		{
 			name: "email is lowercased",
 			args: []string{"invite", "Bob@Example.com"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupCreate(api.MemberRoleDeveloper)(m)
 				setupGetSpace(m)
@@ -141,7 +133,6 @@ func TestInviteCmd(t *testing.T) {
 		{
 			name:  "json output",
 			args:  []string{"invite", "bob@example.com", "--json"},
-			opts:  []runOption{experimental},
 			setup: setupCreate(api.MemberRoleDeveloper),
 			wantStdout: `{
   "created_at": "2026-01-02T15:04:05Z",
@@ -154,7 +145,6 @@ func TestInviteCmd(t *testing.T) {
 		{
 			name:  "yaml output",
 			args:  []string{"invite", "bob@example.com", "--yaml"},
-			opts:  []runOption{experimental},
 			setup: setupCreate(api.MemberRoleDeveloper),
 			wantStdout: `created_at: "2026-01-02T15:04:05Z"
 email: bob@example.com
@@ -165,7 +155,6 @@ status: pending
 		{
 			name:  "admin role json",
 			args:  []string{"invite", "bob@example.com", "--role", "admin", "--json"},
-			opts:  []runOption{experimental},
 			setup: setupCreate(api.MemberRoleAdmin),
 			wantStdout: `{
   "created_at": "2026-01-02T15:04:05Z",
@@ -178,7 +167,6 @@ status: pending
 		{
 			name: "admin role text output uses 'an'",
 			args: []string{"invite", "bob@example.com", "--role", "admin"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupCreate(api.MemberRoleAdmin)(m)
 				setupGetSpace(m)

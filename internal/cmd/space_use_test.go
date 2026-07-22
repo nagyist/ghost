@@ -13,8 +13,6 @@ import (
 )
 
 func TestSpaceUseCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	tokenCreds := config.Credentials{
 		Token:   &oauth2.Token{AccessToken: "test-token"},
 		SpaceID: "test-space",
@@ -51,25 +49,25 @@ func TestSpaceUseCmd(t *testing.T) {
 		{
 			name:    "not logged in",
 			args:    []string{"space", "use", "other-proj"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name:    "API key env var",
 			args:    []string{"space", "use", "other-proj"},
-			opts:    []runOption{experimental, withEnv("GHOST_API_KEY", "gt_abc123")},
+			opts:    []runOption{withEnv("GHOST_API_KEY", "gt_abc123")},
 			wantErr: "cannot switch spaces when authenticated with an API key; unset GHOST_API_KEY and run 'ghost login'",
 		},
 		{
 			name:    "no stored credentials",
 			args:    []string{"space", "use", "other-proj"},
-			opts:    []runOption{experimental, withEnv("GHOST_KEYRING", "false")},
+			opts:    []runOption{withEnv("GHOST_KEYRING", "false")},
 			wantErr: "failed to read credentials: not logged in",
 		},
 		{
 			name: "legacy API key credentials",
 			args: []string{"space", "use", "other-proj"},
-			opts: []runOption{experimental, withStoredCredentials(config.Credentials{
+			opts: []runOption{withStoredCredentials(config.Credentials{
 				APIKey:  "legacy-key",
 				SpaceID: "test-space",
 			})},
@@ -78,7 +76,7 @@ func TestSpaceUseCmd(t *testing.T) {
 		{
 			name: "network error",
 			args: []string{"space", "use", "other-proj"},
-			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
+			opts: []runOption{withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetSpaceWithResponse(validCtx, "other-proj").
 					Return(nil, errors.New("connection refused"))
@@ -88,7 +86,7 @@ func TestSpaceUseCmd(t *testing.T) {
 		{
 			name: "API error",
 			args: []string{"space", "use", "other-proj"},
-			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
+			opts: []runOption{withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetSpaceWithResponse(validCtx, "other-proj").
 					Return(&api.GetSpaceResponse{
@@ -101,7 +99,7 @@ func TestSpaceUseCmd(t *testing.T) {
 		{
 			name: "nil response body",
 			args: []string{"space", "use", "other-proj"},
-			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
+			opts: []runOption{withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetSpaceWithResponse(validCtx, "other-proj").
 					Return(&api.GetSpaceResponse{
@@ -114,7 +112,7 @@ func TestSpaceUseCmd(t *testing.T) {
 		{
 			name: "space not found",
 			args: []string{"space", "use", "nonexistent"},
-			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
+			opts: []runOption{withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpaceNotFound(m, "nonexistent")
 			},
@@ -123,7 +121,7 @@ func TestSpaceUseCmd(t *testing.T) {
 		{
 			name: "space name is not accepted",
 			args: []string{"space", "use", "Other Space"},
-			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
+			opts: []runOption{withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpaceNotFound(m, "Other Space")
 			},
@@ -132,7 +130,7 @@ func TestSpaceUseCmd(t *testing.T) {
 		{
 			name: "switch by ID",
 			args: []string{"space", "use", "other-proj"},
-			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
+			opts: []runOption{withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpace(m, "other-proj", "Other Space")
 			},
@@ -142,7 +140,7 @@ func TestSpaceUseCmd(t *testing.T) {
 		{
 			name: "switch alias",
 			args: []string{"space", "switch", "other-proj"},
-			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
+			opts: []runOption{withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpace(m, "other-proj", "Other Space")
 			},

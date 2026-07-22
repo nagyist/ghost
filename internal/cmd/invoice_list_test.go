@@ -30,13 +30,11 @@ func TestInvoiceListCmd(t *testing.T) {
 		},
 	}
 
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	tests := []cmdTest{
 		{
 			name:    "not logged in",
 			args:    []string{"invoice", "list"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
@@ -46,7 +44,6 @@ func TestInvoiceListCmd(t *testing.T) {
 				m.EXPECT().ListInvoicesWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
 			},
-			opts:    []runOption{experimental},
 			wantErr: "failed to list invoices: connection refused",
 		},
 		{
@@ -59,7 +56,6 @@ func TestInvoiceListCmd(t *testing.T) {
 						JSONDefault:  &api.Error{Message: "this endpoint requires user authentication"},
 					}, nil)
 			},
-			opts:    []runOption{experimental},
 			wantErr: "this endpoint requires user authentication",
 		},
 		{
@@ -72,7 +68,6 @@ func TestInvoiceListCmd(t *testing.T) {
 						JSON200:      nil,
 					}, nil)
 			},
-			opts:    []runOption{experimental},
 			wantErr: "empty response from API",
 		},
 		{
@@ -85,7 +80,6 @@ func TestInvoiceListCmd(t *testing.T) {
 						JSON200:      &api.InvoicesResponse{Invoices: []api.Invoice{}},
 					}, nil)
 			},
-			opts:       []runOption{experimental},
 			wantStdout: "No invoices found.\n",
 		},
 		{
@@ -98,7 +92,6 @@ func TestInvoiceListCmd(t *testing.T) {
 						JSON200:      &invoices,
 					}, nil)
 			},
-			opts:       []runOption{experimental},
 			wantStdout: "ID                DATE        TOTAL   STATUS  \nBJ9xX3JDEzMQ9vCx  2026-04-01  $27.50  paid    \nk2mN7pQrS4tLvZwY  2026-03-01  $24.10  paid    \n",
 		},
 		{
@@ -111,7 +104,6 @@ func TestInvoiceListCmd(t *testing.T) {
 						JSON200:      &invoices,
 					}, nil)
 			},
-			opts: []runOption{experimental},
 			wantStdout: `[
   {
     "id": "BJ9xX3JDEzMQ9vCx",
@@ -140,7 +132,6 @@ func TestInvoiceListCmd(t *testing.T) {
 						JSON200:      &invoices,
 					}, nil)
 			},
-			opts: []runOption{experimental},
 			wantStdout: `- id: BJ9xX3JDEzMQ9vCx
   invoice_date: "2026-04-01"
   invoice_number: INV-12345
@@ -163,7 +154,6 @@ func TestInvoiceListCmd(t *testing.T) {
 						JSON200:      &invoices,
 					}, nil)
 			},
-			opts:       []runOption{experimental},
 			wantStdout: "ID                DATE        TOTAL   STATUS  \nBJ9xX3JDEzMQ9vCx  2026-04-01  $27.50  paid    \nk2mN7pQrS4tLvZwY  2026-03-01  $24.10  paid    \n",
 		},
 	}

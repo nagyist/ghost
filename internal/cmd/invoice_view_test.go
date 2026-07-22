@@ -29,13 +29,11 @@ func TestInvoiceViewCmd(t *testing.T) {
 		},
 	}
 
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	tests := []cmdTest{
 		{
 			name:    "not logged in",
 			args:    []string{"invoice", "view", "inv_123"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
@@ -45,7 +43,6 @@ func TestInvoiceViewCmd(t *testing.T) {
 				m.EXPECT().GetInvoiceWithResponse(validCtx, "test-space", "inv_123").
 					Return(nil, errors.New("connection refused"))
 			},
-			opts:    []runOption{experimental},
 			wantErr: "failed to get invoice: connection refused",
 		},
 		{
@@ -58,7 +55,6 @@ func TestInvoiceViewCmd(t *testing.T) {
 						JSONDefault:  &api.Error{Message: "insufficient permissions to view the target invoice"},
 					}, nil)
 			},
-			opts:    []runOption{experimental},
 			wantErr: "insufficient permissions to view the target invoice",
 		},
 		{
@@ -71,7 +67,6 @@ func TestInvoiceViewCmd(t *testing.T) {
 						JSON200:      nil,
 					}, nil)
 			},
-			opts:    []runOption{experimental},
 			wantErr: "empty response from API",
 		},
 		{
@@ -84,7 +79,6 @@ func TestInvoiceViewCmd(t *testing.T) {
 						JSON200:      &api.InvoiceDetail{LineItems: []api.InvoiceLineItem{}},
 					}, nil)
 			},
-			opts:       []runOption{experimental},
 			wantStdout: "No line items on this invoice.\n",
 		},
 		{
@@ -97,7 +91,6 @@ func TestInvoiceViewCmd(t *testing.T) {
 						JSON200:      &detail,
 					}, nil)
 			},
-			opts:       []runOption{experimental},
 			wantStdout: "PRODUCT  DATABASE ID  QTY  UNIT PRICE  TOTAL   \nstorage  svc-abc123   20   $0.25       $5.00   \ncompute  svc-abc123   40   $0.5        $20.00  \n",
 		},
 		{
@@ -110,7 +103,6 @@ func TestInvoiceViewCmd(t *testing.T) {
 						JSON200:      &detail,
 					}, nil)
 			},
-			opts: []runOption{experimental},
 			wantStdout: `{
   "line_items": [
     {
@@ -141,7 +133,6 @@ func TestInvoiceViewCmd(t *testing.T) {
 						JSON200:      &detail,
 					}, nil)
 			},
-			opts:       []runOption{experimental},
 			wantStdout: "PRODUCT  DATABASE ID  QTY  UNIT PRICE  TOTAL   \nstorage  svc-abc123   20   $0.25       $5.00   \ncompute  svc-abc123   40   $0.5        $20.00  \n",
 		},
 		{
@@ -154,7 +145,6 @@ func TestInvoiceViewCmd(t *testing.T) {
 						JSON200:      &detail,
 					}, nil)
 			},
-			opts:       []runOption{experimental},
 			wantStdout: "PRODUCT  DATABASE ID  QTY  UNIT PRICE  TOTAL   \nstorage  svc-abc123   20   $0.25       $5.00   \ncompute  svc-abc123   40   $0.5        $20.00  \n",
 		},
 		{
@@ -167,7 +157,6 @@ func TestInvoiceViewCmd(t *testing.T) {
 						JSON200:      &detail,
 					}, nil)
 			},
-			opts:       []runOption{experimental},
 			wantStdout: "PRODUCT  DATABASE ID  QTY  UNIT PRICE  TOTAL   \nstorage  svc-abc123   20   $0.25       $5.00   \ncompute  svc-abc123   40   $0.5        $20.00  \n",
 		},
 	}

@@ -11,7 +11,6 @@ import (
 )
 
 func TestInviteSentCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
 	createdAt := time.Date(2026, 1, 2, 15, 4, 5, 0, time.UTC)
 
 	successSetup := func(m *mock.MockClientWithResponsesInterface) {
@@ -34,13 +33,12 @@ func TestInviteSentCmd(t *testing.T) {
 		{
 			name:    "not logged in",
 			args:    []string{"invite", "sent"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error",
 			args: []string{"invite", "sent"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
@@ -50,7 +48,6 @@ func TestInviteSentCmd(t *testing.T) {
 		{
 			name: "API error",
 			args: []string{"invite", "sent"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvitesResponse{
@@ -63,7 +60,6 @@ func TestInviteSentCmd(t *testing.T) {
 		{
 			name: "nil response body",
 			args: []string{"invite", "sent"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvitesResponse{
@@ -76,14 +72,12 @@ func TestInviteSentCmd(t *testing.T) {
 		{
 			name:       "text output",
 			args:       []string{"invite", "sent"},
-			opts:       []runOption{experimental},
 			setup:      successSetup,
 			wantStdout: wantText,
 		},
 		{
 			name:  "json output",
 			args:  []string{"invite", "sent", "--json"},
-			opts:  []runOption{experimental},
 			setup: successSetup,
 			wantStdout: `[
   {
@@ -104,7 +98,6 @@ func TestInviteSentCmd(t *testing.T) {
 		{
 			name:  "yaml output",
 			args:  []string{"invite", "sent", "--yaml"},
-			opts:  []runOption{experimental},
 			setup: successSetup,
 			wantStdout: `- created_at: "2026-01-02T15:04:05Z"
   email: bob@example.com

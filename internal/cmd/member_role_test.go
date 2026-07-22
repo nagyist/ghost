@@ -10,8 +10,6 @@ import (
 )
 
 func TestMemberRoleCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	setupList := func(m *mock.MockClientWithResponsesInterface) {
 		members := []api.Member{
 			{UserID: 101, Name: "Alice Smith", Email: "alice@example.com", Role: api.MemberRoleOwner},
@@ -38,25 +36,22 @@ func TestMemberRoleCmd(t *testing.T) {
 		{
 			name:    "invalid role",
 			args:    []string{"member", "role", "bob@example.com", "bogus"},
-			opts:    []runOption{experimental},
 			wantErr: "invalid role 'bogus'; must be one of admin, developer, or viewer",
 		},
 		{
 			name:    "owner role",
 			args:    []string{"member", "role", "bob@example.com", "owner"},
-			opts:    []runOption{experimental},
 			wantErr: "the owner role cannot be granted; every space has exactly one owner",
 		},
 		{
 			name:    "not logged in",
 			args:    []string{"member", "role", "bob@example.com", "admin"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error on list",
 			args: []string{"member", "role", "bob@example.com", "admin"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
@@ -66,7 +61,6 @@ func TestMemberRoleCmd(t *testing.T) {
 		{
 			name: "API error on list",
 			args: []string{"member", "role", "bob@example.com", "admin"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(&api.ListMembersResponse{
@@ -79,7 +73,6 @@ func TestMemberRoleCmd(t *testing.T) {
 		{
 			name: "nil response body on list",
 			args: []string{"member", "role", "bob@example.com", "admin"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(&api.ListMembersResponse{
@@ -92,14 +85,12 @@ func TestMemberRoleCmd(t *testing.T) {
 		{
 			name:    "member not found",
 			args:    []string{"member", "role", "carol@example.com", "admin"},
-			opts:    []runOption{experimental},
 			setup:   setupList,
 			wantErr: "no member with email 'carol@example.com' found; run 'ghost member list' to see the members of this space",
 		},
 		{
 			name: "network error on update",
 			args: []string{"member", "role", "bob@example.com", "admin"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
 				m.EXPECT().UpdateMemberRoleWithResponse(validCtx, "test-space", int64(102), api.UpdateMemberRoleRequest{Role: api.MemberRoleAdmin}).
@@ -110,7 +101,6 @@ func TestMemberRoleCmd(t *testing.T) {
 		{
 			name: "API error on update",
 			args: []string{"member", "role", "bob@example.com", "developer"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
 				m.EXPECT().UpdateMemberRoleWithResponse(validCtx, "test-space", int64(102), api.UpdateMemberRoleRequest{Role: api.MemberRoleDeveloper}).
@@ -124,7 +114,6 @@ func TestMemberRoleCmd(t *testing.T) {
 		{
 			name: "nil response body on update",
 			args: []string{"member", "role", "bob@example.com", "admin"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
 				m.EXPECT().UpdateMemberRoleWithResponse(validCtx, "test-space", int64(102), api.UpdateMemberRoleRequest{Role: api.MemberRoleAdmin}).
@@ -138,7 +127,6 @@ func TestMemberRoleCmd(t *testing.T) {
 		{
 			name: "success",
 			args: []string{"member", "role", "bob@example.com", "admin"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
 				setupUpdate(api.MemberRoleAdmin)(m)
@@ -148,7 +136,6 @@ func TestMemberRoleCmd(t *testing.T) {
 		{
 			name: "role argument is case-insensitive",
 			args: []string{"member", "role", "bob@example.com", "VIEWER"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
 				setupUpdate(api.MemberRoleViewer)(m)

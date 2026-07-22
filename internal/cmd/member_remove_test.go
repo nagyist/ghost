@@ -10,8 +10,6 @@ import (
 )
 
 func TestMemberRemoveCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	setupList := func(m *mock.MockClientWithResponsesInterface) {
 		members := []api.Member{
 			{UserID: 101, Name: "Alice Smith", Email: "alice@example.com", Role: api.MemberRoleOwner},
@@ -36,13 +34,12 @@ func TestMemberRemoveCmd(t *testing.T) {
 		{
 			name:    "not logged in",
 			args:    []string{"member", "remove", "bob@example.com"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error on list",
 			args: []string{"member", "remove", "bob@example.com"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
@@ -52,7 +49,6 @@ func TestMemberRemoveCmd(t *testing.T) {
 		{
 			name: "API error on list",
 			args: []string{"member", "remove", "bob@example.com"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(&api.ListMembersResponse{
@@ -65,7 +61,6 @@ func TestMemberRemoveCmd(t *testing.T) {
 		{
 			name: "nil response body on list",
 			args: []string{"member", "remove", "bob@example.com"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(&api.ListMembersResponse{
@@ -78,21 +73,19 @@ func TestMemberRemoveCmd(t *testing.T) {
 		{
 			name:    "member not found",
 			args:    []string{"member", "remove", "carol@example.com"},
-			opts:    []runOption{experimental},
 			setup:   setupList,
 			wantErr: "no member with email 'carol@example.com' found; run 'ghost member list' to see the members of this space",
 		},
 		{
 			name:    "non-terminal stdin without confirm flag",
 			args:    []string{"member", "remove", "bob@example.com"},
-			opts:    []runOption{experimental},
 			setup:   setupList,
 			wantErr: "cannot prompt for confirmation: stdin is not a terminal; use --confirm to skip",
 		},
 		{
 			name:       "confirmation declined",
 			args:       []string{"member", "remove", "bob@example.com"},
-			opts:       []runOption{experimental, withStdin("n\n"), withIsTerminal(true)},
+			opts:       []runOption{withStdin("n\n"), withIsTerminal(true)},
 			setup:      setupList,
 			wantStderr: "Remove Bob Jones (bob@example.com) from the space? [y/N] ",
 			wantStdout: "Remove operation cancelled.\n",
@@ -100,7 +93,6 @@ func TestMemberRemoveCmd(t *testing.T) {
 		{
 			name: "network error on remove",
 			args: []string{"member", "remove", "bob@example.com", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
 				m.EXPECT().RemoveMemberWithResponse(validCtx, "test-space", int64(102)).
@@ -111,7 +103,6 @@ func TestMemberRemoveCmd(t *testing.T) {
 		{
 			name: "API error on remove",
 			args: []string{"member", "remove", "alice@example.com", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
 				m.EXPECT().RemoveMemberWithResponse(validCtx, "test-space", int64(101)).
@@ -125,7 +116,6 @@ func TestMemberRemoveCmd(t *testing.T) {
 		{
 			name: "nil response body on remove",
 			args: []string{"member", "remove", "bob@example.com", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
 				m.EXPECT().RemoveMemberWithResponse(validCtx, "test-space", int64(102)).
@@ -139,7 +129,7 @@ func TestMemberRemoveCmd(t *testing.T) {
 		{
 			name: "confirmation accepted",
 			args: []string{"member", "remove", "bob@example.com"},
-			opts: []runOption{experimental, withStdin("y\n"), withIsTerminal(true)},
+			opts: []runOption{withStdin("y\n"), withIsTerminal(true)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
 				setupRemove(m)
@@ -150,7 +140,6 @@ func TestMemberRemoveCmd(t *testing.T) {
 		{
 			name: "confirm flag",
 			args: []string{"member", "remove", "bob@example.com", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
 				setupRemove(m)
@@ -160,7 +149,6 @@ func TestMemberRemoveCmd(t *testing.T) {
 		{
 			name: "rm alias",
 			args: []string{"member", "rm", "bob@example.com", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupList(m)
 				setupRemove(m)

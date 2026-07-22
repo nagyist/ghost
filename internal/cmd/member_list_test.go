@@ -10,8 +10,6 @@ import (
 )
 
 func TestMemberListCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	successSetup := func(m *mock.MockClientWithResponsesInterface) {
 		members := []api.Member{
 			{UserID: 101, Name: "Alice Smith", Email: "alice@example.com", Role: api.MemberRoleOwner},
@@ -28,13 +26,12 @@ func TestMemberListCmd(t *testing.T) {
 		{
 			name:    "not logged in",
 			args:    []string{"member", "list"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error",
 			args: []string{"member", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
@@ -44,7 +41,6 @@ func TestMemberListCmd(t *testing.T) {
 		{
 			name: "API error",
 			args: []string{"member", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(&api.ListMembersResponse{
@@ -57,7 +53,6 @@ func TestMemberListCmd(t *testing.T) {
 		{
 			name: "nil response body",
 			args: []string{"member", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListMembersWithResponse(validCtx, "test-space").
 					Return(&api.ListMembersResponse{
@@ -70,14 +65,12 @@ func TestMemberListCmd(t *testing.T) {
 		{
 			name:       "text output",
 			args:       []string{"member", "list"},
-			opts:       []runOption{experimental},
 			setup:      successSetup,
 			wantStdout: "NAME         EMAIL              ROLE       \nAlice Smith  alice@example.com  owner      \nBob Jones    bob@example.com    developer  \n",
 		},
 		{
 			name:  "json output",
 			args:  []string{"member", "list", "--json"},
-			opts:  []runOption{experimental},
 			setup: successSetup,
 			wantStdout: `[
   {
@@ -98,7 +91,6 @@ func TestMemberListCmd(t *testing.T) {
 		{
 			name:  "yaml output",
 			args:  []string{"member", "list", "--yaml"},
-			opts:  []runOption{experimental},
 			setup: successSetup,
 			wantStdout: `- email: alice@example.com
   name: Alice Smith
@@ -113,7 +105,6 @@ func TestMemberListCmd(t *testing.T) {
 		{
 			name:       "ls alias",
 			args:       []string{"member", "ls"},
-			opts:       []runOption{experimental},
 			setup:      successSetup,
 			wantStdout: "NAME         EMAIL              ROLE       \nAlice Smith  alice@example.com  owner      \nBob Jones    bob@example.com    developer  \n",
 		},

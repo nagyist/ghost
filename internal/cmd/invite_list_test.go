@@ -11,7 +11,6 @@ import (
 )
 
 func TestInviteListCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
 	createdAt := time.Date(2026, 1, 2, 15, 4, 5, 0, time.UTC)
 
 	setupSent := func(m *mock.MockClientWithResponsesInterface) {
@@ -92,13 +91,12 @@ func TestInviteListCmd(t *testing.T) {
 		{
 			name:    "not logged in",
 			args:    []string{"invite", "list"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error on sent",
 			args: []string{"invite", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
@@ -109,7 +107,6 @@ func TestInviteListCmd(t *testing.T) {
 		{
 			name: "API error on sent",
 			args: []string{"invite", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvitesResponse{
@@ -123,7 +120,6 @@ func TestInviteListCmd(t *testing.T) {
 		{
 			name: "nil response body on sent",
 			args: []string{"invite", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().ListInvitesWithResponse(validCtx, "test-space").
 					Return(&api.ListInvitesResponse{
@@ -137,7 +133,6 @@ func TestInviteListCmd(t *testing.T) {
 		{
 			name: "network error on received",
 			args: []string{"invite", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupSent(m)
 				m.EXPECT().ListReceivedInvitesWithResponse(validCtx).
@@ -148,7 +143,6 @@ func TestInviteListCmd(t *testing.T) {
 		{
 			name: "API error on received",
 			args: []string{"invite", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupSent(m)
 				m.EXPECT().ListReceivedInvitesWithResponse(validCtx).
@@ -162,7 +156,6 @@ func TestInviteListCmd(t *testing.T) {
 		{
 			name: "nil response body on received",
 			args: []string{"invite", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupSent(m)
 				m.EXPECT().ListReceivedInvitesWithResponse(validCtx).
@@ -176,14 +169,12 @@ func TestInviteListCmd(t *testing.T) {
 		{
 			name:       "text output",
 			args:       []string{"invite", "list"},
-			opts:       []runOption{experimental},
 			setup:      textSetup,
 			wantStdout: wantText,
 		},
 		{
 			name:  "json output",
 			args:  []string{"invite", "list", "--json"},
-			opts:  []runOption{experimental},
 			setup: successSetup,
 			wantStdout: `{
   "sent": [
@@ -210,7 +201,6 @@ func TestInviteListCmd(t *testing.T) {
 		{
 			name:  "yaml output",
 			args:  []string{"invite", "list", "--yaml"},
-			opts:  []runOption{experimental},
 			setup: successSetup,
 			wantStdout: `received:
   - created_at: "2026-01-02T15:04:05Z"
@@ -229,14 +219,12 @@ sent:
 		{
 			name:       "ls alias",
 			args:       []string{"invite", "ls"},
-			opts:       []runOption{experimental},
 			setup:      textSetup,
 			wantStdout: wantText,
 		},
 		{
 			name: "only sent invites",
 			args: []string{"invite", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupSent(m)
 				setupReceivedEmpty(m)
@@ -247,7 +235,6 @@ sent:
 		{
 			name: "only received invites",
 			args: []string{"invite", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupSentEmpty(m)
 				setupReceived(m)
@@ -257,7 +244,6 @@ sent:
 		{
 			name: "no invites",
 			args: []string{"invite", "list"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupSentEmpty(m)
 				setupReceivedEmpty(m)

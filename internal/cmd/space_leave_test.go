@@ -13,8 +13,6 @@ import (
 )
 
 func TestSpaceLeaveCmd(t *testing.T) {
-	experimental := withEnv("GHOST_EXPERIMENTAL", "true")
-
 	tokenCreds := config.Credentials{
 		Token:   &oauth2.Token{AccessToken: "test-token"},
 		SpaceID: "test-space",
@@ -62,13 +60,12 @@ func TestSpaceLeaveCmd(t *testing.T) {
 		{
 			name:    "not logged in",
 			args:    []string{"space", "leave"},
-			opts:    []runOption{experimental, withClientError(errors.New("authentication required: no credentials found"))},
+			opts:    []runOption{withClientError(errors.New("authentication required: no credentials found"))},
 			wantErr: "authentication required: no credentials found",
 		},
 		{
 			name: "network error on get space",
 			args: []string{"space", "leave", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 					Return(nil, errors.New("connection refused"))
@@ -78,7 +75,6 @@ func TestSpaceLeaveCmd(t *testing.T) {
 		{
 			name: "API error on get space",
 			args: []string{"space", "leave", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 					Return(&api.GetSpaceResponse{
@@ -91,7 +87,6 @@ func TestSpaceLeaveCmd(t *testing.T) {
 		{
 			name: "nil response body on get space",
 			args: []string{"space", "leave", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				m.EXPECT().GetSpaceWithResponse(validCtx, "test-space").
 					Return(&api.GetSpaceResponse{
@@ -104,14 +99,13 @@ func TestSpaceLeaveCmd(t *testing.T) {
 		{
 			name:    "non-terminal stdin without confirm flag",
 			args:    []string{"space", "leave"},
-			opts:    []runOption{experimental},
 			setup:   setupGetSpace,
 			wantErr: "cannot prompt for confirmation: stdin is not a terminal; use --confirm to skip",
 		},
 		{
 			name:       "confirmation declined",
 			args:       []string{"space", "leave"},
-			opts:       []runOption{experimental, withStdin("n\n"), withIsTerminal(true)},
+			opts:       []runOption{withStdin("n\n"), withIsTerminal(true)},
 			setup:      setupGetSpace,
 			wantStderr: "Leave space 'Test Space' (test-space)? [y/N] ",
 			wantStdout: "Leave operation cancelled.\n",
@@ -119,7 +113,6 @@ func TestSpaceLeaveCmd(t *testing.T) {
 		{
 			name: "network error on leave",
 			args: []string{"space", "leave", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpace(m)
 				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceID("test-space")).
@@ -130,7 +123,6 @@ func TestSpaceLeaveCmd(t *testing.T) {
 		{
 			name: "API error on leave (owner cannot leave)",
 			args: []string{"space", "leave", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpace(m)
 				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceID("test-space")).
@@ -144,7 +136,6 @@ func TestSpaceLeaveCmd(t *testing.T) {
 		{
 			name: "nil response body on leave",
 			args: []string{"space", "leave", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpace(m)
 				m.EXPECT().LeaveSpaceWithResponse(validCtx, api.SpaceID("test-space")).
@@ -158,7 +149,6 @@ func TestSpaceLeaveCmd(t *testing.T) {
 		{
 			name: "switch best-effort: list spaces fails after leaving",
 			args: []string{"space", "leave", "--confirm"},
-			opts: []runOption{experimental},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpace(m)
 				setupLeave(m)
@@ -171,7 +161,7 @@ func TestSpaceLeaveCmd(t *testing.T) {
 		{
 			name: "confirmation accepted",
 			args: []string{"space", "leave"},
-			opts: []runOption{experimental, withStdin("y\n"), withIsTerminal(true), withStoredCredentials(tokenCreds)},
+			opts: []runOption{withStdin("y\n"), withIsTerminal(true), withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpace(m)
 				setupLeave(m)
@@ -185,7 +175,7 @@ func TestSpaceLeaveCmd(t *testing.T) {
 		{
 			name: "confirm flag",
 			args: []string{"space", "leave", "--confirm"},
-			opts: []runOption{experimental, withStoredCredentials(tokenCreds)},
+			opts: []runOption{withStoredCredentials(tokenCreds)},
 			setup: func(m *mock.MockClientWithResponsesInterface) {
 				setupGetSpace(m)
 				setupLeave(m)
